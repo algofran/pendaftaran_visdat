@@ -1,0 +1,32 @@
+# Security settings for uploads directory
+# Prevent direct access to PHP files
+<Files "*.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Prevent execution of scripts
+Options -ExecCGI
+AddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi
+
+# Allow only specific file types
+<FilesMatch "\.(pdf|doc|docx|jpg|jpeg|png)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Deny access to all other files
+<FilesMatch "^(?!.*\.(pdf|doc|docx|jpg|jpeg|png)$).*$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Set proper MIME types
+AddType application/pdf .pdf
+AddType application/msword .doc
+AddType application/vnd.openxmlformats-officedocument.wordprocessingml.document .docx
+AddType image/jpeg .jpg .jpeg
+AddType image/png .png
