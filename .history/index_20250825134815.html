@@ -198,6 +198,105 @@
                                     <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
                                 </div>
 
+                                <!-- Upload Dokumen -->
+                                <div class="section-header">
+                                    <h4 class="text-primary mb-3">Upload Dokumen</h4>
+                                    <div id="upload-warning" class="alert alert-warning" style="display: none;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <strong>Silahkan lengkapi isian lainnya sebelum upload dokumen!</strong>
+                                    </div>
+                                </div>
+
+                                <div id="upload-fields-required" class="row mb-3" style="display: none;">
+                                    <div class="col-md-6">
+                                        <label class="form-label">CV/Resume *</label>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input" name="cv_file" accept=".pdf,.doc,.docx" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload CV:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: PDF, DOC, DOCX</li>
+                                                    <li>Ukuran maksimal: 5 MB</li>
+                                                    <li>Pastikan CV berisi informasi lengkap tentang pengalaman kerja</li>
+                                                    <li>CV harus dalam bahasa Indonesia atau Inggris</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto 3x4 *</label>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input" name="photo_file" accept=".jpg,.jpeg,.png" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload Foto:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG</li>
+                                                    <li>Ukuran maksimal: 2 MB</li>
+                                                    <li>Foto harus berwarna dengan latar belakang putih/biru</li>
+                                                    <li>Gambar akan dikompres otomatis untuk mengoptimalkan ukuran file</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="upload-fields-optional" class="row mb-3" style="display: none;">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Sertifikat K3 (jika ada)</label>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input" name="certificate_file" accept=".pdf,.jpg,.jpeg,.png">
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload Sertifikat K3:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: PDF, JPG, JPEG, PNG</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Upload scan/foto sertifikat K3 yang masih berlaku</li>
+                                                    <li>Gambar akan dikompres otomatis</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">SIM A/C (jika melamar Driver)</label>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input" name="sim_file" accept=".pdf,.jpg,.jpeg,.png">
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload SIM:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: PDF, JPG, JPEG, PNG</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Upload scan/foto SIM A dan/atau C yang masih berlaku</li>
+                                                    <li>Gambar akan dikompres otomatis</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Pertanyaan Khusus Fiber Optik -->
                                 <div class="section-header">
                                     <h4 class="text-primary mb-3">Pengetahuan Fiber Optik</h4>
@@ -262,109 +361,6 @@
                                 <div class="mb-4">
                                     <label for="motivation" class="form-label">Motivasi Melamar di PT. Visdat Teknik Utama *</label>
                                     <textarea class="form-control" id="motivation" name="motivation" rows="4" placeholder="Jelaskan alasan dan motivasi Anda ingin bergabung dengan PT. Visdat Teknik Utama" required></textarea>
-                                </div>
-
-
-                                <!-- Upload Dokumen -->
-                                <div class="section-header">
-                                    <h4 class="text-primary mb-3">Upload Dokumen</h4>
-                                    <div id="upload-warning" class="alert alert-warning" style="display: none;">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <strong>Silahkan lengkapi isian lainnya sebelum upload dokumen!</strong>
-                                    </div>
-                                </div>
-                                
-                                <div id="upload-fields-required" class="row mb-3" style="display: none;">
-                                    <div class="col-md-6">
-                                        <label class="form-label">CV/Resume *</label>
-                                        <div class="upload-container">
-                                            <input type="file" class="form-control file-input" name="cv_file" accept=".pdf,.doc,.docx" required>
-                                            <div class="file-preview" style="display: none;">
-                                                <div class="preview-content"></div>
-                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
-                                            </div>
-                                            <div class="file-guidelines mt-2">
-                                                <small class="text-info">
-                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload CV:</strong>
-                                                </small>
-                                                <ul class="small text-muted mt-1">
-                                                    <li>Format yang diterima: PDF, DOC, DOCX</li>
-                                                    <li>Ukuran maksimal: 5 MB</li>
-                                                    <li>Pastikan CV berisi informasi lengkap tentang pengalaman kerja</li>
-                                                    <li>CV harus dalam bahasa Indonesia atau Inggris</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Foto 3x4 *</label>
-                                        <div class="upload-container">
-                                            <input type="file" class="form-control file-input image-input" name="photo_file" accept=".jpg,.jpeg,.png"
-                                                required>
-                                            <div class="file-preview" style="display: none;">
-                                                <div class="preview-content"></div>
-                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
-                                            </div>
-                                            <div class="file-guidelines mt-2">
-                                                <small class="text-info">
-                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload Foto:</strong>
-                                                </small>
-                                                <ul class="small text-muted mt-1">
-                                                    <li>Format yang diterima: JPG, JPEG, PNG</li>
-                                                    <li>Ukuran maksimal: 2 MB</li>
-                                                    <li>Foto harus berwarna dengan latar belakang putih/biru</li>
-                                                    <li>Gambar akan dikompres otomatis untuk mengoptimalkan ukuran file</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div id="upload-fields-optional" class="row mb-3" style="display: none;">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Sertifikat K3 (jika ada)</label>
-                                        <div class="upload-container">
-                                            <input type="file" class="form-control file-input image-input" name="certificate_file"
-                                                accept=".pdf,.jpg,.jpeg,.png">
-                                            <div class="file-preview" style="display: none;">
-                                                <div class="preview-content"></div>
-                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
-                                            </div>
-                                            <div class="file-guidelines mt-2">
-                                                <small class="text-info">
-                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload Sertifikat K3:</strong>
-                                                </small>
-                                                <ul class="small text-muted mt-1">
-                                                    <li>Format yang diterima: PDF, JPG, JPEG, PNG</li>
-                                                    <li>Ukuran maksimal: 3 MB</li>
-                                                    <li>Upload scan/foto sertifikat K3 yang masih berlaku</li>
-                                                    <li>Gambar akan dikompres otomatis</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">SIM A/C (jika melamar Driver)</label>
-                                        <div class="upload-container">
-                                            <input type="file" class="form-control file-input image-input" name="sim_file"
-                                                accept=".pdf,.jpg,.jpeg,.png">
-                                            <div class="file-preview" style="display: none;">
-                                                <div class="preview-content"></div>
-                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
-                                            </div>
-                                            <div class="file-guidelines mt-2">
-                                                <small class="text-info">
-                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload SIM:</strong>
-                                                </small>
-                                                <ul class="small text-muted mt-1">
-                                                    <li>Format yang diterima: PDF, JPG, JPEG, PNG</li>
-                                                    <li>Ukuran maksimal: 3 MB</li>
-                                                    <li>Upload scan/foto SIM A dan/atau C yang masih berlaku</li>
-                                                    <li>Gambar akan dikompres otomatis</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->
