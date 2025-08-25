@@ -864,3 +864,89 @@ function setupUploadFieldValidation() {
     // Initial check on page load
     updateUploadFieldsVisibility();
 }
+
+// Faker.js Demo Functions for Test Data Generation
+// These functions demonstrate proper usage of faker.js in the browser
+// Access faker via the global 'faker' object after CDN is loaded
+
+function generateTestData() {
+    // Check if faker is available
+    if (typeof faker === 'undefined') {
+        console.error('Faker.js is not loaded. Make sure the CDN script is included.');
+        return null;
+    }
+    
+    // Generate sample person data using faker.js v8+ syntax
+    const testPerson = {
+        id: faker.string.uuid(),
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        phone: faker.phone.number(),
+        address: faker.location.streetAddress(),
+        city: faker.location.city(),
+        company: faker.company.name(),
+        jobTitle: faker.person.jobTitle(),
+        birthDate: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
+        avatar: faker.image.avatar()
+    };
+    
+    console.log('Generated test data:', testPerson);
+    return testPerson;
+}
+
+function fillFormWithTestData() {
+    // Check if faker is available
+    if (typeof faker === 'undefined') {
+        console.error('Faker.js is not loaded. Make sure the CDN script is included.');
+        return;
+    }
+    
+    // Fill form fields with faker data
+    const form = document.getElementById('registrationForm');
+    if (!form) {
+        console.log('Registration form not found');
+        return;
+    }
+    
+    // Fill basic fields
+    const nameField = form.querySelector('input[name="nama"]');
+    if (nameField) nameField.value = faker.person.fullName();
+    
+    const emailField = form.querySelector('input[name="email"]');
+    if (emailField) emailField.value = faker.internet.email();
+    
+    const phoneField = form.querySelector('input[name="telepon"]');
+    if (phoneField) phoneField.value = faker.phone.number('08##########');
+    
+    const addressField = form.querySelector('textarea[name="alamat"]');
+    if (addressField) addressField.value = faker.location.streetAddress() + ', ' + faker.location.city();
+    
+    console.log('Form filled with test data using faker.js');
+}
+
+// Global function to test faker availability
+function testFaker() {
+    if (typeof faker === 'undefined') {
+        console.error('❌ Faker.js is not available. Check if CDN is loaded.');
+        return false;
+    }
+    
+    console.log('✅ Faker.js is loaded and working!');
+    console.log('Faker version:', faker.version || 'Version info not available');
+    
+    // Test basic faker functions
+    console.log('Sample data:');
+    console.log('- Name:', faker.person.fullName());
+    console.log('- Email:', faker.internet.email());
+    console.log('- UUID:', faker.string.uuid());
+    console.log('- Company:', faker.company.name());
+    
+    return true;
+}
+
+// Auto-test faker when page loads (after a delay to ensure CDN is loaded)
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        testFaker();
+    }, 1000); // Wait 1 second for CDN to load
+});
