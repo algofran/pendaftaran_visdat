@@ -4,6 +4,101 @@
 let compressedFiles = new Map();
 let tempFileStorage = new Map(); // Temporary storage for file validation
 
+// Auto-fill functionality with Faker.js
+function autoFillForm() {
+    // Check if faker is available
+    if (typeof faker === 'undefined') {
+        console.error('Faker.js is not loaded');
+        alert('Faker.js library is not available. Please check your internet connection.');
+        return;
+    }
+
+    // Define position options
+    const positions = ["Teknisi FOT", "Teknisi FOC", "Teknisi Jointer", "Driver", "Admin Zona"];
+    const educations = ["SMA/SMK", "D3", "S1", "S2"];
+    const genders = ["Laki-laki", "Perempuan"];
+    const yesNoOptions = ["Ya", "Tidak"];
+    const experienceOptions = ["Tidak", "Sedikit", "Ya"];
+
+    // Generate a birth date between 18-60 years old
+    const birthDate = faker.date.birthdate({ min: 18, max: 60, mode: 'age' });
+    const formattedBirthDate = birthDate.toISOString().split('T')[0];
+
+    // Fill text inputs
+    document.getElementById('full_name').value = faker.person.fullName();
+    document.getElementById('email').value = faker.internet.email();
+    document.getElementById('phone').value = faker.phone.number('08#########');
+    document.getElementById('birth_date').value = formattedBirthDate;
+    document.getElementById('experience_years').value = faker.number.int({ min: 0, max: 20 });
+
+    // Fill textareas
+    document.getElementById('address').value = faker.location.streetAddress() + ', ' + faker.location.city() + ', ' + faker.location.state();
+    document.getElementById('fiber_optic_knowledge').value = faker.lorem.paragraphs(2, '\n\n');
+    document.getElementById('work_vision').value = faker.lorem.paragraph();
+    document.getElementById('work_mission').value = faker.lorem.paragraph();
+    document.getElementById('motivation').value = faker.lorem.paragraphs(2, '\n\n');
+
+    // Fill select dropdowns
+    document.getElementById('gender').value = faker.helpers.arrayElement(genders);
+    document.getElementById('position').value = faker.helpers.arrayElement(positions);
+    document.getElementById('education').value = faker.helpers.arrayElement(educations);
+    document.getElementById('otdr_experience').value = faker.helpers.arrayElement(experienceOptions);
+    document.getElementById('jointing_experience').value = faker.helpers.arrayElement(experienceOptions);
+    document.getElementById('tower_climbing_experience').value = faker.helpers.arrayElement(yesNoOptions);
+    document.getElementById('k3_certificate').value = faker.helpers.arrayElement(yesNoOptions);
+
+    // Show success message
+    console.log('Form auto-filled with fake data');
+    
+    // Optional: Show a brief notification
+    showAutoFillNotification();
+}
+
+// Show notification when auto-fill is triggered
+function showAutoFillNotification() {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 9999;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: opacity 0.3s ease;
+    `;
+    notification.textContent = 'Form auto-filled with fake data! 🎉';
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Hotkey handler for Ctrl+Alt+I
+document.addEventListener('keydown', function(event) {
+    // Check for Ctrl+Alt+I combination
+    if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 'i') {
+        event.preventDefault(); // Prevent any default behavior
+        console.log('Auto-fill hotkey triggered: Ctrl+Alt+I');
+        autoFillForm();
+    }
+});
+
+// Log when the hotkey handler is loaded
+console.log('Auto-fill hotkey handler loaded. Press Ctrl+Alt+I to auto-fill the form.');
+
 // Logo handling
 document.addEventListener('DOMContentLoaded', function() {
     // Handle logo loading
