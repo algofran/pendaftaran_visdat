@@ -864,3 +864,82 @@ function setupUploadFieldValidation() {
     // Initial check on page load
     updateUploadFieldsVisibility();
 }
+
+// Test faker function to populate form with fake data
+function testFaker() {
+    try {
+        // Check if faker is available
+        if (typeof faker === 'undefined') {
+            console.error('Faker.js library not loaded');
+            showMessage('Faker.js library belum dimuat', 'error');
+            return;
+        }
+
+        // Set locale to Indonesian if available, fallback to English
+        if (faker.setLocale) {
+            faker.setLocale('id_ID');
+        } else if (faker.locale) {
+            faker.locale = 'id_ID';
+        }
+
+        // Generate fake data using modern faker.js API
+        const fakeData = {
+            fullName: faker.person?.fullName() || faker.name?.fullName() || faker.person?.firstName() + ' ' + faker.person?.lastName(),
+            email: faker.internet?.email() || faker.internet?.exampleEmail(),
+            phone: '+62 ' + faker.phone?.number('8## #### ####') || '+62 812 3456 7890',
+            birthDate: faker.date?.birthdate({ min: 18, max: 50, mode: 'age' })?.toISOString().split('T')[0] || '1990-01-01',
+            gender: faker.helpers?.arrayElement(['Laki-laki', 'Perempuan']) || 'Laki-laki',
+            position: faker.helpers?.arrayElement(['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer', 'Driver', 'Admin Zona']) || 'Teknisi FOT',
+            education: faker.helpers?.arrayElement(['SMA/SMK', 'D3', 'S1']) || 'SMA/SMK',
+            experienceYears: faker.number?.int({ min: 0, max: 20 }) || faker.datatype?.number({ min: 0, max: 20 }) || 2,
+            address: faker.location?.streetAddress() + ', ' + faker.location?.city() || faker.address?.streetAddress() + ', ' + faker.address?.city(),
+            otdrExperience: faker.helpers?.arrayElement(['Tidak', 'Sedikit', 'Ya']) || 'Ya',
+            jointingExperience: faker.helpers?.arrayElement(['Tidak', 'Sedikit', 'Ya']) || 'Ya',
+            towerClimbingExperience: faker.helpers?.arrayElement(['Tidak', 'Ya']) || 'Ya',
+            k3Certificate: faker.helpers?.arrayElement(['Tidak', 'Ya']) || 'Ya',
+            fiberOpticKnowledge: faker.lorem?.paragraph() || 'Berpengalaman dalam penggunaan fusion splicer dan penanganan kabel fiber optik.',
+            workVision: faker.lorem?.paragraph() || 'Menjadi teknisi handal dalam bidang telekomunikasi fiber optik.',
+            workMission: faker.lorem?.paragraph() || 'Memberikan pelayanan terbaik dalam pemeliharaan jaringan fiber optik.',
+            motivation: faker.lorem?.paragraph() || 'Ingin berkembang dalam bidang telekomunikasi bersama PT. Visdat Teknik Utama.'
+        };
+
+        // Fill form fields
+        const fields = [
+            'full_name', 'email', 'phone', 'birth_date', 'gender', 'position', 
+            'education', 'experience_years', 'address', 'otdr_experience', 
+            'jointing_experience', 'tower_climbing_experience', 'k3_certificate',
+            'fiber_optic_knowledge', 'work_vision', 'work_mission', 'motivation'
+        ];
+
+        fields.forEach(fieldName => {
+            const element = document.getElementById(fieldName);
+            if (element) {
+                const fakeDataKey = fieldName.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
+                element.value = fakeData[fakeDataKey] || '';
+                
+                // Trigger change event for dynamic form updates
+                element.dispatchEvent(new Event('change'));
+                element.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Show success message
+        showMessage('Data palsu berhasil diisi! (Ctrl+I)', 'success');
+        console.log('Fake data generated successfully', fakeData);
+
+    } catch (error) {
+        console.error('Error in testFaker function:', error);
+        showMessage('Gagal mengisi data palsu: ' + error.message, 'error');
+    }
+}
+
+// Add keyboard shortcut for Ctrl+I
+document.addEventListener('keydown', function(event) {
+    if (event.ctrlKey && event.key === 'i') {
+        event.preventDefault();
+        testFaker();
+    }
+});
+
+// Add console command for easy testing
+window.testFaker = testFaker;
