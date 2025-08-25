@@ -193,6 +193,14 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                         </div>
                     </div>
                 </form>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel me-1"></i>
+                            Export to Excel
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -324,6 +332,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="admin-script.js"></script>
 </body>
 </html>

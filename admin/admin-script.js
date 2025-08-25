@@ -279,3 +279,93 @@ function exportSelected() {
     
     window.location.href = `export.php?ids=${selectedIds.join(',')}&format=${format.toLowerCase()}`;
 }
+
+// Export all data to Excel function
+function exportToExcel() {
+    // Show loading state
+    const button = event.target;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exporting...';
+    button.disabled = true;
+
+    // Fetch data from PHP endpoint
+    fetch('export-data.php')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.error || 'Export failed');
+            }
+
+            // Create Excel workbook
+            const workbook = XLSX.utils.book_new();
+            
+            // Convert data to worksheet
+            const worksheet = XLSX.utils.json_to_sheet(data.data);
+            
+            // Set column widths for better formatting
+            const columnWidths = [
+                { wch: 5 },   // ID
+                { wch: 20 },  // Nama Lengkap
+                { wch: 25 },  // Email
+                { wch: 15 },  // Telepon
+                { wch: 15 },  // Posisi
+                { wch: 15 },  // Pendidikan
+                { wch: 12 },  // Pengalaman
+                { wch: 30 },  // Alamat
+                { wch: 12 },  // Tanggal Lahir
+                { wch: 12 },  // Jenis Kelamin
+                { wch: 40 },  // File CV
+                { wch: 40 },  // File Foto
+                { wch: 40 },  // File Sertifikat K3
+                { wch: 40 },  // File SIM
+                { wch: 30 },  // Pengetahuan Fiber Optik
+                { wch: 15 },  // Pengalaman OTDR
+                { wch: 15 },  // Pengalaman Jointing
+                { wch: 20 },  // Pengalaman Panjat Tower
+                { wch: 12 },  // Sertifikat K3
+                { wch: 30 },  // Visi Kerja
+                { wch: 30 },  // Misi Kerja
+                { wch: 30 },  // Motivasi
+                { wch: 15 },  // Status Lamaran
+                { wch: 18 },  // Tanggal Daftar
+                { wch: 18 }   // Terakhir Update
+            ];
+            worksheet['!cols'] = columnWidths;
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Lamaran Kerja');
+
+            // Generate filename with current date
+            const now = new Date();
+            const dateStr = now.getFullYear() + 
+                           ('0' + (now.getMonth() + 1)).slice(-2) + 
+                           ('0' + now.getDate()).slice(-2) + '_' +
+                           ('0' + now.getHours()).slice(-2) + 
+                           ('0' + now.getMinutes()).slice(-2);
+            const filename = `Lamaran_Kerja_${dateStr}.xlsx`;
+
+            // Save file
+            XLSX.writeFile(workbook, filename);
+
+            // Show success message
+            if (data.isEmpty) {
+                showAlert(`File template Excel telah diunduh (${filename}). Belum ada data lamaran untuk diekspor.`, 'info');
+            } else {
+                showAlert(`Data berhasil diekspor ke file ${filename}. Total: ${data.count} lamaran`, 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Export error:', error);
+            showAlert('Gagal mengekspor data: ' + error.message, 'danger');
+        })
+        .finally(() => {
+            // Restore button state
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        });
+}
