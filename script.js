@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Dynamic form behavior
     setTimeout(() => {
         setupDynamicForm();
+        setupUploadFieldValidation();
     }, 100);
 });
 
@@ -786,4 +787,80 @@ function generateReferenceNumber() {
     const timestamp = Date.now();
     const random = Math.floor(Math.random() * 1000);
     return `VIS-${timestamp}-${random.toString().padStart(3, '0')}`;
+}
+
+// Setup upload field validation - hide upload fields if required inputs not filled
+function setupUploadFieldValidation() {
+    const requiredFields = [
+        'full_name', 'email', 'phone', 'birth_date', 'gender', 'position', 
+        'education', 'experience_years', 'address', 'work_vision', 'work_mission', 'motivation'
+    ];
+    
+    const uploadWarning = document.getElementById('upload-warning');
+    const uploadFieldsRequired = document.getElementById('upload-fields-required');
+    const uploadFieldsOptional = document.getElementById('upload-fields-optional');
+    
+    if (!uploadWarning || !uploadFieldsRequired || !uploadFieldsOptional) {
+        console.warn('Upload validation elements not found');
+        return;
+    }
+    
+    // Function to check if all required fields are filled
+    function checkRequiredFields() {
+        let allFilled = true;
+        
+        for (const fieldName of requiredFields) {
+            const field = document.getElementById(fieldName);
+            if (field && !field.value.trim()) {
+                allFilled = false;
+                break;
+            }
+        }
+        
+        return allFilled;
+    }
+    
+    // Function to update upload fields visibility
+    function updateUploadFieldsVisibility() {
+        const allRequiredFilled = checkRequiredFields();
+        
+        if (allRequiredFilled) {
+            // Show upload fields, hide warning
+            uploadWarning.style.display = 'none';
+            uploadFieldsRequired.style.display = 'block';
+            uploadFieldsOptional.style.display = 'block';
+        } else {
+            // Hide upload fields, show warning
+            uploadWarning.style.display = 'block';
+            uploadFieldsRequired.style.display = 'none';
+            uploadFieldsOptional.style.display = 'none';
+            
+            // Clear any uploaded files when hiding fields
+            clearUploadedFiles();
+        }
+    }
+    
+    // Function to clear uploaded files
+    function clearUploadedFiles() {
+        const fileInputs = document.querySelectorAll('#upload-fields-required .file-input, #upload-fields-optional .file-input');
+        fileInputs.forEach(input => {
+            const container = input.closest('.upload-container');
+            if (container) {
+                removeFile(input, container);
+            }
+        });
+    }
+    
+    // Add event listeners to all required fields
+    requiredFields.forEach(fieldName => {
+        const field = document.getElementById(fieldName);
+        if (field) {
+            // Add input event listener for real-time validation
+            field.addEventListener('input', updateUploadFieldsVisibility);
+            field.addEventListener('change', updateUploadFieldsVisibility);
+        }
+    });
+    
+    // Initial check on page load
+    updateUploadFieldsVisibility();
 }
