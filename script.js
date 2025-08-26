@@ -201,7 +201,7 @@ function handleFileSelection(input) {
     // Validate file first
     const validation = validateFile(file, input.name);
     if (!validation.valid) {
-        showMessage(validation.message, 'error');
+        showUploadFieldError(input, validation.message);
         input.value = '';
         cleanupTempFile(input.name);
         return;
@@ -218,10 +218,10 @@ function handleFileSelection(input) {
     const isImage = input.classList.contains('image-input') && file.type.startsWith('image/');
     
     if (isImage) {
-        compressImageSafely(file, input.name, previewContent, preview);
+        compressImageSafely(file, input.name, previewContent, preview, input);
     } else {
         // For non-image files, validate and store directly
-        processNonImageFile(file, input.name, previewContent, preview);
+        processNonImageFile(file, input.name, previewContent, preview, input);
     }
     
     // Add remove button functionality
@@ -232,7 +232,7 @@ function handleFileSelection(input) {
 }
 
 // Safely compress image with better error handling
-function compressImageSafely(file, inputName, previewContent, preview) {
+function compressImageSafely(file, inputName, previewContent, preview, input) {
     // Show compression status
     updateFilePreview(previewContent, file, 'Mengompres gambar...', true);
     
@@ -255,7 +255,7 @@ function compressImageSafely(file, inputName, previewContent, preview) {
     if (!file.type.startsWith('image/')) {
         clearInterval(progressInterval);
         progressDiv.remove();
-        showMessage('File bukan gambar yang valid', 'error');
+        showUploadFieldError(input, 'File bukan gambar yang valid');
         cleanupTempFile(inputName);
         return;
     }
@@ -275,7 +275,7 @@ function compressImageSafely(file, inputName, previewContent, preview) {
                 // Final validation of compressed file
                 if (result.size > 3 * 1024 * 1024) { // 3MB limit
                     progressDiv.remove();
-                    showMessage(`File terkompresi masih terlalu besar: ${formatFileSize(result.size)}`, 'error');
+                    showUploadFieldError(input, `File terkompresi masih terlalu besar: ${formatFileSize(result.size)}`);
                     cleanupTempFile(inputName);
                     return;
                 }
@@ -287,6 +287,9 @@ function compressImageSafely(file, inputName, previewContent, preview) {
                 
                 // Store compressed file safely
                 compressedFiles.set(inputName, result);
+                
+                // Clear any upload field errors for this input
+                clearUploadFieldError(input);
                 
                 // Show success preview
                 const compressionRatio = ((file.size - result.size) / file.size * 100).toFixed(1);
@@ -313,11 +316,12 @@ function compressImageSafely(file, inputName, previewContent, preview) {
                 if (file.size <= 2 * 1024 * 1024) { // 2MB
                     console.log('Using original file as fallback');
                     compressedFiles.set(inputName, file);
+                    clearUploadFieldError(input);
                     updateFilePreview(previewContent, file, 'File asli (kompresi gagal)', false);
                     preview.classList.add('success');
                     tempFileStorage.delete(inputName);
                 } else {
-                    showMessage(`Gagal mengompres gambar: ${err.message}. File terlalu besar.`, 'error');
+                    showUploadFieldError(input, `Gagal mengompres gambar: ${err.message}. File terlalu besar.`);
                     cleanupTempFile(inputName);
                 }
             }
@@ -326,22 +330,23 @@ function compressImageSafely(file, inputName, previewContent, preview) {
         clearInterval(progressInterval);
         progressDiv.remove();
         console.error('Compressor initialization failed:', error);
-        showMessage('Gagal memulai kompresi gambar', 'error');
+        showUploadFieldError(input, 'Gagal memulai kompresi gambar');
         cleanupTempFile(inputName);
     }
 }
 
 // Process non-image files
-function processNonImageFile(file, inputName, previewContent, preview) {
+function processNonImageFile(file, inputName, previewContent, preview, input) {
     // Validate file size for non-images
     if (file.size > 5 * 1024 * 1024) { // 5MB limit for documents
-        showMessage(`File terlalu besar: ${formatFileSize(file.size)}. Maksimal 5MB untuk dokumen.`, 'error');
+        showUploadFieldError(input, `File terlalu besar: ${formatFileSize(file.size)}. Maksimal 5MB untuk dokumen.`);
         cleanupTempFile(inputName);
         return;
     }
     
     // Store non-image file directly
     compressedFiles.set(inputName, file);
+    clearUploadFieldError(input);
     updateFilePreview(previewContent, file, 'Siap diupload', false);
     preview.classList.add('success');
     
@@ -352,8 +357,11 @@ function processNonImageFile(file, inputName, previewContent, preview) {
 }
 
 // Show file preview for non-image files
-function showFilePreview(file, previewContent, preview, inputName) {
+function showFilePreview(file, previewContent, preview, inputName, input) {
     compressedFiles.set(inputName, file);
+    if (input) {
+        clearUploadFieldError(input);
+    }
     updateFilePreview(previewContent, file, 'Siap diupload', false);
     preview.classList.add('success');
 }
@@ -401,7 +409,46 @@ function removeFile(input, container) {
     compressedFiles.delete(input.name);
     tempFileStorage.delete(input.name);
     
+    // Show validation error if this is a required field
+    showUploadValidationAfterRemoval(input);
+    
     console.log('File removed:', input.name);
+}
+
+// Clear upload field errors
+function clearUploadFieldError(fileInput) {
+    // Remove invalid styling from the file input
+    fileInput.classList.remove('is-invalid');
+    
+    // Find and remove error message
+    const uploadContainer = fileInput.closest('.upload-container');
+    if (uploadContainer) {
+        const errorMessage = uploadContainer.querySelector('.upload-error-message');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+        uploadContainer.classList.remove('upload-error');
+    }
+}
+
+// Show validation feedback after file removal
+function showUploadValidationAfterRemoval(fileInput) {
+    const inputName = fileInput.name;
+    const position = document.getElementById('position')?.value || '';
+    
+    // Check if this is a required field and show error
+    if (inputName === 'cv_file') {
+        showUploadFieldError(fileInput, 'CV/Resume wajib diupload');
+    } else if (inputName === 'photo_file') {
+        showUploadFieldError(fileInput, 'Foto 3x4 wajib diupload');
+    } else if (inputName === 'sim_file' && position === 'Driver') {
+        showUploadFieldError(fileInput, 'SIM A/C wajib untuk posisi Driver');
+    } else if (inputName === 'certificate_file') {
+        const technicalPositions = ['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer'];
+        if (technicalPositions.includes(position)) {
+            showUploadFieldError(fileInput, 'Sertifikat K3 wajib untuk posisi teknis');
+        }
+    }
 }
 
 // Validate file before processing
@@ -639,7 +686,9 @@ function validateForm() {
     
     // Clear previous error messages
     document.querySelectorAll('.error-message').forEach(el => el.remove());
+    document.querySelectorAll('.upload-error-message').forEach(el => el.remove());
     document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('.upload-error').forEach(el => el.classList.remove('upload-error'));
     
     // Validate required fields
     requiredFields.forEach(fieldName => {
@@ -675,53 +724,51 @@ function validateForm() {
     
     // Validate required files
     if (!compressedFiles.has('cv_file')) {
-        showMessage('CV/Resume wajib diupload', 'error');
-        isValid = false;
-        // For file uploads, scroll to the upload section if no field error found yet
-        if (!firstInvalidField) {
-            const cvFileInput = document.querySelector('[name="cv_file"]');
-            if (cvFileInput) {
+        const cvFileInput = document.querySelector('[name="cv_file"]');
+        if (cvFileInput) {
+            showUploadFieldError(cvFileInput, 'CV/Resume wajib diupload');
+            if (!firstInvalidField) {
                 firstInvalidField = cvFileInput;
             }
         }
+        isValid = false;
     }
     
     if (!compressedFiles.has('photo_file')) {
-        showMessage('Foto 3x4 wajib diupload', 'error');
-        isValid = false;
-        // For file uploads, scroll to the upload section if no field error found yet
-        if (!firstInvalidField) {
-            const photoFileInput = document.querySelector('[name="photo_file"]');
-            if (photoFileInput) {
+        const photoFileInput = document.querySelector('[name="photo_file"]');
+        if (photoFileInput) {
+            showUploadFieldError(photoFileInput, 'Foto 3x4 wajib diupload');
+            if (!firstInvalidField) {
                 firstInvalidField = photoFileInput;
             }
         }
+        isValid = false;
     }
     
     // Validate position-specific required files
     const position = document.getElementById('position').value;
     
     if (position === 'Driver' && !compressedFiles.has('sim_file')) {
-        showMessage('SIM A/C wajib untuk posisi Driver', 'error');
-        isValid = false;
-        if (!firstInvalidField) {
-            const simFileInput = document.querySelector('[name="sim_file"]');
-            if (simFileInput) {
+        const simFileInput = document.querySelector('[name="sim_file"]');
+        if (simFileInput) {
+            showUploadFieldError(simFileInput, 'SIM A/C wajib untuk posisi Driver');
+            if (!firstInvalidField) {
                 firstInvalidField = simFileInput;
             }
         }
+        isValid = false;
     }
     
     const technicalPositions = ['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer'];
     if (technicalPositions.includes(position) && !compressedFiles.has('certificate_file')) {
-        showMessage('Sertifikat K3 wajib untuk posisi teknis', 'error');
-        isValid = false;
-        if (!firstInvalidField) {
-            const certFileInput = document.querySelector('[name="certificate_file"]');
-            if (certFileInput) {
+        const certFileInput = document.querySelector('[name="certificate_file"]');
+        if (certFileInput) {
+            showUploadFieldError(certFileInput, 'Sertifikat K3 wajib untuk posisi teknis');
+            if (!firstInvalidField) {
                 firstInvalidField = certFileInput;
             }
         }
+        isValid = false;
     }
     
     // Scroll to first invalid field if validation failed
@@ -739,6 +786,44 @@ function showFieldError(field, message) {
     errorDiv.className = 'error-message text-danger small mt-1';
     errorDiv.textContent = message;
     field.parentNode.appendChild(errorDiv);
+}
+
+// Show upload field error
+function showUploadFieldError(fileInput, message) {
+    // Add invalid styling to the file input
+    fileInput.classList.add('is-invalid');
+    
+    // Find the upload container
+    const uploadContainer = fileInput.closest('.upload-container');
+    if (!uploadContainer) {
+        console.warn('Upload container not found for file input');
+        return;
+    }
+    
+    // Remove any existing error messages for this field
+    const existingError = uploadContainer.querySelector('.upload-error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Create error message element
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'upload-error-message text-danger small mt-2';
+    errorDiv.innerHTML = `
+        <i class="fas fa-exclamation-triangle me-1"></i>
+        <strong>${message}</strong>
+    `;
+    
+    // Insert error message after the file input but before guidelines
+    const guidelines = uploadContainer.querySelector('.file-guidelines');
+    if (guidelines) {
+        uploadContainer.insertBefore(errorDiv, guidelines);
+    } else {
+        uploadContainer.appendChild(errorDiv);
+    }
+    
+    // Add visual highlighting to the upload container
+    uploadContainer.classList.add('upload-error');
 }
 
 // Scroll to field with smooth animation and visual focus
@@ -865,23 +950,43 @@ function setupDynamicForm() {
     positionSelect.addEventListener('change', function() {
         if (simFileContainer) {
             const label = simFileContainer.querySelector('label');
+            const simFileInput = simFileContainer.querySelector('[name="sim_file"]');
+            
             if (this.value === 'Driver') {
                 simFileContainer.style.display = 'block';
                 if (label) label.innerHTML = 'SIM A/C (wajib untuk Driver) *';
+                // Show validation error if no file uploaded for Driver
+                if (simFileInput && !compressedFiles.has('sim_file')) {
+                    showUploadFieldError(simFileInput, 'SIM A/C wajib untuk posisi Driver');
+                }
             } else {
                 simFileContainer.style.display = 'block';
                 if (label) label.innerHTML = 'SIM A/C (jika ada)';
+                // Clear validation error if not Driver
+                if (simFileInput) {
+                    clearUploadFieldError(simFileInput);
+                }
             }
         }
         
         // Show certificate field for technical positions
         if (certificateFileContainer) {
             const label = certificateFileContainer.querySelector('label');
+            const certFileInput = certificateFileContainer.querySelector('[name="certificate_file"]');
             const technicalPositions = ['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer'];
+            
             if (technicalPositions.includes(this.value)) {
                 if (label) label.innerHTML = 'Sertifikat K3 (wajib untuk posisi teknis) *';
+                // Show validation error if no file uploaded for technical position
+                if (certFileInput && !compressedFiles.has('certificate_file')) {
+                    showUploadFieldError(certFileInput, 'Sertifikat K3 wajib untuk posisi teknis');
+                }
             } else {
                 if (label) label.innerHTML = 'Sertifikat K3 (jika ada)';
+                // Clear validation error if not technical position
+                if (certFileInput) {
+                    clearUploadFieldError(certFileInput);
+                }
             }
         }
     });
