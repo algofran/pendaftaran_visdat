@@ -593,8 +593,8 @@ function handleFormSubmit(e) {
             
             console.log('All file storage cleared after successful submission');
         } else {
-            // Show error modal
-            showErrorModal((data && data.message) || 'Terjadi kesalahan saat mengirim lamaran. Silakan coba lagi.');
+            // Show error message at bottom of form
+            showMessage((data && data.message) || 'Terjadi kesalahan saat mengirim lamaran. Silakan coba lagi.', 'error');
         }
     })
     .catch(error => {
@@ -624,13 +624,14 @@ function handleFormSubmit(e) {
             errorMessage += `Detail: ${error.message}`;
         }
         
-        showErrorModal(errorMessage);
+        showMessage(errorMessage, 'error');
     });
 }
 
 // Form validation
 function validateForm() {
     let isValid = true;
+    let firstInvalidField = null;
     const requiredFields = [
         'full_name', 'email', 'phone', 'birth_date', 'gender', 'position', 
         'education', 'experience_years', 'address', 'work_vision', 'work_mission', 'motivation'
@@ -645,6 +646,9 @@ function validateForm() {
         const field = document.getElementById(fieldName);
         if (field && !field.value.trim()) {
             showFieldError(field, 'Field ini wajib diisi');
+            if (!firstInvalidField) {
+                firstInvalidField = field;
+            }
             isValid = false;
         }
     });
@@ -653,6 +657,9 @@ function validateForm() {
     const email = document.getElementById('email');
     if (email && email.value && !isValidEmail(email.value)) {
         showFieldError(email, 'Format email tidak valid');
+        if (!firstInvalidField) {
+            firstInvalidField = email;
+        }
         isValid = false;
     }
     
@@ -660,6 +667,9 @@ function validateForm() {
     const phone = document.getElementById('phone');
     if (phone && phone.value && !isValidPhone(phone.value)) {
         showFieldError(phone, 'Format nomor telepon tidak valid');
+        if (!firstInvalidField) {
+            firstInvalidField = phone;
+        }
         isValid = false;
     }
     
@@ -667,11 +677,25 @@ function validateForm() {
     if (!compressedFiles.has('cv_file')) {
         showMessage('CV/Resume wajib diupload', 'error');
         isValid = false;
+        // For file uploads, scroll to the upload section if no field error found yet
+        if (!firstInvalidField) {
+            const cvFileInput = document.querySelector('[name="cv_file"]');
+            if (cvFileInput) {
+                firstInvalidField = cvFileInput;
+            }
+        }
     }
     
     if (!compressedFiles.has('photo_file')) {
         showMessage('Foto 3x4 wajib diupload', 'error');
         isValid = false;
+        // For file uploads, scroll to the upload section if no field error found yet
+        if (!firstInvalidField) {
+            const photoFileInput = document.querySelector('[name="photo_file"]');
+            if (photoFileInput) {
+                firstInvalidField = photoFileInput;
+            }
+        }
     }
     
     // Validate position-specific required files
@@ -680,12 +704,29 @@ function validateForm() {
     if (position === 'Driver' && !compressedFiles.has('sim_file')) {
         showMessage('SIM A/C wajib untuk posisi Driver', 'error');
         isValid = false;
+        if (!firstInvalidField) {
+            const simFileInput = document.querySelector('[name="sim_file"]');
+            if (simFileInput) {
+                firstInvalidField = simFileInput;
+            }
+        }
     }
     
     const technicalPositions = ['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer'];
     if (technicalPositions.includes(position) && !compressedFiles.has('certificate_file')) {
         showMessage('Sertifikat K3 wajib untuk posisi teknis', 'error');
         isValid = false;
+        if (!firstInvalidField) {
+            const certFileInput = document.querySelector('[name="certificate_file"]');
+            if (certFileInput) {
+                firstInvalidField = certFileInput;
+            }
+        }
+    }
+    
+    // Scroll to first invalid field if validation failed
+    if (!isValid && firstInvalidField) {
+        scrollToField(firstInvalidField);
     }
     
     return isValid;
@@ -698,6 +739,38 @@ function showFieldError(field, message) {
     errorDiv.className = 'error-message text-danger small mt-1';
     errorDiv.textContent = message;
     field.parentNode.appendChild(errorDiv);
+}
+
+// Scroll to field with smooth animation and visual focus
+function scrollToField(field) {
+    if (!field) return;
+    
+    // Calculate position with some offset for better visibility
+    const fieldRect = field.getBoundingClientRect();
+    const absoluteTop = window.pageYOffset + fieldRect.top;
+    const offset = 100; // Offset from top to ensure field is well visible
+    
+    // Smooth scroll to the field
+    window.scrollTo({
+        top: absoluteTop - offset,
+        behavior: 'smooth'
+    });
+    
+    // Add visual focus to the field after a short delay to allow scroll to complete
+    setTimeout(() => {
+        // Temporarily add a highlighting class
+        field.classList.add('field-highlight');
+        
+        // Focus the field if it's focusable
+        if (field.focus && (field.type !== 'file')) {
+            field.focus();
+        }
+        
+        // Remove highlight after animation
+        setTimeout(() => {
+            field.classList.remove('field-highlight');
+        }, 2000);
+    }, 500);
 }
 
 // Email validation
@@ -734,26 +807,45 @@ function hideLoading() {
 
 // Show message
 function showMessage(message, type) {
-    // Remove existing messages
-    document.querySelectorAll('.alert').forEach(el => el.remove());
+    // Get the error container at the bottom of the form
+    const errorContainer = document.getElementById('formErrorContainer');
+    
+    if (!errorContainer) {
+        console.warn('Form error container not found');
+        return;
+    }
+    
+    // Remove existing messages from the container
+    errorContainer.innerHTML = '';
     
     const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show mb-3`;
     alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     
-    // Insert at the top of the form
-    const form = document.getElementById('registrationForm');
-    form.parentNode.insertBefore(alertDiv, form);
+    // Add the alert to the error container and show it
+    errorContainer.appendChild(alertDiv);
+    errorContainer.style.display = 'block';
     
-    // Auto remove after 5 seconds
+    // Scroll to the error container to make it visible
+    errorContainer.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+    });
+    
+    // Auto remove after 8 seconds for better visibility at bottom
     setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.remove();
+            // Hide container if no more alerts
+            if (errorContainer.children.length === 0) {
+                errorContainer.style.display = 'none';
+            }
         }
-    }, 5000);
+    }, 8000);
 }
 
 // Setup dynamic form behavior
