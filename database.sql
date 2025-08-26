@@ -18,6 +18,8 @@ CREATE TABLE applications (
     -- Dokumen yang diupload
     cv_file VARCHAR(255),
     photo_file VARCHAR(255),
+    ktp_file VARCHAR(255),
+    ijazah_file VARCHAR(255),
     certificate_file VARCHAR(255),
     sim_file VARCHAR(255),
     

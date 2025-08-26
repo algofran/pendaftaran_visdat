@@ -324,6 +324,51 @@
                                     </div>
                                 </div>
                                 
+                                <div id="upload-fields-identity" class="row mb-3" style="display: none;">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto KTP *</label>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input" name="ktp_file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload KTP:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG, PDF</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Foto/scan KTP harus jelas dan mudah dibaca</li>
+                                                    <li>Pastikan semua informasi terlihat dengan jelas</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto Ijazah *</label>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input" name="ijazah_file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload Ijazah:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG, PDF</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Foto/scan ijazah terakhir yang jelas</li>
+                                                    <li>Pastikan nama dan gelar terlihat dengan jelas</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div id="upload-fields-optional" class="row mb-3" style="display: none;">
                                     <div class="col-md-6">
                                         <label class="form-label">Sertifikat K3 (jika ada)</label>
@@ -456,6 +501,76 @@
                 </div>
             </div>
         </div>
+        <!-- Registration Type Modal -->
+        <div class="modal fade" id="registrationTypeModal" tabindex="-1" aria-labelledby="registrationTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="registrationTypeModalLabel">
+                            <i class="fas fa-user-plus"></i> Tipe Pendaftaran
+                        </h5>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-4">
+                            <i class="fas fa-question-circle text-primary" style="font-size: 4rem;"></i>
+                        </div>
+                        <h6 class="mb-4">Apakah Anda sudah pernah mendaftar sebelumnya?</h6>
+                        <div class="d-grid gap-3">
+                            <button type="button" class="btn btn-success btn-lg" id="newRegistrantBtn">
+                                <i class="fas fa-user-plus me-2"></i>
+                                Pendaftar Baru
+                            </button>
+                            <button type="button" class="btn btn-info btn-lg" id="existingRegistrantBtn">
+                                <i class="fas fa-user-check me-2"></i>
+                                Sudah Pernah Mendaftar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Check Modal -->
+        <div class="modal fade" id="emailCheckModal" tabindex="-1" aria-labelledby="emailCheckModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="emailCheckModalLabel">
+                            <i class="fas fa-envelope"></i> Verifikasi Email
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="emailCheckCloseBtn"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-4 text-center">
+                            <i class="fas fa-envelope-open text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h6 class="text-center mb-4">Masukkan email yang pernah Anda gunakan untuk mendaftar</h6>
+                        <form id="emailCheckForm">
+                            <div class="mb-3">
+                                <label for="checkEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="checkEmail" name="checkEmail" required placeholder="contoh@email.com">
+                            </div>
+                            <div id="emailCheckError" class="alert alert-danger" style="display: none;"></div>
+                            <div id="emailCheckLoading" class="text-center" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Memeriksa email...</p>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="emailCheckCancelBtn">
+                            <i class="fas fa-arrow-left me-2"></i>Kembali
+                        </button>
+                        <button type="button" class="btn btn-primary" id="checkEmailBtn">
+                            <i class="fas fa-search me-2"></i>Periksa Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Success Modal -->
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
