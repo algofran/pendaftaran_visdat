@@ -1,5 +1,7 @@
 // JavaScript for PT. Visdat Teknik Utama Registration Website
 
+import { faker } from 'https://esm.sh/@faker-js/faker';
+
 // Global variables to store compressed files
 let compressedFiles = new Map();
 let tempFileStorage = new Map(); // Temporary storage for file validation
