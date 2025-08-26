@@ -251,6 +251,24 @@ if (!$application) {
                             </div>
                         <?php endif; ?>
                         
+                        <?php if ($application['ktp_file']): ?>
+                            <div class="mb-2">
+                                <a href="../uploads/<?= $application['ktp_file'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-id-card-alt me-1"></i>
+                                    KTP
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($application['ijazah_file']): ?>
+                            <div class="mb-2">
+                                <a href="../uploads/<?= $application['ijazah_file'] ?>" target="_blank" class="btn btn-sm btn-outline-dark">
+                                    <i class="fas fa-graduation-cap me-1"></i>
+                                    Ijazah
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        
                         <?php if ($application['certificate_file']): ?>
                             <div class="mb-2">
                                 <a href="../uploads/<?= $application['certificate_file'] ?>" target="_blank" class="btn btn-sm btn-outline-success">

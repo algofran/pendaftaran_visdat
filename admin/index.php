@@ -252,6 +252,16 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                                                         <i class="fas fa-image"></i> Foto
                                                     </a>
                                                 <?php endif; ?>
+                                                <?php if (!empty($app['ktp_file'])): ?>
+                                                    <a href="../uploads/<?= $app['ktp_file'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary mb-1" title="KTP">
+                                                        <i class="fas fa-id-card-alt"></i> KTP
+                                                    </a>
+                                                <?php endif; ?>
+                                                <?php if (!empty($app['ijazah_file'])): ?>
+                                                    <a href="../uploads/<?= $app['ijazah_file'] ?>" target="_blank" class="btn btn-sm btn-outline-dark mb-1" title="Ijazah">
+                                                        <i class="fas fa-graduation-cap"></i> Ijazah
+                                                    </a>
+                                                <?php endif; ?>
                                                 <?php if (!empty($app['certificate_file'])): ?>
                                                     <a href="../uploads/<?= $app['certificate_file'] ?>" target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="Sertifikat K3">
                                                         <i class="fas fa-certificate"></i> K3
@@ -262,7 +272,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                                                         <i class="fas fa-id-card"></i> SIM
                                                     </a>
                                                 <?php endif; ?>
-                                                <?php if (empty($app['cv_file']) && empty($app['photo_file']) && empty($app['certificate_file']) && empty($app['sim_file'])): ?>
+                                                <?php if (empty($app['cv_file']) && empty($app['photo_file']) && empty($app['ktp_file']) && empty($app['ijazah_file']) && empty($app['certificate_file']) && empty($app['sim_file'])): ?>
                                                     <small class="text-muted">Tidak ada file</small>
                                                 <?php endif; ?>
                                             </div>
