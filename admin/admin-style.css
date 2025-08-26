@@ -427,3 +427,32 @@ body {
     background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
     color: #856404;
 }
+
+/* Export button styling */
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    box-shadow: 0 4px 15px 0 rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #218838 0%, #1bb491 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px 0 rgba(40, 167, 69, 0.4);
+}
+
+.btn-success:disabled {
+    background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-success .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

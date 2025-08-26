@@ -1,8 +1,105 @@
 // JavaScript for PT. Visdat Teknik Utama Registration Website
 
+import { faker } from 'https://esm.sh/@faker-js/faker';
+
 // Global variables to store compressed files
 let compressedFiles = new Map();
 let tempFileStorage = new Map(); // Temporary storage for file validation
+
+// Auto-fill functionality with Faker.js
+function autoFillForm() {
+    // Check if faker is available
+    if (typeof faker === 'undefined') {
+        console.error('Faker.js is not loaded');
+        alert('Faker.js library is not available. Please check your internet connection.');
+        return;
+    }
+
+    // Define position options
+    const positions = ["Teknisi FOT", "Teknisi FOC", "Teknisi Jointer", "Driver", "Admin Zona"];
+    const educations = ["SMA/SMK", "D3", "S1", "S2"];
+    const genders = ["Laki-laki", "Perempuan"];
+    const yesNoOptions = ["Ya", "Tidak"];
+    const experienceOptions = ["Tidak", "Sedikit", "Ya"];
+
+    // Generate a birth date between 18-60 years old
+    const birthDate = faker.date.birthdate({ min: 18, max: 60, mode: 'age' });
+    const formattedBirthDate = birthDate.toISOString().split('T')[0];
+
+    // Fill text inputs
+    document.getElementById('full_name').value = faker.person.fullName();
+    document.getElementById('email').value = faker.internet.email();
+    document.getElementById('phone').value = faker.phone.number('08#########');
+    document.getElementById('birth_date').value = formattedBirthDate;
+    document.getElementById('experience_years').value = faker.number.int({ min: 0, max: 20 });
+
+    // Fill textareas
+    document.getElementById('address').value = faker.location.streetAddress() + ', ' + faker.location.city() + ', ' + faker.location.state();
+    document.getElementById('fiber_optic_knowledge').value = faker.lorem.paragraphs(2, '\n\n');
+    document.getElementById('work_vision').value = faker.lorem.paragraph();
+    document.getElementById('work_mission').value = faker.lorem.paragraph();
+    document.getElementById('motivation').value = faker.lorem.paragraphs(2, '\n\n');
+
+    // Fill select dropdowns
+    document.getElementById('gender').value = faker.helpers.arrayElement(genders);
+    document.getElementById('position').value = faker.helpers.arrayElement(positions);
+    document.getElementById('education').value = faker.helpers.arrayElement(educations);
+    document.getElementById('otdr_experience').value = faker.helpers.arrayElement(experienceOptions);
+    document.getElementById('jointing_experience').value = faker.helpers.arrayElement(experienceOptions);
+    document.getElementById('tower_climbing_experience').value = faker.helpers.arrayElement(yesNoOptions);
+    document.getElementById('k3_certificate').value = faker.helpers.arrayElement(yesNoOptions);
+
+    // Show success message
+    console.log('Form auto-filled with fake data');
+    
+    // Optional: Show a brief notification
+    showAutoFillNotification();
+}
+
+// Show notification when auto-fill is triggered
+function showAutoFillNotification() {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 9999;
+        font-weight: bold;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: opacity 0.3s ease;
+    `;
+    notification.textContent = 'Form auto-filled with fake data! 🎉';
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Hotkey handler for Ctrl+I
+document.addEventListener('keydown', function(event) {
+    // Check for Ctrl+I combination
+    if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'i') {
+        event.preventDefault(); // Prevent any default behavior
+        console.log('Auto-fill hotkey triggered: Ctrl+I');
+        autoFillForm();
+    }
+});
+
+// Log when the hotkey handler is loaded
+console.log('Auto-fill hotkey handler loaded. Press Ctrl+I to auto-fill the form.');
 
 // Logo handling
 document.addEventListener('DOMContentLoaded', function() {
@@ -865,81 +962,88 @@ function setupUploadFieldValidation() {
     updateUploadFieldsVisibility();
 }
 
-// Test faker function to populate form with fake data
-function testFaker() {
-    try {
-        // Check if faker is available
-        if (typeof faker === 'undefined') {
-            console.error('Faker.js library not loaded');
-            showMessage('Faker.js library belum dimuat', 'error');
-            return;
-        }
+// Faker.js Demo Functions for Test Data Generation
+// These functions demonstrate proper usage of faker.js in the browser
+// Access faker via the global 'faker' object after CDN is loaded
 
-        // Set locale to Indonesian if available, fallback to English
-        if (faker.setLocale) {
-            faker.setLocale('id_ID');
-        } else if (faker.locale) {
-            faker.locale = 'id_ID';
-        }
-
-        // Generate fake data using modern faker.js API
-        const fakeData = {
-            fullName: faker.person?.fullName() || faker.name?.fullName() || faker.person?.firstName() + ' ' + faker.person?.lastName(),
-            email: faker.internet?.email() || faker.internet?.exampleEmail(),
-            phone: '+62 ' + faker.phone?.number('8## #### ####') || '+62 812 3456 7890',
-            birthDate: faker.date?.birthdate({ min: 18, max: 50, mode: 'age' })?.toISOString().split('T')[0] || '1990-01-01',
-            gender: faker.helpers?.arrayElement(['Laki-laki', 'Perempuan']) || 'Laki-laki',
-            position: faker.helpers?.arrayElement(['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer', 'Driver', 'Admin Zona']) || 'Teknisi FOT',
-            education: faker.helpers?.arrayElement(['SMA/SMK', 'D3', 'S1']) || 'SMA/SMK',
-            experienceYears: faker.number?.int({ min: 0, max: 20 }) || faker.datatype?.number({ min: 0, max: 20 }) || 2,
-            address: faker.location?.streetAddress() + ', ' + faker.location?.city() || faker.address?.streetAddress() + ', ' + faker.address?.city(),
-            otdrExperience: faker.helpers?.arrayElement(['Tidak', 'Sedikit', 'Ya']) || 'Ya',
-            jointingExperience: faker.helpers?.arrayElement(['Tidak', 'Sedikit', 'Ya']) || 'Ya',
-            towerClimbingExperience: faker.helpers?.arrayElement(['Tidak', 'Ya']) || 'Ya',
-            k3Certificate: faker.helpers?.arrayElement(['Tidak', 'Ya']) || 'Ya',
-            fiberOpticKnowledge: faker.lorem?.paragraph() || 'Berpengalaman dalam penggunaan fusion splicer dan penanganan kabel fiber optik.',
-            workVision: faker.lorem?.paragraph() || 'Menjadi teknisi handal dalam bidang telekomunikasi fiber optik.',
-            workMission: faker.lorem?.paragraph() || 'Memberikan pelayanan terbaik dalam pemeliharaan jaringan fiber optik.',
-            motivation: faker.lorem?.paragraph() || 'Ingin berkembang dalam bidang telekomunikasi bersama PT. Visdat Teknik Utama.'
-        };
-
-        // Fill form fields
-        const fields = [
-            'full_name', 'email', 'phone', 'birth_date', 'gender', 'position', 
-            'education', 'experience_years', 'address', 'otdr_experience', 
-            'jointing_experience', 'tower_climbing_experience', 'k3_certificate',
-            'fiber_optic_knowledge', 'work_vision', 'work_mission', 'motivation'
-        ];
-
-        fields.forEach(fieldName => {
-            const element = document.getElementById(fieldName);
-            if (element) {
-                const fakeDataKey = fieldName.replace(/_([a-z])/g, (match, letter) => letter.toUpperCase());
-                element.value = fakeData[fakeDataKey] || '';
-                
-                // Trigger change event for dynamic form updates
-                element.dispatchEvent(new Event('change'));
-                element.dispatchEvent(new Event('input'));
-            }
-        });
-
-        // Show success message
-        showMessage('Data palsu berhasil diisi! (Ctrl+I)', 'success');
-        console.log('Fake data generated successfully', fakeData);
-
-    } catch (error) {
-        console.error('Error in testFaker function:', error);
-        showMessage('Gagal mengisi data palsu: ' + error.message, 'error');
+function generateTestData() {
+    // Check if faker is available
+    if (typeof faker === 'undefined') {
+        console.error('Faker.js is not loaded. Make sure the CDN script is included.');
+        return null;
     }
+    
+    // Generate sample person data using faker.js v8+ syntax
+    const testPerson = {
+        id: faker.string.uuid(),
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        phone: faker.phone.number(),
+        address: faker.location.streetAddress(),
+        city: faker.location.city(),
+        company: faker.company.name(),
+        jobTitle: faker.person.jobTitle(),
+        birthDate: faker.date.birthdate({ min: 18, max: 65, mode: 'age' }),
+        avatar: faker.image.avatar()
+    };
+    
+    console.log('Generated test data:', testPerson);
+    return testPerson;
 }
 
-// Add keyboard shortcut for Ctrl+I
-document.addEventListener('keydown', function(event) {
-    if (event.ctrlKey && event.key === 'i') {
-        event.preventDefault();
-        testFaker();
+function fillFormWithTestData() {
+    // Check if faker is available
+    if (typeof faker === 'undefined') {
+        console.error('Faker.js is not loaded. Make sure the CDN script is included.');
+        return;
     }
-});
+    
+    // Fill form fields with faker data
+    const form = document.getElementById('registrationForm');
+    if (!form) {
+        console.log('Registration form not found');
+        return;
+    }
+    
+    // Fill basic fields
+    const nameField = form.querySelector('input[name="nama"]');
+    if (nameField) nameField.value = faker.person.fullName();
+    
+    const emailField = form.querySelector('input[name="email"]');
+    if (emailField) emailField.value = faker.internet.email();
+    
+    const phoneField = form.querySelector('input[name="telepon"]');
+    if (phoneField) phoneField.value = faker.phone.number('08##########');
+    
+    const addressField = form.querySelector('textarea[name="alamat"]');
+    if (addressField) addressField.value = faker.location.streetAddress() + ', ' + faker.location.city();
+    
+    console.log('Form filled with test data using faker.js');
+}
 
-// Add console command for easy testing
-window.testFaker = testFaker;
+// Global function to test faker availability
+function testFaker() {
+    if (typeof faker === 'undefined') {
+        console.error('❌ Faker.js is not available. Check if CDN is loaded.');
+        return false;
+    }
+    
+    console.log('✅ Faker.js is loaded and working!');
+    console.log('Faker version:', faker.version || 'Version info not available');
+    
+    // Test basic faker functions
+    console.log('Sample data:');
+    console.log('- Name:', faker.person.fullName());
+    console.log('- Email:', faker.internet.email());
+    console.log('- UUID:', faker.string.uuid());
+    console.log('- Company:', faker.company.name());
+    
+    return true;
+}
+
+// Auto-test faker when page loads (after a delay to ensure CDN is loaded)
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        testFaker();
+    }, 1000); // Wait 1 second for CDN to load
+});

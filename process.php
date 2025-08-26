@@ -1,10 +1,14 @@
 <?php
 require_once 'config.php';
 
+// Start output buffering to prevent any unexpected output from breaking JSON
+ob_start();
+
 // Enable error reporting for debugging
 if (DEBUG) {
     error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    ini_set('display_errors', 0); // Don't display errors to output (breaks JSON)
+    ini_set('log_errors', 1);     // Log errors instead
     error_log("process.php called at " . date('Y-m-d H:i:s'));
     error_log("POST data size: " . strlen(file_get_contents('php://input')) . " bytes");
     error_log("Files received: " . json_encode(array_keys($_FILES)));
@@ -30,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Check if request is POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
+    ob_end_clean(); // Clear any unexpected output
     echo json_encode([
         'success' => false, 
         'message' => 'Method not allowed - use POST',
@@ -126,6 +131,7 @@ try {
     }
     
     if (!empty($errors)) {
+        ob_end_clean(); // Clear any unexpected output
         echo json_encode(['success' => false, 'message' => implode(', ', $errors)]);
         exit;
     }
@@ -154,6 +160,7 @@ try {
                         unlink(UPLOAD_DIR . $uploadedFile);
                     }
                 }
+                ob_end_clean(); // Clear any unexpected output
                 echo json_encode(['success' => false, 'message' => $uploadResult['message']]);
                 exit;
             }
@@ -216,6 +223,7 @@ try {
         // Generate reference number
         $referenceNumber = 'VIS-' . date('Ymd') . '-' . str_pad($applicationId, 4, '0', STR_PAD_LEFT);
         
+        ob_end_clean(); // Clear any unexpected output
         echo json_encode([
             'success' => true, 
             'message' => 'Lamaran berhasil dikirim!',
@@ -229,11 +237,13 @@ try {
                 unlink(UPLOAD_DIR . $uploadedFile);
             }
         }
+        ob_end_clean(); // Clear any unexpected output
         echo json_encode(['success' => false, 'message' => 'Gagal menyimpan data lamaran']);
     }
     
 } catch (Exception $e) {
     error_log("Application submission error: " . $e->getMessage());
+    ob_end_clean(); // Clear any unexpected output
     // In development, show detailed error
     if (defined('DEBUG') && DEBUG) {
         echo json_encode(['success' => false, 'message' => 'Error: ' . $e->getMessage(), 'debug' => $e->getTraceAsString()]);

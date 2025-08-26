@@ -7,10 +7,7 @@
     
     <!-- Compressor.js for image compression -->
     <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.2.1/dist/compressor.min.js"></script>
-    
-    <!-- Faker.js for generating fake data -->
-    <script src="https://cdn.jsdelivr.net/npm/faker@latest/dist/faker.min.js"></script>
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -42,6 +39,11 @@
         </header>
 
         <div class="container">
+            <!-- 
+                DEV FEATURE: Auto-fill form with fake data
+                Press Ctrl + I to automatically fill all form fields with fake data
+                This feature uses Faker.js library for generating realistic test data
+            -->
             <!-- Job Positions Info -->
             <div class="row mb-5 job-positions-section">
                 <div class="col-12">
@@ -382,7 +384,74 @@
                 </div>
             </div>
         </div>
-
+        <div class="container">
+            <!-- Informasi Kelengkapan Berkas -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-file-alt"></i> Informasi Kelengkapan Berkas
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="text-primary mb-3">Berikut Kelengkapan Berkas:</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>Surat Lamaran Kerja</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>CV</strong> (Nama, alamat sekarang, no HP/Wa, Riwayat Pengalaman Kerja, dll)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>FC KTP</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>FC KK</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>FC Kartu BPJS</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>FC Ijazah Terakhir</strong>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>FC Sertifikasi</strong> (jika ada)
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <strong>FOTO TERBARU</strong> (SELFI 1/2 BADAN DAN FULL BODY)
+                                </li>
+                            </ul>
+                            
+                            <div class="mt-4 p-3 bg-light rounded">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-envelope"></i> Kirim ke:
+                                </h6>
+                                <p class="mb-2">
+                                    <strong>Email:</strong><br>
+                                    <a href="mailto:hrd@visualdata.co.id" class="text-decoration-none">
+                                        hrd@visualdata.co.id
+                                    </a>
+                                </p>
+                                <div class="alert alert-warning small mb-0">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Catatan:</strong> Pastikan semua berkas dalam format PDF atau gambar yang jelas dan mudah dibaca.
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Success Modal -->
         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -478,6 +547,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom JS -->
-    <script src="script.js"></script>
+    <script type="module" src="script.js?v=1.0.1"></script>
 </body>
 </html>
