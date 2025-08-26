@@ -1,5 +1,7 @@
 # History files (temporary files created by editors)
 .history/
+uploads/
+config.php
 
 # IDE and Editor files
 .vscode/
