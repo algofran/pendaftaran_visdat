@@ -1417,6 +1417,23 @@ function showFormForNewUser() {
         isUpdateField.value = '0';
     }
     
+    // Trigger upload field validation to keep them hidden initially for new users
+    const requiredFields = [
+        'full_name', 'email', 'phone', 'birth_date', 'gender', 'position', 
+        'education', 'experience_years', 'address', 'work_vision', 'work_mission', 'motivation'
+    ];
+    
+    // Hide upload fields initially and show warning
+    const uploadWarning = document.getElementById('upload-warning');
+    const uploadFieldsRequired = document.getElementById('upload-fields-required');
+    const uploadFieldsIdentity = document.getElementById('upload-fields-identity');
+    const uploadFieldsOptional = document.getElementById('upload-fields-optional');
+    
+    if (uploadWarning) uploadWarning.style.display = 'block';
+    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'none';
+    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'none';
+    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'none';
+    
     showNotification('Silakan isi formulir pendaftaran baru', 'info');
 }
 
@@ -1436,6 +1453,9 @@ function showFormForExistingUser() {
         isUpdateField.value = '1';
     }
     
+    // Show upload fields for existing users since they already have filled data
+    showUploadFields();
+    
     showNotification('Form telah diisi dengan data yang tersimpan. Anda dapat mengubah data sesuai kebutuhan.', 'success');
 }
 
@@ -1448,9 +1468,6 @@ function enableFormFields() {
             input.disabled = false;
         });
     }
-    
-    // Show upload fields
-    showUploadFields();
 }
 
 // Show upload fields
