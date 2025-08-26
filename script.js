@@ -593,8 +593,8 @@ function handleFormSubmit(e) {
             
             console.log('All file storage cleared after successful submission');
         } else {
-            // Show error modal
-            showErrorModal((data && data.message) || 'Terjadi kesalahan saat mengirim lamaran. Silakan coba lagi.');
+            // Show error message at bottom of form
+            showMessage((data && data.message) || 'Terjadi kesalahan saat mengirim lamaran. Silakan coba lagi.', 'error');
         }
     })
     .catch(error => {
@@ -624,7 +624,7 @@ function handleFormSubmit(e) {
             errorMessage += `Detail: ${error.message}`;
         }
         
-        showErrorModal(errorMessage);
+        showMessage(errorMessage, 'error');
     });
 }
 
@@ -734,26 +734,45 @@ function hideLoading() {
 
 // Show message
 function showMessage(message, type) {
-    // Remove existing messages
-    document.querySelectorAll('.alert').forEach(el => el.remove());
+    // Get the error container at the bottom of the form
+    const errorContainer = document.getElementById('formErrorContainer');
+    
+    if (!errorContainer) {
+        console.warn('Form error container not found');
+        return;
+    }
+    
+    // Remove existing messages from the container
+    errorContainer.innerHTML = '';
     
     const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show mb-3`;
     alertDiv.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
     
-    // Insert at the top of the form
-    const form = document.getElementById('registrationForm');
-    form.parentNode.insertBefore(alertDiv, form);
+    // Add the alert to the error container and show it
+    errorContainer.appendChild(alertDiv);
+    errorContainer.style.display = 'block';
     
-    // Auto remove after 5 seconds
+    // Scroll to the error container to make it visible
+    errorContainer.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+    });
+    
+    // Auto remove after 8 seconds for better visibility at bottom
     setTimeout(() => {
         if (alertDiv.parentNode) {
             alertDiv.remove();
+            // Hide container if no more alerts
+            if (errorContainer.children.length === 0) {
+                errorContainer.style.display = 'none';
+            }
         }
-    }, 5000);
+    }, 8000);
 }
 
 // Setup dynamic form behavior
