@@ -89,7 +89,7 @@ try {
     
     // Check which files are uploaded
     $hasFileUploads = false;
-    $fileFields = ['cv_file', 'photo_file', 'certificate_file', 'sim_file'];
+    $fileFields = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'certificate_file', 'sim_file'];
     foreach ($fileFields as $field) {
         if (!empty($_FILES[$field]['name'])) {
             $hasFileUploads = true;
@@ -105,6 +105,14 @@ try {
         
         if (empty($_FILES['photo_file']['name'])) {
             $errors[] = "Foto 3x4 wajib diupload";
+        }
+        
+        if (empty($_FILES['ktp_file']['name'])) {
+            $errors[] = "Foto KTP wajib diupload";
+        }
+        
+        if (empty($_FILES['ijazah_file']['name'])) {
+            $errors[] = "Foto Ijazah wajib diupload";
         }
         
         if (DEBUG) {
@@ -138,7 +146,7 @@ try {
     
     // Process file uploads
     $uploadedFiles = [];
-    $fileFields = ['cv_file', 'photo_file', 'certificate_file', 'sim_file'];
+    $fileFields = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'certificate_file', 'sim_file'];
     
     foreach ($fileFields as $field) {
         if (!empty($_FILES[$field]['name'])) {
@@ -185,6 +193,8 @@ try {
         'gender' => sanitize($_POST['gender']),
         'cv_file' => $uploadedFiles['cv_file'] ?? null,
         'photo_file' => $uploadedFiles['photo_file'] ?? null,
+        'ktp_file' => $uploadedFiles['ktp_file'] ?? null,
+        'ijazah_file' => $uploadedFiles['ijazah_file'] ?? null,
         'certificate_file' => $uploadedFiles['certificate_file'] ?? null,
         'sim_file' => $uploadedFiles['sim_file'] ?? null,
         'fiber_optic_knowledge' => sanitize($_POST['fiber_optic_knowledge'] ?? ''),
@@ -201,12 +211,12 @@ try {
     // Insert into database
     $sql = "INSERT INTO applications (
         full_name, email, phone, position, education, experience_years, address, birth_date, gender,
-        cv_file, photo_file, certificate_file, sim_file,
+        cv_file, photo_file, ktp_file, ijazah_file, certificate_file, sim_file,
         fiber_optic_knowledge, otdr_experience, jointing_experience, tower_climbing_experience, k3_certificate,
         work_vision, work_mission, motivation, application_status
     ) VALUES (
         :full_name, :email, :phone, :position, :education, :experience_years, :address, :birth_date, :gender,
-        :cv_file, :photo_file, :certificate_file, :sim_file,
+        :cv_file, :photo_file, :ktp_file, :ijazah_file, :certificate_file, :sim_file,
         :fiber_optic_knowledge, :otdr_experience, :jointing_experience, :tower_climbing_experience, :k3_certificate,
         :work_vision, :work_mission, :motivation, :application_status
     )";
@@ -299,6 +309,8 @@ function uploadFile($file, $fieldName) {
         case 'photo_file':
             $allowedTypes = ['jpg', 'jpeg', 'png'];
             break;
+        case 'ktp_file':
+        case 'ijazah_file':
         case 'certificate_file':
         case 'sim_file':
             $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];

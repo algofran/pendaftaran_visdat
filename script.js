@@ -1092,9 +1092,10 @@ function setupUploadFieldValidation() {
     
     const uploadWarning = document.getElementById('upload-warning');
     const uploadFieldsRequired = document.getElementById('upload-fields-required');
+    const uploadFieldsIdentity = document.getElementById('upload-fields-identity');
     const uploadFieldsOptional = document.getElementById('upload-fields-optional');
     
-    if (!uploadWarning || !uploadFieldsRequired || !uploadFieldsOptional) {
+    if (!uploadWarning || !uploadFieldsRequired || !uploadFieldsIdentity || !uploadFieldsOptional) {
         console.warn('Upload validation elements not found');
         return;
     }
@@ -1122,11 +1123,13 @@ function setupUploadFieldValidation() {
             // Show upload fields, hide warning
             uploadWarning.style.display = 'none';
             uploadFieldsRequired.style.display = 'block';
+            uploadFieldsIdentity.style.display = 'block';
             uploadFieldsOptional.style.display = 'block';
         } else {
             // Hide upload fields, show warning
             uploadWarning.style.display = 'block';
             uploadFieldsRequired.style.display = 'none';
+            uploadFieldsIdentity.style.display = 'none';
             uploadFieldsOptional.style.display = 'none';
             
             // Clear any uploaded files when hiding fields
@@ -1136,7 +1139,7 @@ function setupUploadFieldValidation() {
     
     // Function to clear uploaded files
     function clearUploadedFiles() {
-        const fileInputs = document.querySelectorAll('#upload-fields-required .file-input, #upload-fields-optional .file-input');
+        const fileInputs = document.querySelectorAll('#upload-fields-required .file-input, #upload-fields-identity .file-input, #upload-fields-optional .file-input');
         fileInputs.forEach(input => {
             const container = input.closest('.upload-container');
             if (container) {
@@ -1243,4 +1246,310 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         testFaker();
     }, 1000); // Wait 1 second for CDN to load
+    
+    // Initialize modal functionality
+    initializeModalSystem();
 });
+
+// Modal system for registration type selection
+function initializeModalSystem() {
+    // Show registration type modal on page load
+    const registrationTypeModal = new bootstrap.Modal(document.getElementById('registrationTypeModal'));
+    const emailCheckModal = new bootstrap.Modal(document.getElementById('emailCheckModal'));
+    
+    // Show the initial modal after a short delay
+    setTimeout(() => {
+        registrationTypeModal.show();
+    }, 500);
+    
+    // Handle new registrant button
+    document.getElementById('newRegistrantBtn').addEventListener('click', function() {
+        registrationTypeModal.hide();
+        // Clear form and show empty form
+        clearForm();
+        showFormForNewUser();
+    });
+    
+    // Handle existing registrant button
+    document.getElementById('existingRegistrantBtn').addEventListener('click', function() {
+        registrationTypeModal.hide();
+        emailCheckModal.show();
+    });
+    
+    // Handle email check modal close buttons
+    document.getElementById('emailCheckCloseBtn').addEventListener('click', function() {
+        emailCheckModal.hide();
+        registrationTypeModal.show();
+    });
+    
+    document.getElementById('emailCheckCancelBtn').addEventListener('click', function() {
+        emailCheckModal.hide();
+        registrationTypeModal.show();
+    });
+    
+    // Handle email check
+    document.getElementById('checkEmailBtn').addEventListener('click', function() {
+        checkExistingEmail();
+    });
+    
+    // Handle email check form submission
+    document.getElementById('emailCheckForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        checkExistingEmail();
+    });
+}
+
+// Check if email exists in database
+async function checkExistingEmail() {
+    const emailInput = document.getElementById('checkEmail');
+    const email = emailInput.value.trim();
+    const errorDiv = document.getElementById('emailCheckError');
+    const loadingDiv = document.getElementById('emailCheckLoading');
+    const checkBtn = document.getElementById('checkEmailBtn');
+    
+    // Validate email
+    if (!email) {
+        showEmailCheckError('Email tidak boleh kosong');
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        showEmailCheckError('Format email tidak valid');
+        return;
+    }
+    
+    // Show loading state
+    loadingDiv.style.display = 'block';
+    errorDiv.style.display = 'none';
+    checkBtn.disabled = true;
+    
+    try {
+        const response = await fetch('check_email.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            if (result.found) {
+                // Email found, fill form with existing data
+                const emailCheckModal = bootstrap.Modal.getInstance(document.getElementById('emailCheckModal'));
+                emailCheckModal.hide();
+                
+                // Show success notification
+                showNotification('Email ditemukan! Mengisi form dengan data yang tersimpan...', 'success');
+                
+                // Fill form with existing data
+                fillFormWithExistingData(result.data);
+                showFormForExistingUser();
+            } else {
+                // Email not found
+                showEmailCheckError('Email tidak ditemukan dalam database. Silakan daftar sebagai pendaftar baru.');
+            }
+        } else {
+            showEmailCheckError(result.message || 'Terjadi kesalahan saat memeriksa email');
+        }
+    } catch (error) {
+        console.error('Error checking email:', error);
+        showEmailCheckError('Terjadi kesalahan koneksi. Silakan coba lagi.');
+    } finally {
+        loadingDiv.style.display = 'none';
+        checkBtn.disabled = false;
+    }
+}
+
+// Show email check error
+function showEmailCheckError(message) {
+    const errorDiv = document.getElementById('emailCheckError');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+// Validate email format
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Clear the registration form
+function clearForm() {
+    const form = document.getElementById('registrationForm');
+    if (form) {
+        form.reset();
+        
+        // Clear any file uploads
+        compressedFiles.clear();
+        tempFileStorage.clear();
+        
+        // Hide file previews
+        const filePreviews = form.querySelectorAll('.file-preview');
+        filePreviews.forEach(preview => {
+            preview.style.display = 'none';
+        });
+        
+        // Clear any error messages
+        const errorContainers = form.querySelectorAll('.form-error-container, .alert-danger');
+        errorContainers.forEach(container => {
+            container.style.display = 'none';
+        });
+    }
+}
+
+// Show form for new user
+function showFormForNewUser() {
+    // Enable all form fields
+    enableFormFields();
+    showNotification('Silakan isi formulir pendaftaran baru', 'info');
+}
+
+// Show form for existing user
+function showFormForExistingUser() {
+    // Enable form fields but make email readonly
+    enableFormFields();
+    const emailField = document.getElementById('email');
+    if (emailField) {
+        emailField.readOnly = true;
+        emailField.style.backgroundColor = '#f8f9fa';
+    }
+    showNotification('Form telah diisi dengan data yang tersimpan. Anda dapat mengubah data sesuai kebutuhan.', 'success');
+}
+
+// Enable all form fields
+function enableFormFields() {
+    const form = document.getElementById('registrationForm');
+    if (form) {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
+    }
+    
+    // Show upload fields
+    showUploadFields();
+}
+
+// Show upload fields
+function showUploadFields() {
+    const uploadWarning = document.getElementById('upload-warning');
+    const uploadFieldsRequired = document.getElementById('upload-fields-required');
+    const uploadFieldsIdentity = document.getElementById('upload-fields-identity');
+    const uploadFieldsOptional = document.getElementById('upload-fields-optional');
+    
+    if (uploadWarning) uploadWarning.style.display = 'none';
+    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'block';
+    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'block';
+    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'block';
+}
+
+// Fill form with existing data
+function fillFormWithExistingData(data) {
+    // Fill text inputs
+    if (data.full_name) document.getElementById('full_name').value = data.full_name;
+    if (data.email) document.getElementById('email').value = data.email;
+    if (data.phone) document.getElementById('phone').value = data.phone;
+    if (data.birth_date) document.getElementById('birth_date').value = data.birth_date;
+    if (data.experience_years) document.getElementById('experience_years').value = data.experience_years;
+    
+    // Fill textareas
+    if (data.address) document.getElementById('address').value = data.address;
+    if (data.fiber_optic_knowledge) document.getElementById('fiber_optic_knowledge').value = data.fiber_optic_knowledge;
+    if (data.work_vision) document.getElementById('work_vision').value = data.work_vision;
+    if (data.work_mission) document.getElementById('work_mission').value = data.work_mission;
+    if (data.motivation) document.getElementById('motivation').value = data.motivation;
+    
+    // Fill select fields
+    if (data.gender) document.getElementById('gender').value = data.gender;
+    if (data.position) document.getElementById('position').value = data.position;
+    if (data.education) document.getElementById('education').value = data.education;
+    if (data.otdr_experience) document.getElementById('otdr_experience').value = data.otdr_experience;
+    if (data.jointing_experience) document.getElementById('jointing_experience').value = data.jointing_experience;
+    if (data.tower_climbing_experience) document.getElementById('tower_climbing_experience').value = data.tower_climbing_experience;
+    if (data.k3_certificate) document.getElementById('k3_certificate').value = data.k3_certificate;
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} notification-toast`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: none;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                 type === 'error' || type === 'danger' ? 'fa-exclamation-triangle' : 
+                 'fa-info-circle';
+    
+    notification.innerHTML = `
+        <i class="fas ${icon} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" aria-label="Close"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Handle close button
+    const closeBtn = notification.querySelector('.btn-close');
+    closeBtn.addEventListener('click', () => {
+        removeNotification(notification);
+    });
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        removeNotification(notification);
+    }, 5000);
+}
+
+// Remove notification with animation
+function removeNotification(notification) {
+    if (notification.parentNode) {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }
+}
+
+// Add CSS animations for notifications
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+    
+    .notification-toast {
+        transition: all 0.3s ease;
+    }
+`;
+document.head.appendChild(notificationStyles);
