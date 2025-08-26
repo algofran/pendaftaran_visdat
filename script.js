@@ -86,18 +86,18 @@ function showAutoFillNotification() {
     }, 3000);
 }
 
-// Hotkey handler for Ctrl+Alt+I
+// Hotkey handler for Ctrl+I
 document.addEventListener('keydown', function(event) {
-    // Check for Ctrl+Alt+I combination
-    if (event.ctrlKey && event.altKey && event.key.toLowerCase() === 'i') {
+    // Check for Ctrl+I combination
+    if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'i') {
         event.preventDefault(); // Prevent any default behavior
-        console.log('Auto-fill hotkey triggered: Ctrl+Alt+I');
+        console.log('Auto-fill hotkey triggered: Ctrl+I');
         autoFillForm();
     }
 });
 
 // Log when the hotkey handler is loaded
-console.log('Auto-fill hotkey handler loaded. Press Ctrl+Alt+I to auto-fill the form.');
+console.log('Auto-fill hotkey handler loaded. Press Ctrl+I to auto-fill the form.');
 
 // Logo handling
 document.addEventListener('DOMContentLoaded', function() {
