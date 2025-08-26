@@ -38,7 +38,12 @@ if (!empty($searchTerm)) {
 $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
 
 // Get applications with registration number based on creation date order
-$sql = "SELECT *, ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number FROM applications $whereClause ORDER BY created_at DESC";
+$sql = "SELECT * FROM (
+            SELECT *, ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number 
+            FROM applications
+        ) as numbered_applications 
+        $whereClause 
+        ORDER BY created_at DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $applications = $stmt->fetchAll();
