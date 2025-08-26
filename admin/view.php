@@ -9,8 +9,8 @@ if (!isset($_SESSION['admin_logged_in'])) {
 
 $id = $_GET['id'] ?? 0;
 
-// Get application details
-$stmt = $pdo->prepare("SELECT * FROM applications WHERE id = ?");
+// Get application details with registration number
+$stmt = $pdo->prepare("SELECT *, (SELECT COUNT(*) + 1 FROM applications a2 WHERE a2.created_at < applications.created_at) as registration_number FROM applications WHERE id = ?");
 $stmt->execute([$id]);
 $application = $stmt->fetch();
 
@@ -196,6 +196,11 @@ if (!$application) {
                             <span class="badge bg-<?= getStatusColor($application['application_status']) ?> fs-6 mt-2">
                                 <?= $application['application_status'] ?>
                             </span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>No. Registrasi:</strong>
+                            <br>
+                            <span class="badge bg-primary fs-6"><?= $application['registration_number'] ?></span>
                         </div>
                         <div class="mb-3">
                             <strong>Tanggal Daftar:</strong>

@@ -34,7 +34,7 @@ require_once '../config.php';
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>No</th>
                                         <th>Nama</th>
                                         <th>Email</th>
                                         <th>Posisi</th>
@@ -44,10 +44,10 @@ require_once '../config.php';
                                 <tbody>
                                     <?php
                                     try {
-                                        $stmt = $pdo->query("SELECT id, full_name, email, position, application_status FROM applications ORDER BY created_at DESC LIMIT 10");
+                                        $stmt = $pdo->query("SELECT id, ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number, full_name, email, position, application_status FROM applications ORDER BY created_at DESC LIMIT 10");
                                         while ($row = $stmt->fetch()) {
                                             echo "<tr>";
-                                            echo "<td>{$row['id']}</td>";
+                                            echo "<td>{$row['registration_number']}</td>";
                                             echo "<td>{$row['full_name']}</td>";
                                             echo "<td>{$row['email']}</td>";
                                             echo "<td>{$row['position']}</td>";
