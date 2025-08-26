@@ -10,15 +10,17 @@
  * @date 2025
  */
 
-// Database configuration
-$host = 'localhost';
-$username = 'root';  // Change this to your database username
-$password = '';       // Change this to your database password
-$database = 'visdat_recruitment';
+// Include configuration file
+require_once 'config.php';
 
 // Error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+if (DEBUG) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
 
 echo "<!DOCTYPE html>
 <html lang='en'>
@@ -49,13 +51,13 @@ echo "<!DOCTYPE html>
                     <div class='card-body'>";
 
 try {
-    // Create database connection
-    $pdo = new PDO("mysql:host=$host;dbname=$database;charset=utf8", $username, $password);
+    // Create database connection using config values
+    $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     echo "<div class='alert alert-success'>
             <i class='fas fa-check-circle'></i> <strong>Database connection successful!</strong>
-            <br>Connected to: <code>$database</code> on <code>$host</code>
+            <br>Connected to: <code>" . DB_NAME . "</code> on <code>" . DB_HOST . "</code>
           </div>";
     
     // Check if the applications table exists
@@ -248,7 +250,7 @@ try {
             <i class='fas fa-lightbulb'></i> <strong>Troubleshooting Tips:</strong>
             <ul class='mb-0'>
                 <li>Check your database connection settings</li>
-                <li>Ensure the database '{$database}' exists</li>
+                <li>Ensure the database '" . DB_NAME . "' exists</li>
                 <li>Verify username and password are correct</li>
                 <li>Make sure MySQL service is running</li>
                 <li>Check if you have ALTER TABLE privileges</li>
