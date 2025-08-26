@@ -73,8 +73,9 @@ try {
         $errors[] = "Format email tidak valid";
     }
     
-    // Check if email already exists
-    if (!empty($_POST['email'])) {
+    // Check if email already exists (only for new registrations)
+    $isUpdate = isset($_POST['is_update']) && $_POST['is_update'] === '1';
+    if (!empty($_POST['email']) && !$isUpdate) {
         $stmt = $pdo->prepare("SELECT id FROM applications WHERE email = ?");
         $stmt->execute([$_POST['email']]);
         if ($stmt->fetch()) {
@@ -208,47 +209,110 @@ try {
         'application_status' => 'Pending'
     ];
     
-    // Insert into database
-    $sql = "INSERT INTO applications (
-        full_name, email, phone, position, education, experience_years, address, birth_date, gender,
-        cv_file, photo_file, ktp_file, ijazah_file, certificate_file, sim_file,
-        fiber_optic_knowledge, otdr_experience, jointing_experience, tower_climbing_experience, k3_certificate,
-        work_vision, work_mission, motivation, application_status
-    ) VALUES (
-        :full_name, :email, :phone, :position, :education, :experience_years, :address, :birth_date, :gender,
-        :cv_file, :photo_file, :ktp_file, :ijazah_file, :certificate_file, :sim_file,
-        :fiber_optic_knowledge, :otdr_experience, :jointing_experience, :tower_climbing_experience, :k3_certificate,
-        :work_vision, :work_mission, :motivation, :application_status
-    )";
-    
-    $stmt = $pdo->prepare($sql);
-    $result = $stmt->execute($data);
-    
-    if ($result) {
-        $applicationId = $pdo->lastInsertId();
+    // Insert or Update into database
+    if ($isUpdate) {
+        // Update existing record
+        $sql = "UPDATE applications SET 
+            full_name = :full_name, phone = :phone, position = :position, education = :education, 
+            experience_years = :experience_years, address = :address, birth_date = :birth_date, gender = :gender,
+            fiber_optic_knowledge = :fiber_optic_knowledge, otdr_experience = :otdr_experience, 
+            jointing_experience = :jointing_experience, tower_climbing_experience = :tower_climbing_experience, 
+            k3_certificate = :k3_certificate, work_vision = :work_vision, work_mission = :work_mission, 
+            motivation = :motivation";
         
-        // Send confirmation email (optional)
-        sendConfirmationEmail($data['email'], $data['full_name'], $applicationId);
+        // Only update file fields if new files were uploaded
+        if (!empty($uploadedFiles['cv_file'])) $sql .= ", cv_file = :cv_file";
+        if (!empty($uploadedFiles['photo_file'])) $sql .= ", photo_file = :photo_file";
+        if (!empty($uploadedFiles['ktp_file'])) $sql .= ", ktp_file = :ktp_file";
+        if (!empty($uploadedFiles['ijazah_file'])) $sql .= ", ijazah_file = :ijazah_file";
+        if (!empty($uploadedFiles['certificate_file'])) $sql .= ", certificate_file = :certificate_file";
+        if (!empty($uploadedFiles['sim_file'])) $sql .= ", sim_file = :sim_file";
         
-        // Generate reference number
-        $referenceNumber = 'VIS-' . date('Ymd') . '-' . str_pad($applicationId, 4, '0', STR_PAD_LEFT);
+        $sql .= " WHERE email = :email";
         
-        ob_end_clean(); // Clear any unexpected output
-        echo json_encode([
-            'success' => true, 
-            'message' => 'Lamaran berhasil dikirim!',
-            'application_id' => $applicationId,
-            'reference_number' => $referenceNumber
-        ]);
-    } else {
-        // Clean up uploaded files if database insert failed
-        foreach ($uploadedFiles as $uploadedFile) {
-            if (file_exists(UPLOAD_DIR . $uploadedFile)) {
-                unlink(UPLOAD_DIR . $uploadedFile);
+        // Prepare data for update (remove file fields that weren't uploaded)
+        $updateData = $data;
+        if (empty($uploadedFiles['cv_file'])) unset($updateData['cv_file']);
+        if (empty($uploadedFiles['photo_file'])) unset($updateData['photo_file']);
+        if (empty($uploadedFiles['ktp_file'])) unset($updateData['ktp_file']);
+        if (empty($uploadedFiles['ijazah_file'])) unset($updateData['ijazah_file']);
+        if (empty($uploadedFiles['certificate_file'])) unset($updateData['certificate_file']);
+        if (empty($uploadedFiles['sim_file'])) unset($updateData['sim_file']);
+        unset($updateData['application_status']); // Don't update application status
+        
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute($updateData);
+        
+        if ($result) {
+            // Get the existing application ID
+            $stmt = $pdo->prepare("SELECT id FROM applications WHERE email = ?");
+            $stmt->execute([$data['email']]);
+            $application = $stmt->fetch();
+            $applicationId = $application['id'];
+            
+            // Generate reference number
+            $referenceNumber = 'VIS-' . date('Ymd') . '-' . str_pad($applicationId, 4, '0', STR_PAD_LEFT);
+            
+            ob_end_clean(); // Clear any unexpected output
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Data lamaran berhasil diperbarui!',
+                'application_id' => $applicationId,
+                'reference_number' => $referenceNumber
+            ]);
+        } else {
+            // Clean up uploaded files if database update failed
+            foreach ($uploadedFiles as $uploadedFile) {
+                if ($uploadedFile && file_exists(UPLOAD_DIR . $uploadedFile)) {
+                    unlink(UPLOAD_DIR . $uploadedFile);
+                }
             }
+            ob_end_clean(); // Clear any unexpected output
+            echo json_encode(['success' => false, 'message' => 'Gagal memperbarui data lamaran']);
         }
-        ob_end_clean(); // Clear any unexpected output
-        echo json_encode(['success' => false, 'message' => 'Gagal menyimpan data lamaran']);
+    } else {
+        // Insert new record
+        $sql = "INSERT INTO applications (
+            full_name, email, phone, position, education, experience_years, address, birth_date, gender,
+            cv_file, photo_file, ktp_file, ijazah_file, certificate_file, sim_file,
+            fiber_optic_knowledge, otdr_experience, jointing_experience, tower_climbing_experience, k3_certificate,
+            work_vision, work_mission, motivation, application_status
+        ) VALUES (
+            :full_name, :email, :phone, :position, :education, :experience_years, :address, :birth_date, :gender,
+            :cv_file, :photo_file, :ktp_file, :ijazah_file, :certificate_file, :sim_file,
+            :fiber_optic_knowledge, :otdr_experience, :jointing_experience, :tower_climbing_experience, :k3_certificate,
+            :work_vision, :work_mission, :motivation, :application_status
+        )";
+        
+        $stmt = $pdo->prepare($sql);
+        $result = $stmt->execute($data);
+        
+        if ($result) {
+            $applicationId = $pdo->lastInsertId();
+            
+            // Send confirmation email (optional)
+            sendConfirmationEmail($data['email'], $data['full_name'], $applicationId);
+            
+            // Generate reference number
+            $referenceNumber = 'VIS-' . date('Ymd') . '-' . str_pad($applicationId, 4, '0', STR_PAD_LEFT);
+            
+            ob_end_clean(); // Clear any unexpected output
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Lamaran berhasil dikirim!',
+                'application_id' => $applicationId,
+                'reference_number' => $referenceNumber
+            ]);
+        } else {
+            // Clean up uploaded files if database insert failed
+            foreach ($uploadedFiles as $uploadedFile) {
+                if ($uploadedFile && file_exists(UPLOAD_DIR . $uploadedFile)) {
+                    unlink(UPLOAD_DIR . $uploadedFile);
+                }
+            }
+            ob_end_clean(); // Clear any unexpected output
+            echo json_encode(['success' => false, 'message' => 'Gagal menyimpan data lamaran']);
+        }
     }
     
 } catch (Exception $e) {

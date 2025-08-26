@@ -1375,6 +1375,12 @@ function clearForm() {
     if (form) {
         form.reset();
         
+        // Reset the update flag
+        const isUpdateField = document.getElementById('is_update');
+        if (isUpdateField) {
+            isUpdateField.value = '0';
+        }
+        
         // Clear any file uploads
         compressedFiles.clear();
         tempFileStorage.clear();
@@ -1390,6 +1396,13 @@ function clearForm() {
         errorContainers.forEach(container => {
             container.style.display = 'none';
         });
+        
+        // Remove readonly from email field in case it was set
+        const emailField = document.getElementById('email');
+        if (emailField) {
+            emailField.readOnly = false;
+            emailField.style.backgroundColor = '';
+        }
     }
 }
 
@@ -1397,6 +1410,13 @@ function clearForm() {
 function showFormForNewUser() {
     // Enable all form fields
     enableFormFields();
+    
+    // Reset the update flag
+    const isUpdateField = document.getElementById('is_update');
+    if (isUpdateField) {
+        isUpdateField.value = '0';
+    }
+    
     showNotification('Silakan isi formulir pendaftaran baru', 'info');
 }
 
@@ -1409,6 +1429,13 @@ function showFormForExistingUser() {
         emailField.readOnly = true;
         emailField.style.backgroundColor = '#f8f9fa';
     }
+    
+    // Set the update flag
+    const isUpdateField = document.getElementById('is_update');
+    if (isUpdateField) {
+        isUpdateField.value = '1';
+    }
+    
     showNotification('Form telah diisi dengan data yang tersimpan. Anda dapat mengubah data sesuai kebutuhan.', 'success');
 }
 

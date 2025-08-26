@@ -131,6 +131,9 @@
                         </div>
                         <div class="card-body">
                             <form id="registrationForm" action="process.php" method="POST" enctype="multipart/form-data">
+                                <!-- Hidden field to track if this is an update -->
+                                <input type="hidden" id="is_update" name="is_update" value="0">
+                                
                                 <!-- Data Pribadi -->
                                 <div class="section-header">
                                     <h4 class="text-primary mb-3">Data Pribadi</h4>
