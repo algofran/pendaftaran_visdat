@@ -58,34 +58,8 @@ function autoFillForm() {
 
 // Show notification when auto-fill is triggered
 function showAutoFillNotification() {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        z-index: 9999;
-        font-weight: bold;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: opacity 0.3s ease;
-    `;
-    notification.textContent = 'Form auto-filled with fake data! 🎉';
-    
-    document.body.appendChild(notification);
-    
-    // Remove notification after 3 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 3000);
+    // Use the enhanced notification function
+    showNotification('Form telah diisi dengan data yang tersimpan. Anda dapat mengubah data sesuai kebutuhan.', 'success', 4000);
 }
 
 // Hotkey handler for Ctrl+I
@@ -754,6 +728,112 @@ function showMessage(message, type) {
             alertDiv.remove();
         }
     }, 5000);
+}
+
+// Enhanced notification function with solid background
+function showNotification(message, type = 'success', duration = 4000) {
+    // Remove existing notifications
+    document.querySelectorAll('.custom-notification').forEach(el => el.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'custom-notification';
+    
+    // Define colors based on type
+    const colors = {
+        success: {
+            bg: '#28a745',
+            border: '#1e7e34',
+            text: '#ffffff'
+        },
+        error: {
+            bg: '#dc3545',
+            border: '#c82333',
+            text: '#ffffff'
+        },
+        warning: {
+            bg: '#ffc107',
+            border: '#e0a800',
+            text: '#212529'
+        },
+        info: {
+            bg: '#17a2b8',
+            border: '#138496',
+            text: '#ffffff'
+        }
+    };
+    
+    const colorScheme = colors[type] || colors.success;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${colorScheme.bg} !important;
+        background-color: ${colorScheme.bg} !important;
+        color: ${colorScheme.text} !important;
+        padding: 14px 20px;
+        border-radius: 8px;
+        z-index: 10001;
+        font-weight: 600;
+        font-size: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        border: 1px solid ${colorScheme.border};
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateX(100%);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        max-width: 400px;
+        word-wrap: break-word;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    // Add icon based on type
+    const icons = {
+        success: '✅',
+        error: '❌', 
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+    
+    notification.innerHTML = `
+        <span style="font-size: 16px;">${icons[type] || icons.success}</span>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    requestAnimationFrame(() => {
+        notification.style.transform = 'translateX(0)';
+        notification.style.opacity = '1';
+    });
+    
+    // Auto remove
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, duration);
+    
+    // Click to dismiss
+    notification.addEventListener('click', () => {
+        notification.style.transform = 'translateX(100%)';
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    });
 }
 
 // Setup dynamic form behavior
