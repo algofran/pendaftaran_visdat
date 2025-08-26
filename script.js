@@ -1369,12 +1369,6 @@ function showEmailCheckError(message) {
     errorDiv.style.display = 'block';
 }
 
-// Validate email format
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
 // Clear the registration form
 function clearForm() {
     const form = document.getElementById('registrationForm');
