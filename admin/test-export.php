@@ -52,7 +52,7 @@
             // Test data
             const testData = [
                 {
-                    'ID': 1,
+                    'No': 1,
                     'Nama Lengkap': 'John Doe',
                     'Email': 'john@example.com',
                     'Telepon': '081234567890',
@@ -79,7 +79,7 @@
                     'Terakhir Update': '02/01/2024 14:20:00'
                 },
                 {
-                    'ID': 2,
+                    'No': 2,
                     'Nama Lengkap': 'Jane Smith',
                     'Email': 'jane@example.com',
                     'Telepon': '081234567891',
@@ -116,7 +116,7 @@
                 
                 // Set column widths for better formatting
                 const columnWidths = [
-                    { wch: 5 },   // ID
+                    { wch: 5 },   // No
                     { wch: 20 },  // Nama Lengkap
                     { wch: 25 },  // Email
                     { wch: 15 },  // Telepon

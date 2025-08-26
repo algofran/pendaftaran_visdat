@@ -37,8 +37,8 @@ if (!empty($searchTerm)) {
 
 $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
 
-// Get applications
-$sql = "SELECT * FROM applications $whereClause ORDER BY created_at DESC";
+// Get applications with registration number based on creation date order
+$sql = "SELECT *, ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number FROM applications $whereClause ORDER BY created_at DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $applications = $stmt->fetchAll();
@@ -214,7 +214,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                     <table class="table table-striped table-hover">
                         <thead class="table-dark">
                             <tr>
-                                <th>ID</th>
+                                <th>No</th>
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Posisi</th>
@@ -234,7 +234,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                             <?php else: ?>
                                 <?php foreach ($applications as $app): ?>
                                     <tr>
-                                        <td><?= $app['id'] ?></td>
+                                        <td><?= $app['registration_number'] ?></td>
                                         <td><?= htmlspecialchars($app['full_name']) ?></td>
                                         <td><?= htmlspecialchars($app['email']) ?></td>
                                         <td><?= htmlspecialchars($app['position']) ?></td>

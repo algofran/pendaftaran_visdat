@@ -13,9 +13,10 @@ if (!isset($_SESSION['admin_logged_in'])) {
 header('Content-Type: application/json');
 
 try {
-    // Get all applications with full data
+    // Get all applications with full data and registration number
     $sql = "SELECT 
                 id,
+                ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number,
                 full_name,
                 email,
                 phone,
@@ -59,7 +60,7 @@ try {
     $exportData = [];
     foreach ($applications as $app) {
         $row = [
-            'ID' => $app['id'],
+            'No' => $app['registration_number'],
             'Nama Lengkap' => $app['full_name'],
             'Email' => $app['email'],
             'Telepon' => $app['phone'],
@@ -94,7 +95,7 @@ try {
     if (empty($exportData)) {
         // Create a sample row with headers
         $exportData = [[
-            'ID' => '',
+            'No' => '',
             'Nama Lengkap' => '',
             'Email' => '',
             'Telepon' => '',

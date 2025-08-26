@@ -309,7 +309,7 @@ function exportToExcel() {
             
             // Set column widths for better formatting
             const columnWidths = [
-                { wch: 5 },   // ID
+                { wch: 5 },   // No
                 { wch: 20 },  // Nama Lengkap
                 { wch: 25 },  // Email
                 { wch: 15 },  // Telepon
