@@ -1122,9 +1122,9 @@ function setupUploadFieldValidation() {
         if (allRequiredFilled) {
             // Show upload fields, hide warning
             uploadWarning.style.display = 'none';
-            uploadFieldsRequired.style.display = 'block';
-            uploadFieldsIdentity.style.display = 'block';
-            uploadFieldsOptional.style.display = 'block';
+            uploadFieldsRequired.style.display = 'flex';
+            uploadFieldsIdentity.style.display = 'flex';
+            uploadFieldsOptional.style.display = 'flex';
         } else {
             // Hide upload fields, show warning
             uploadWarning.style.display = 'block';
@@ -1478,9 +1478,9 @@ function showUploadFields() {
     const uploadFieldsOptional = document.getElementById('upload-fields-optional');
     
     if (uploadWarning) uploadWarning.style.display = 'none';
-    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'block';
-    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'block';
-    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'block';
+    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'flex';
+    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'flex';
+    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'flex';
 }
 
 // Fill form with existing data
