@@ -38,15 +38,51 @@ if (!empty($searchTerm)) {
 $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
 
 // Get applications with registration number based on creation date order
-$sql = "SELECT * FROM (
-            SELECT *, ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number 
-            FROM applications
-        ) as numbered_applications 
-        $whereClause 
-        ORDER BY created_at DESC";
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$applications = $stmt->fetchAll();
+// First, get all applications to calculate registration numbers based on creation order
+$baseQuery = "SELECT * FROM applications ORDER BY created_at ASC";
+$baseStmt = $pdo->query($baseQuery);
+$allApplications = $baseStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Add registration numbers
+foreach ($allApplications as $index => $app) {
+    $allApplications[$index]['registration_number'] = $index + 1;
+}
+
+// Now filter the applications if needed
+if (!empty($whereConditions)) {
+    $applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $searchTerm) {
+        // Apply status filter
+        if ($statusFilter !== 'all' && $app['application_status'] !== $statusFilter) {
+            return false;
+        }
+        
+        // Apply position filter
+        if ($positionFilter !== 'all' && $app['position'] !== $positionFilter) {
+            return false;
+        }
+        
+        // Apply search filter
+        if (!empty($searchTerm)) {
+            $searchLower = strtolower($searchTerm);
+            $fullNameMatch = strpos(strtolower($app['full_name']), $searchLower) !== false;
+            $emailMatch = strpos(strtolower($app['email']), $searchLower) !== false;
+            $phoneMatch = strpos(strtolower($app['phone']), $searchLower) !== false;
+            
+            if (!($fullNameMatch || $emailMatch || $phoneMatch)) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+} else {
+    $applications = $allApplications;
+}
+
+// Sort by created_at DESC for display
+usort($applications, function($a, $b) {
+    return strtotime($b['created_at']) - strtotime($a['created_at']);
+});
 
 // Get statistics
 $statsQuery = "SELECT 
