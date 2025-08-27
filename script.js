@@ -1149,19 +1149,15 @@ function setupUploadFieldValidation() {
         if (allRequiredFilled) {
             // Show upload fields, hide warning
             uploadWarning.style.display = 'none';
-            uploadFieldsRequired.style.display = 'flex';
-            uploadFieldsIdentity.style.display = 'flex';
-            uploadFieldsOptional.style.display = 'flex';
         } else {
-            // Hide upload fields, show warning
+            // Show warning but keep upload fields visible
             uploadWarning.style.display = 'block';
-            uploadFieldsRequired.style.display = 'none';
-            uploadFieldsIdentity.style.display = 'none';
-            uploadFieldsOptional.style.display = 'none';
-            
-            // Clear any uploaded files when hiding fields
-            clearUploadedFiles();
         }
+        
+        // Always show upload fields - users should be able to upload files anytime
+        uploadFieldsRequired.style.display = 'flex';
+        uploadFieldsIdentity.style.display = 'flex';
+        uploadFieldsOptional.style.display = 'flex';
     }
     
     // Function to clear uploaded files
@@ -1187,6 +1183,14 @@ function setupUploadFieldValidation() {
     
     // Initial check on page load
     updateUploadFieldsVisibility();
+    
+    // Force show upload fields on page load for immediate access
+    setTimeout(() => {
+        if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'flex';
+        if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'flex';
+        if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'flex';
+        console.log('Upload fields forced to show');
+    }, 100);
 }
 
 // Faker.js Demo Functions for Test Data Generation
@@ -1295,6 +1299,17 @@ function initializeModalSystem() {
         // Clear form and show empty form
         clearForm();
         showFormForNewUser();
+        
+        // Ensure upload fields are visible
+        setTimeout(() => {
+            const uploadFieldsRequired = document.getElementById('upload-fields-required');
+            const uploadFieldsIdentity = document.getElementById('upload-fields-identity');
+            const uploadFieldsOptional = document.getElementById('upload-fields-optional');
+            
+            if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'flex';
+            if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'flex';
+            if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'flex';
+        }, 200);
     });
     
     // Handle existing registrant button
@@ -1450,16 +1465,16 @@ function showFormForNewUser() {
         'education', 'experience_years', 'address', 'work_vision', 'work_mission', 'motivation'
     ];
     
-    // Hide upload fields initially and show warning
+    // Show upload fields and warning
     const uploadWarning = document.getElementById('upload-warning');
     const uploadFieldsRequired = document.getElementById('upload-fields-required');
     const uploadFieldsIdentity = document.getElementById('upload-fields-identity');
     const uploadFieldsOptional = document.getElementById('upload-fields-optional');
     
     if (uploadWarning) uploadWarning.style.display = 'block';
-    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'none';
-    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'none';
-    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'none';
+    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'flex';
+    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'flex';
+    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'flex';
     
     showNotification('Silakan isi formulir pendaftaran baru', 'info');
 }
@@ -1571,9 +1586,17 @@ function showUploadFieldsForExistingUser() {
 
 // Setup event listeners for upload ulang buttons
 function setupUploadUlangButtons() {
+    // Remove existing event listeners to prevent duplicates
+    document.querySelectorAll('.upload-ulang-btn').forEach(button => {
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+    });
+    
+    // Add fresh event listeners
     document.querySelectorAll('.upload-ulang-btn').forEach(button => {
         button.addEventListener('click', function() {
             const fieldName = this.getAttribute('data-field');
+            console.log('Upload ulang clicked for:', fieldName);
             toggleFileReplacement(fieldName);
         });
     });

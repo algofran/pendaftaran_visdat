@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Test - PT. Visdat Teknik Utama</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Upload Test</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Testing upload field visibility and upload ulang button functionality:</p>
+                        
+                        <!-- Upload Test Section -->
+                        <div class="section-header">
+                            <h4 class="text-primary mb-3">Upload Dokumen</h4>
+                            <div id="upload-warning" class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Tips:</strong> Upload fields should be visible immediately.
+                            </div>
+                        </div>
+                        
+                        <div id="upload-fields-required" class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">CV/Resume *</label>
+                                <!-- File status display for existing users -->
+                                <div id="cv-file-status" class="existing-file-status" style="display: none;">
+                                    <div class="alert alert-success mb-2">
+                                        <i class="fas fa-check-circle"></i> File CV sudah tersimpan: <span class="file-name">test_cv.pdf</span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="cv_file">
+                                            <i class="fas fa-upload"></i> Upload Ulang
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="upload-container">
+                                    <input type="file" class="form-control file-input" name="cv_file" accept=".pdf,.doc,.docx" required>
+                                    <div class="file-preview" style="display: none;">
+                                        <div class="preview-content"></div>
+                                        <button type="button" class="btn btn-sm btn-danger remove-file">Hapus</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="testBtn" class="btn btn-primary">Test Upload Ulang Button</button>
+                        <button id="testStatus" class="btn btn-secondary">Show Existing File Status</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Test upload ulang functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Upload test page loaded');
+            
+            // Test button to toggle file status
+            document.getElementById('testStatus').addEventListener('click', function() {
+                const status = document.getElementById('cv-file-status');
+                if (status.style.display === 'none') {
+                    status.style.display = 'block';
+                    status.classList.add('file-exists');
+                    this.textContent = 'Hide File Status';
+                } else {
+                    status.style.display = 'none';
+                    status.classList.remove('file-exists', 'replacement-mode');
+                    this.textContent = 'Show Existing File Status';
+                }
+            });
+            
+            // Test upload ulang button
+            document.getElementById('testBtn').addEventListener('click', function() {
+                const button = document.querySelector('.upload-ulang-btn');
+                if (button) {
+                    const fieldName = button.getAttribute('data-field');
+                    console.log('Testing upload ulang for:', fieldName);
+                    toggleFileReplacement(fieldName);
+                }
+            });
+            
+            // Setup upload ulang button
+            document.querySelectorAll('.upload-ulang-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const fieldName = this.getAttribute('data-field');
+                    console.log('Upload ulang clicked for:', fieldName);
+                    toggleFileReplacement(fieldName);
+                });
+            });
+        });
+        
+        // Toggle file replacement mode (simplified version)
+        function toggleFileReplacement(fieldName) {
+            const statusElement = document.getElementById('cv-file-status');
+            const uploadContainer = statusElement.nextElementSibling;
+            
+            if (statusElement && uploadContainer) {
+                if (statusElement.classList.contains('replacement-mode')) {
+                    // Exit replacement mode
+                    statusElement.classList.remove('replacement-mode');
+                    statusElement.classList.add('file-exists');
+                    
+                    // Update button text
+                    const button = statusElement.querySelector('.upload-ulang-btn');
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-upload"></i> Upload Ulang';
+                    }
+                } else {
+                    // Enter replacement mode
+                    statusElement.classList.add('replacement-mode');
+                    statusElement.classList.remove('file-exists');
+                    
+                    // Update button text
+                    const button = statusElement.querySelector('.upload-ulang-btn');
+                    if (button) {
+                        button.innerHTML = '<i class="fas fa-times"></i> Batal';
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
