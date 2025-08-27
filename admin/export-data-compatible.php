@@ -1,5 +1,6 @@
 <?php
-// Enable error reporting for debugging
+// MySQL version compatible export script
+// This version works with MySQL 5.7 and older versions
 error_reporting(E_ALL);
 ini_set('display_errors', 0); // Don't display errors to browser in production
 ini_set('log_errors', 1);
@@ -49,84 +50,40 @@ try {
     
     error_log("Applications table exists");
     
-    // Check MySQL version to determine if ROW_NUMBER() is supported
-    $versionStmt = $pdo->query("SELECT VERSION() as version");
-    $version = $versionStmt->fetch()['version'];
-    $versionNumber = floatval($version);
+    // Get all applications with full data - using MySQL 5.7 compatible query
+    // Instead of ROW_NUMBER(), we'll use a variable to generate sequential numbers
+    $sql = "SELECT 
+                id,
+                full_name,
+                email,
+                phone,
+                position,
+                education,
+                experience_years,
+                address,
+                birth_date,
+                gender,
+                cv_file,
+                photo_file,
+                ktp_file,
+                ijazah_file,
+                certificate_file,
+                sim_file,
+                fiber_optic_knowledge,
+                otdr_experience,
+                jointing_experience,
+                tower_climbing_experience,
+                k3_certificate,
+                work_vision,
+                work_mission,
+                motivation,
+                application_status,
+                created_at,
+                updated_at
+            FROM applications 
+            ORDER BY created_at ASC";
     
-    error_log("MySQL version: $version");
-    
-    // Get all applications with full data
-    if ($versionNumber >= 8.0) {
-        // Use ROW_NUMBER() for MySQL 8.0+
-        error_log("Using ROW_NUMBER() for MySQL 8.0+");
-        $sql = "SELECT 
-                    id,
-                    ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number,
-                    full_name,
-                    email,
-                    phone,
-                    position,
-                    education,
-                    experience_years,
-                    address,
-                    birth_date,
-                    gender,
-                    cv_file,
-                    photo_file,
-                    ktp_file,
-                    ijazah_file,
-                    certificate_file,
-                    sim_file,
-                    fiber_optic_knowledge,
-                    otdr_experience,
-                    jointing_experience,
-                    tower_climbing_experience,
-                    k3_certificate,
-                    work_vision,
-                    work_mission,
-                    motivation,
-                    application_status,
-                    created_at,
-                    updated_at
-                FROM applications 
-                ORDER BY created_at ASC";
-    } else {
-        // Use simple query for older MySQL versions
-        error_log("Using compatible query for MySQL < 8.0");
-        $sql = "SELECT 
-                    id,
-                    full_name,
-                    email,
-                    phone,
-                    position,
-                    education,
-                    experience_years,
-                    address,
-                    birth_date,
-                    gender,
-                    cv_file,
-                    photo_file,
-                    ktp_file,
-                    ijazah_file,
-                    certificate_file,
-                    sim_file,
-                    fiber_optic_knowledge,
-                    otdr_experience,
-                    jointing_experience,
-                    tower_climbing_experience,
-                    k3_certificate,
-                    work_vision,
-                    work_mission,
-                    motivation,
-                    application_status,
-                    created_at,
-                    updated_at
-                FROM applications 
-                ORDER BY created_at ASC";
-    }
-    
-    error_log("Preparing SQL query");
+    error_log("Preparing SQL query (MySQL 5.7 compatible)");
     $stmt = $pdo->prepare($sql);
     
     error_log("Executing SQL query");
@@ -145,14 +102,11 @@ try {
 
     // Process data for export
     $exportData = [];
-    $registrationNumber = 1; // Manual counter for MySQL < 8.0
+    $registrationNumber = 1; // Manual counter for registration number
     
     foreach ($applications as $app) {
-        // Use registration_number from query if available (MySQL 8.0+), otherwise use manual counter
-        $regNumber = isset($app['registration_number']) ? $app['registration_number'] : $registrationNumber;
-        
         $row = [
-            'No' => $regNumber,
+            'No' => $registrationNumber,
             'Nama Lengkap' => $app['full_name'],
             'Email' => $app['email'],
             'Telepon' => $app['phone'],
@@ -200,6 +154,8 @@ try {
             'Jenis Kelamin' => '',
             'File CV' => '',
             'File Foto' => '',
+            'File KTP' => '',
+            'File Ijazah' => '',
             'File Sertifikat K3' => '',
             'File SIM' => '',
             'Pengetahuan Fiber Optik' => '',
