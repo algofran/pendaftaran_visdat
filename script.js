@@ -134,6 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize file upload handlers
     initializeFileUploads();
     
+    // Setup upload ulang buttons for existing users
+    setupUploadUlangButtons();
+    
     // Form validation and submission
     const form = document.getElementById('registrationForm');
     if (form) {
@@ -722,53 +725,77 @@ function validateForm() {
         isValid = false;
     }
     
-    // Validate required files
-    if (!compressedFiles.has('cv_file')) {
+    // Validate required files (skip validation if file exists for existing users)
+    const existingFiles = window.existingFiles || {};
+    
+    if (!compressedFiles.has('cv_file') && !existingFiles.cv_file) {
         const cvFileInput = document.querySelector('[name="cv_file"]');
-        if (cvFileInput) {
+        if (cvFileInput && cvFileInput.hasAttribute('required')) {
             showUploadFieldError(cvFileInput, 'CV/Resume wajib diupload');
             if (!firstInvalidField) {
                 firstInvalidField = cvFileInput;
             }
+            isValid = false;
         }
-        isValid = false;
     }
     
-    if (!compressedFiles.has('photo_file')) {
+    if (!compressedFiles.has('photo_file') && !existingFiles.photo_file) {
         const photoFileInput = document.querySelector('[name="photo_file"]');
-        if (photoFileInput) {
+        if (photoFileInput && photoFileInput.hasAttribute('required')) {
             showUploadFieldError(photoFileInput, 'Foto 3x4 wajib diupload');
             if (!firstInvalidField) {
                 firstInvalidField = photoFileInput;
             }
+            isValid = false;
         }
-        isValid = false;
+    }
+    
+    if (!compressedFiles.has('ktp_file') && !existingFiles.ktp_file) {
+        const ktpFileInput = document.querySelector('[name="ktp_file"]');
+        if (ktpFileInput && ktpFileInput.hasAttribute('required')) {
+            showUploadFieldError(ktpFileInput, 'Foto KTP wajib diupload');
+            if (!firstInvalidField) {
+                firstInvalidField = ktpFileInput;
+            }
+            isValid = false;
+        }
+    }
+    
+    if (!compressedFiles.has('ijazah_file') && !existingFiles.ijazah_file) {
+        const ijazahFileInput = document.querySelector('[name="ijazah_file"]');
+        if (ijazahFileInput && ijazahFileInput.hasAttribute('required')) {
+            showUploadFieldError(ijazahFileInput, 'Foto Ijazah wajib diupload');
+            if (!firstInvalidField) {
+                firstInvalidField = ijazahFileInput;
+            }
+            isValid = false;
+        }
     }
     
     // Validate position-specific required files
     const position = document.getElementById('position').value;
     
-    if (position === 'Driver' && !compressedFiles.has('sim_file')) {
+    if (position === 'Driver' && !compressedFiles.has('sim_file') && !existingFiles.sim_file) {
         const simFileInput = document.querySelector('[name="sim_file"]');
-        if (simFileInput) {
+        if (simFileInput && simFileInput.hasAttribute('required')) {
             showUploadFieldError(simFileInput, 'SIM A/C wajib untuk posisi Driver');
             if (!firstInvalidField) {
                 firstInvalidField = simFileInput;
             }
+            isValid = false;
         }
-        isValid = false;
     }
     
     const technicalPositions = ['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer'];
-    if (technicalPositions.includes(position) && !compressedFiles.has('certificate_file')) {
+    if (technicalPositions.includes(position) && !compressedFiles.has('certificate_file') && !existingFiles.certificate_file) {
         const certFileInput = document.querySelector('[name="certificate_file"]');
-        if (certFileInput) {
+        if (certFileInput && certFileInput.hasAttribute('required')) {
             showUploadFieldError(certFileInput, 'Sertifikat K3 wajib untuk posisi teknis');
             if (!firstInvalidField) {
                 firstInvalidField = certFileInput;
             }
+            isValid = false;
         }
-        isValid = false;
     }
     
     // Scroll to first invalid field if validation failed
@@ -1453,8 +1480,8 @@ function showFormForExistingUser() {
         isUpdateField.value = '1';
     }
     
-    // Show upload fields for existing users since they already have filled data
-    showUploadFields();
+    // Show upload fields and handle existing files
+    showUploadFieldsForExistingUser();
     
     showNotification('Form telah diisi dengan data yang tersimpan. Anda dapat mengubah data sesuai kebutuhan.', 'success');
 }
@@ -1483,6 +1510,128 @@ function showUploadFields() {
     if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'flex';
 }
 
+// Show upload fields for existing user with file status handling
+function showUploadFieldsForExistingUser() {
+    const uploadWarning = document.getElementById('upload-warning');
+    const uploadFieldsRequired = document.getElementById('upload-fields-required');
+    const uploadFieldsIdentity = document.getElementById('upload-fields-identity');
+    const uploadFieldsOptional = document.getElementById('upload-fields-optional');
+    
+    if (uploadWarning) uploadWarning.style.display = 'none';
+    if (uploadFieldsRequired) uploadFieldsRequired.style.display = 'flex';
+    if (uploadFieldsIdentity) uploadFieldsIdentity.style.display = 'flex';
+    if (uploadFieldsOptional) uploadFieldsOptional.style.display = 'flex';
+    
+    // Handle existing files
+    const existingFiles = window.existingFiles || {};
+    const fileFields = [
+        { key: 'cv_file', statusId: 'cv-file-status', label: 'CV' },
+        { key: 'photo_file', statusId: 'photo-file-status', label: 'foto' },
+        { key: 'ktp_file', statusId: 'ktp-file-status', label: 'KTP' },
+        { key: 'ijazah_file', statusId: 'ijazah-file-status', label: 'ijazah' },
+        { key: 'certificate_file', statusId: 'certificate-file-status', label: 'sertifikat K3' },
+        { key: 'sim_file', statusId: 'sim-file-status', label: 'SIM' }
+    ];
+    
+    fileFields.forEach(field => {
+        const statusElement = document.getElementById(field.statusId);
+        const uploadContainer = statusElement ? statusElement.nextElementSibling : null;
+        const fileInput = uploadContainer ? uploadContainer.querySelector('input[type="file"]') : null;
+        
+        if (existingFiles[field.key] && statusElement && uploadContainer && fileInput) {
+            // File exists, show status and hide upload field
+            statusElement.style.display = 'block';
+            statusElement.classList.add('file-exists');
+            statusElement.classList.remove('replacement-mode');
+            
+            // Update file name display
+            const fileNameSpan = statusElement.querySelector('.file-name');
+            if (fileNameSpan) {
+                fileNameSpan.textContent = existingFiles[field.key];
+            }
+            
+            // Remove required attribute since file exists
+            fileInput.removeAttribute('required');
+        } else if (statusElement && uploadContainer && fileInput) {
+            // File doesn't exist, hide status and show upload field
+            statusElement.style.display = 'none';
+            statusElement.classList.remove('file-exists');
+            statusElement.classList.remove('replacement-mode');
+            
+            // Keep required attribute for required fields
+            if (['cv_file', 'photo_file', 'ktp_file', 'ijazah_file'].includes(field.key)) {
+                fileInput.setAttribute('required', 'required');
+            }
+        }
+    });
+    
+    // Add event listeners for upload ulang buttons
+    setupUploadUlangButtons();
+}
+
+// Setup event listeners for upload ulang buttons
+function setupUploadUlangButtons() {
+    document.querySelectorAll('.upload-ulang-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const fieldName = this.getAttribute('data-field');
+            toggleFileReplacement(fieldName);
+        });
+    });
+}
+
+// Toggle file replacement mode
+function toggleFileReplacement(fieldName) {
+    // Map field names to status element IDs
+    const fieldStatusMap = {
+        'cv_file': 'cv-file-status',
+        'photo_file': 'photo-file-status',
+        'ktp_file': 'ktp-file-status',
+        'ijazah_file': 'ijazah-file-status',
+        'certificate_file': 'certificate-file-status',
+        'sim_file': 'sim-file-status'
+    };
+    
+    const statusId = fieldStatusMap[fieldName];
+    const statusElement = document.getElementById(statusId);
+    const uploadContainer = statusElement ? statusElement.nextElementSibling : null;
+    const fileInput = uploadContainer ? uploadContainer.querySelector('input[type="file"]') : null;
+    
+    if (statusElement && uploadContainer && fileInput) {
+        if (statusElement.classList.contains('replacement-mode')) {
+            // Exit replacement mode - show file status, hide upload field
+            statusElement.classList.remove('replacement-mode');
+            statusElement.classList.add('file-exists');
+            
+            // Clear any selected file
+            fileInput.value = '';
+            
+            // Remove required attribute since existing file will be kept
+            fileInput.removeAttribute('required');
+            
+            // Update button text
+            const button = statusElement.querySelector('.upload-ulang-btn');
+            if (button) {
+                button.innerHTML = '<i class="fas fa-upload"></i> Upload Ulang';
+            }
+        } else {
+            // Enter replacement mode - show upload field
+            statusElement.classList.add('replacement-mode');
+            statusElement.classList.remove('file-exists');
+            
+            // Add required attribute for required fields when replacing
+            if (['cv_file', 'photo_file', 'ktp_file', 'ijazah_file'].includes(fieldName)) {
+                fileInput.setAttribute('required', 'required');
+            }
+            
+            // Update button text
+            const button = statusElement.querySelector('.upload-ulang-btn');
+            if (button) {
+                button.innerHTML = '<i class="fas fa-times"></i> Batal';
+            }
+        }
+    }
+}
+
 // Fill form with existing data
 function fillFormWithExistingData(data) {
     // Fill text inputs
@@ -1507,6 +1656,9 @@ function fillFormWithExistingData(data) {
     if (data.jointing_experience) document.getElementById('jointing_experience').value = data.jointing_experience;
     if (data.tower_climbing_experience) document.getElementById('tower_climbing_experience').value = data.tower_climbing_experience;
     if (data.k3_certificate) document.getElementById('k3_certificate').value = data.k3_certificate;
+    
+    // Store file information for later use
+    window.existingFiles = data.files || {};
 }
 
 // Show notification

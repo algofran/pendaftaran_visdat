@@ -86,7 +86,15 @@ try {
                 'k3_certificate' => $application['k3_certificate'],
                 'work_vision' => $application['work_vision'],
                 'work_mission' => $application['work_mission'],
-                'motivation' => $application['motivation']
+                'motivation' => $application['motivation'],
+                'files' => [
+                    'cv_file' => $application['cv_file'],
+                    'photo_file' => $application['photo_file'],
+                    'ktp_file' => $application['ktp_file'],
+                    'ijazah_file' => $application['ijazah_file'],
+                    'certificate_file' => $application['certificate_file'],
+                    'sim_file' => $application['sim_file']
+                ]
             ]
         ]);
     } else {

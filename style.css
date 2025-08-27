@@ -1095,6 +1095,55 @@ label[for="motivation"]::after {
 }
 
 /* For file inputs within upload containers */
+/* File status styles for existing users */
+.existing-file-status {
+    margin-bottom: 10px;
+}
+
+.existing-file-status .alert {
+    padding: 8px 12px;
+    margin-bottom: 0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.existing-file-status .file-name {
+    font-weight: 500;
+    font-family: monospace;
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin: 0 8px;
+}
+
+.upload-ulang-btn {
+    white-space: nowrap;
+    font-size: 0.875rem;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+}
+
+.upload-ulang-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload-ulang-btn i {
+    margin-right: 4px;
+}
+
+/* Hide upload container when file exists and not in replacement mode */
+.existing-file-status.file-exists + .upload-container {
+    display: none;
+}
+
+/* Show upload container when in replacement mode */
+.existing-file-status.replacement-mode + .upload-container {
+    display: block;
+}
+
 .upload-container .field-highlight {
     border: 2px solid #ffc107 !important;
     border-radius: 6px;
