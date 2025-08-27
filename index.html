@@ -284,6 +284,15 @@
                                 <div id="upload-fields-required" class="row mb-3" style="display: none;">
                                     <div class="col-md-6">
                                         <label class="form-label">CV/Resume *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="cv-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File CV sudah tersimpan: <span class="file-name"></span>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="cv_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="upload-container">
                                             <input type="file" class="form-control file-input" name="cv_file" accept=".pdf,.doc,.docx" required>
                                             <div class="file-preview" style="display: none;">
@@ -305,6 +314,15 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Foto 3x4 *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="photo-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File foto sudah tersimpan: <span class="file-name"></span>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="photo_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="upload-container">
                                             <input type="file" class="form-control file-input image-input" name="photo_file" accept=".jpg,.jpeg,.png"
                                                 required>
@@ -330,6 +348,15 @@
                                 <div id="upload-fields-identity" class="row mb-3" style="display: none;">
                                     <div class="col-md-6">
                                         <label class="form-label">Foto KTP *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="ktp-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File KTP sudah tersimpan: <span class="file-name"></span>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="ktp_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="upload-container">
                                             <input type="file" class="form-control file-input image-input" name="ktp_file" accept=".jpg,.jpeg,.png,.pdf" required>
                                             <div class="file-preview" style="display: none;">
@@ -351,6 +378,15 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Foto Ijazah *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="ijazah-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File ijazah sudah tersimpan: <span class="file-name"></span>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="ijazah_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="upload-container">
                                             <input type="file" class="form-control file-input image-input" name="ijazah_file" accept=".jpg,.jpeg,.png,.pdf" required>
                                             <div class="file-preview" style="display: none;">
@@ -375,6 +411,15 @@
                                 <div id="upload-fields-optional" class="row mb-3" style="display: none;">
                                     <div class="col-md-6">
                                         <label class="form-label">Sertifikat K3 (jika ada)</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="certificate-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File sertifikat K3 sudah tersimpan: <span class="file-name"></span>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="certificate_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="upload-container">
                                             <input type="file" class="form-control file-input image-input" name="certificate_file"
                                                 accept=".pdf,.jpg,.jpeg,.png">
@@ -397,6 +442,15 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">SIM A/C (jika melamar Driver)</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="sim-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File SIM sudah tersimpan: <span class="file-name"></span>
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="sim_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
                                         <div class="upload-container">
                                             <input type="file" class="form-control file-input image-input" name="sim_file"
                                                 accept=".pdf,.jpg,.jpeg,.png">
