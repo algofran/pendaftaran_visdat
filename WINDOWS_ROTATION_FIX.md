@@ -32,19 +32,67 @@ if ($filePath === false) {
 }
 ```
 
-### 2. JavaScript Frontend Updates (`admin/admin-script.js`)
+### 2. Filename Update After Rotation
+
+The system now generates a new filename after rotation to avoid browser caching issues and maintain file history:
+
+```php
+// Generate new filename with rotation suffix
+function generateNewRotatedFileName($originalFileName) {
+    $pathInfo = pathinfo($originalFileName);
+    $baseName = $pathInfo['filename'];
+    $extension = $pathInfo['extension'];
+    
+    // Remove any existing rotation suffix
+    $baseName = preg_replace('/_rotated_\d+$/', '', $baseName);
+    
+    // Add rotation suffix with timestamp
+    $timestamp = time();
+    return $baseName . '_rotated_' . $timestamp . '.' . $extension;
+}
+
+// Rename file and update database
+$newFileName = generateNewRotatedFileName($fileName);
+rename($filePath, $newFilePath);
+updateDatabaseFilename($fileName, $newFileName);
+```
+
+### 3. Database Synchronization
+
+Automatically updates all database references when a file is rotated:
+
+```php
+function updateDatabaseFilename($oldFileName, $newFileName) {
+    global $pdo;
+    
+    $fileColumns = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'certificate_file', 'sim_file'];
+    
+    foreach ($fileColumns as $column) {
+        $sql = "UPDATE applications SET {$column} = :newFileName WHERE {$column} = :oldFileName";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['newFileName' => $newFileName, 'oldFileName' => $oldFileName]);
+    }
+}
+```
+
+### 4. JavaScript Frontend Updates (`admin/admin-script.js`)
 
 **Before:**
 ```javascript
 formData.append('fileName', fileName);
+// Simple cache-busting with timestamp
+const newUrl = fileUrl + '?t=' + Date.now();
 ```
 
 **After:**
 ```javascript
 formData.append('fileUrl', fileUrl);
+// Update with actual new filename
+const newUrl = fileUrl.replace(result.oldFileName, result.newFileName);
+updatePageThumbnails(result.oldFileName, result.newFileName);
 ```
 
-### 3. Enhanced Error Logging
+### 5. Enhanced Error Logging
 
 Added detailed debugging information that helps identify Windows-specific issues:
 
@@ -58,7 +106,7 @@ if (!file_exists($filePath)) {
 }
 ```
 
-### 4. Windows-Compatible File Permissions
+### 6. Windows-Compatible File Permissions
 
 **Before:**
 ```php
@@ -80,7 +128,7 @@ if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
 }
 ```
 
-### 5. Improved Backup Operation Debugging
+### 7. Improved Backup Operation Debugging
 
 Added logging to help identify backup creation failures:
 
@@ -94,6 +142,23 @@ if (!copy($filePath, $backupPath)) {
     throw new Exception('Failed to create backup of original file');
 }
 ```
+
+## New Features
+
+### Automatic Filename Updates
+- Rotated images now get new filenames with `_rotated_[timestamp]` suffix
+- Prevents browser caching issues
+- Maintains file history and audit trail
+
+### Database Synchronization
+- Automatically updates all database references when files are rotated
+- Searches across all file columns (`cv_file`, `photo_file`, `ktp_file`, etc.)
+- Ensures data consistency between filesystem and database
+
+### Frontend Real-time Updates
+- JavaScript automatically updates image sources with new filenames
+- Updates thumbnails and file references on the current page
+- Optional page reload to reflect all changes
 
 ## Testing and Diagnosis
 

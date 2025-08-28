@@ -634,17 +634,20 @@ async function saveRotatedImage(fileUrl) {
             currentRotation = 0;
             previewImage.style.transform = 'rotate(0deg)';
             
-            // Update image source with timestamp to force reload
-            const newUrl = fileUrl + '?t=' + Date.now();
+            // Update image source with new filename
+            const newUrl = fileUrl.replace(result.oldFileName, result.newFileName);
             previewImage.src = newUrl;
+            
+            // Update any thumbnails on the page with the new filename
+            updatePageThumbnails(result.oldFileName, result.newFileName);
             
             // Hide save button
             if (saveBtn) {
                 saveBtn.style.display = 'none';
             }
             
-            // Show success message
-            showSuccessMessage('Image rotation saved successfully!');
+            // Show success message with filename info
+            showSuccessMessage(`Image rotation saved successfully! New file: ${result.newFileName}`);
         } else {
             throw new Error(result.message || 'Failed to save rotation');
         }
@@ -701,6 +704,35 @@ function showErrorMessage(message) {
             alert.parentNode.removeChild(alert);
         }
     }, 5000);
+}
+
+function updatePageThumbnails(oldFileName, newFileName) {
+    // Update all images on the page that reference the old filename
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        if (img.src.includes(oldFileName)) {
+            img.src = img.src.replace(oldFileName, newFileName);
+        }
+    });
+    
+    // Update any onclick handlers that reference the old filename
+    const buttons = document.querySelectorAll('button[onclick*="' + oldFileName + '"]');
+    buttons.forEach(button => {
+        button.onclick = button.onclick.toString().replace(oldFileName, newFileName);
+    });
+    
+    // Update any links that reference the old filename
+    const links = document.querySelectorAll('a[href*="' + oldFileName + '"]');
+    links.forEach(link => {
+        link.href = link.href.replace(oldFileName, newFileName);
+    });
+    
+    // Force reload of the current page to reflect database changes
+    setTimeout(() => {
+        if (confirm('Image rotated successfully! Reload the page to see all updates?')) {
+            location.reload();
+        }
+    }, 2000);
 }
 
 // Function to get file type icon
