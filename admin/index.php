@@ -299,34 +299,34 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                                         <td>
                                             <div class="file-links">
                                                 <?php if (!empty($app['cv_file'])): ?>
-                                                    <a href="../uploads/<?= $app['cv_file'] ?>" target="_blank" class="btn btn-sm btn-outline-primary mb-1" title="CV/Resume">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary mb-1" title="CV/Resume" onclick="openFileModal('../uploads/<?= $app['cv_file'] ?>', 'CV - <?= htmlspecialchars($app['full_name']) ?>', 'pdf')">
                                                         <i class="fas fa-file-pdf"></i> CV
-                                                    </a>
+                                                    </button>
                                                 <?php endif; ?>
                                                 <?php if (!empty($app['photo_file'])): ?>
-                                                    <a href="../uploads/<?= $app['photo_file'] ?>" target="_blank" class="btn btn-sm btn-outline-success mb-1" title="Foto">
+                                                    <button type="button" class="btn btn-sm btn-outline-success mb-1" title="Foto" onclick="openFileModal('../uploads/<?= $app['photo_file'] ?>', 'Foto - <?= htmlspecialchars($app['full_name']) ?>', 'image')">
                                                         <i class="fas fa-image"></i> Foto
-                                                    </a>
+                                                    </button>
                                                 <?php endif; ?>
                                                 <?php if (!empty($app['ktp_file'])): ?>
-                                                    <a href="../uploads/<?= $app['ktp_file'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary mb-1" title="KTP">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary mb-1" title="KTP" onclick="openFileModal('../uploads/<?= $app['ktp_file'] ?>', 'KTP - <?= htmlspecialchars($app['full_name']) ?>', 'image')">
                                                         <i class="fas fa-id-card-alt"></i> KTP
-                                                    </a>
+                                                    </button>
                                                 <?php endif; ?>
                                                 <?php if (!empty($app['ijazah_file'])): ?>
-                                                    <a href="../uploads/<?= $app['ijazah_file'] ?>" target="_blank" class="btn btn-sm btn-outline-dark mb-1" title="Ijazah">
+                                                    <button type="button" class="btn btn-sm btn-outline-dark mb-1" title="Ijazah" onclick="openFileModal('../uploads/<?= $app['ijazah_file'] ?>', 'Ijazah - <?= htmlspecialchars($app['full_name']) ?>', 'pdf')">
                                                         <i class="fas fa-graduation-cap"></i> Ijazah
-                                                    </a>
+                                                    </button>
                                                 <?php endif; ?>
                                                 <?php if (!empty($app['certificate_file'])): ?>
-                                                    <a href="../uploads/<?= $app['certificate_file'] ?>" target="_blank" class="btn btn-sm btn-outline-warning mb-1" title="Sertifikat K3">
+                                                    <button type="button" class="btn btn-sm btn-outline-warning mb-1" title="Sertifikat K3" onclick="openFileModal('../uploads/<?= $app['certificate_file'] ?>', 'Sertifikat K3 - <?= htmlspecialchars($app['full_name']) ?>', 'pdf')">
                                                         <i class="fas fa-certificate"></i> K3
-                                                    </a>
+                                                    </button>
                                                 <?php endif; ?>
                                                 <?php if (!empty($app['sim_file'])): ?>
-                                                    <a href="../uploads/<?= $app['sim_file'] ?>" target="_blank" class="btn btn-sm btn-outline-info mb-1" title="SIM">
+                                                    <button type="button" class="btn btn-sm btn-outline-info mb-1" title="SIM" onclick="openFileModal('../uploads/<?= $app['sim_file'] ?>', 'SIM - <?= htmlspecialchars($app['full_name']) ?>', 'image')">
                                                         <i class="fas fa-id-card"></i> SIM
-                                                    </a>
+                                                    </button>
                                                 <?php endif; ?>
                                                 <?php if (empty($app['cv_file']) && empty($app['photo_file']) && empty($app['ktp_file']) && empty($app['ijazah_file']) && empty($app['certificate_file']) && empty($app['sim_file'])): ?>
                                                     <small class="text-muted">Tidak ada file</small>

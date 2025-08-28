@@ -413,3 +413,100 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// File Modal functionality
+function openFileModal(fileUrl, fileName, fileType) {
+    // Remove existing file modal if any
+    const existingModal = document.getElementById('fileModal');
+    if (existingModal) {
+        document.body.removeChild(existingModal);
+    }
+
+    // Determine file extension
+    const extension = fileUrl.split('.').pop().toLowerCase();
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension);
+    const isPdf = extension === 'pdf';
+    
+    let modalContent = '';
+    
+    if (isImage) {
+        modalContent = `
+            <div class="modal-body text-center p-4">
+                <img src="${fileUrl}" alt="${fileName}" class="img-fluid rounded shadow" style="max-height: 70vh; max-width: 100%;">
+            </div>`;
+    } else if (isPdf) {
+        modalContent = `
+            <div class="modal-body p-0" style="height: 80vh;">
+                <iframe src="${fileUrl}" width="100%" height="100%" style="border: none;"></iframe>
+            </div>`;
+    } else {
+        modalContent = `
+            <div class="modal-body">
+                <div class="file-preview-container">
+                    <i class="fas fa-file-alt file-preview-icon"></i>
+                    <h5 class="file-preview-title">File Preview Not Available</h5>
+                    <p class="file-preview-subtitle">This file type cannot be previewed in the browser.</p>
+                    <a href="${fileUrl}" target="_blank" class="file-preview-button">
+                        <i class="fas fa-external-link-alt me-2"></i>Open in New Tab
+                    </a>
+                </div>
+            </div>`;
+    }
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'fileModal';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-${isImage ? 'image' : isPdf ? 'file-pdf' : 'file-alt'} me-2"></i>
+                        ${fileName}
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <a href="${fileUrl}" target="_blank" class="btn btn-light btn-sm" title="Open in new tab">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                        <a href="${fileUrl}" download class="btn btn-light btn-sm" title="Download">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                ${modalContent}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Remove modal from DOM when hidden
+    modal.addEventListener('hidden.bs.modal', function() {
+        if (document.body.contains(modal)) {
+            document.body.removeChild(modal);
+        }
+    });
+}
+
+// Function to get file type icon
+function getFileTypeIcon(fileName) {
+    const extension = fileName.split('.').pop().toLowerCase();
+    const icons = {
+        'pdf': 'fa-file-pdf',
+        'jpg': 'fa-image',
+        'jpeg': 'fa-image',
+        'png': 'fa-image',
+        'gif': 'fa-image',
+        'webp': 'fa-image',
+        'doc': 'fa-file-word',
+        'docx': 'fa-file-word',
+        'xls': 'fa-file-excel',
+        'xlsx': 'fa-file-excel',
+        'txt': 'fa-file-alt'
+    };
+    return icons[extension] || 'fa-file';
+}
