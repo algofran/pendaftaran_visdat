@@ -9,15 +9,20 @@ The image rotation save functionality was not working properly on Windows system
 
 ## Changes Made
 
-### 1. Fixed File Path Handling (`admin/rotate_image.php`)
+### 1. URL-Based Filename Extraction (`admin/rotate_image.php`)
 
 **Before:**
 ```php
+$fileName = $_POST['fileName'] ?? '';
 $filePath = '../uploads/' . basename($fileName);
 ```
 
 **After:**
 ```php
+// Get fileUrl parameter and extract filename from it
+$fileUrl = $_POST['fileUrl'] ?? $_POST['fileName'] ?? ''; // Support both new fileUrl and legacy fileName
+$fileName = basename(parse_url($fileUrl, PHP_URL_PATH));
+
 // Construct file path with proper directory separators for cross-platform compatibility
 $filePath = realpath(__DIR__ . '/../uploads/') . DIRECTORY_SEPARATOR . basename($fileName);
 
@@ -27,7 +32,19 @@ if ($filePath === false) {
 }
 ```
 
-### 2. Enhanced Error Logging
+### 2. JavaScript Frontend Updates (`admin/admin-script.js`)
+
+**Before:**
+```javascript
+formData.append('fileName', fileName);
+```
+
+**After:**
+```javascript
+formData.append('fileUrl', fileUrl);
+```
+
+### 3. Enhanced Error Logging
 
 Added detailed debugging information that helps identify Windows-specific issues:
 
@@ -41,7 +58,7 @@ if (!file_exists($filePath)) {
 }
 ```
 
-### 3. Windows-Compatible File Permissions
+### 4. Windows-Compatible File Permissions
 
 **Before:**
 ```php
@@ -63,7 +80,7 @@ if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
 }
 ```
 
-### 4. Improved Backup Operation Debugging
+### 5. Improved Backup Operation Debugging
 
 Added logging to help identify backup creation failures:
 

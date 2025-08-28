@@ -30,11 +30,19 @@ try {
     }
     
     // Get parameters
-    $fileName = $_POST['fileName'] ?? '';
+    $fileUrl = $_POST['fileUrl'] ?? $_POST['fileName'] ?? ''; // Support both new fileUrl and legacy fileName
     $rotation = intval($_POST['rotation'] ?? 0);
     
+    if (empty($fileUrl)) {
+        throw new Exception('File URL not provided');
+    }
+    
+    // Extract filename from URL
+    // Handle both relative URLs (../uploads/filename.jpg) and full URLs (http://domain.com/uploads/filename.jpg)
+    $fileName = basename(parse_url($fileUrl, PHP_URL_PATH));
+    
     if (empty($fileName)) {
-        throw new Exception('File name not provided');
+        throw new Exception('Could not extract filename from URL: ' . $fileUrl);
     }
     
     // Validate rotation value
@@ -54,7 +62,7 @@ try {
     if (!file_exists($filePath)) {
         if (DEBUG) {
             error_log("File not found - Path: $filePath, OS: " . PHP_OS . ", DIR: " . __DIR__);
-            error_log("Original fileName: $fileName, Basename: " . basename($fileName));
+            error_log("Original fileUrl: $fileUrl, Extracted fileName: $fileName");
         }
         throw new Exception('Original file not found: ' . basename($fileName));
     }

@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(90)" title="Rotate Right">
                                     <i class="fas fa-redo"></i> Rotate Right
                                 </button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${imageSrc}', getFileNameFromUrl('${imageSrc}'))" title="Save Rotation" id="saveRotationBtn" style="display: none;">
+                                <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${imageSrc}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
                                     <i class="fas fa-save"></i> Save Rotation
                                 </button>
                             </div>
@@ -469,7 +469,7 @@ function openFileModal(fileUrl, fileName, fileType) {
                     <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(90)" title="Rotate Right">
                         <i class="fas fa-redo"></i> Rotate Right
                     </button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${fileUrl}', '${fileName}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
+                    <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${fileUrl}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
                         <i class="fas fa-save"></i> Save Rotation
                     </button>
                 </div>
@@ -570,7 +570,9 @@ function rotateImage(degrees) {
     }
 }
 
-async function saveRotatedImage(fileUrl, fileName) {
+async function saveRotatedImage(fileUrl) {
+    // Extract filename from URL
+    const fileName = getFileNameFromUrl(fileUrl);
     const saveBtn = document.getElementById('saveRotationBtn');
     const previewImage = document.getElementById('previewImage');
     
@@ -617,7 +619,7 @@ async function saveRotatedImage(fileUrl, fileName) {
         // Send to server
         const formData = new FormData();
         formData.append('image', blob);
-        formData.append('fileName', fileName);
+        formData.append('fileUrl', fileUrl);
         formData.append('rotation', currentRotation);
         
         const response = await fetch('rotate_image.php', {
