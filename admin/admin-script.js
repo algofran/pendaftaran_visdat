@@ -647,7 +647,7 @@ async function saveRotatedImage(fileUrl) {
             }
             
             // Show success message with filename info
-            showSuccessMessage(`Image rotation saved successfully! New file: ${result.newFileName}`);
+            showSuccessMessage(`✅ Image rotation saved successfully! All references updated automatically.`);
         } else {
             throw new Error(result.message || 'Failed to save rotation');
         }
@@ -707,32 +707,98 @@ function showErrorMessage(message) {
 }
 
 function updatePageThumbnails(oldFileName, newFileName) {
+    console.log(`Updating page references: ${oldFileName} -> ${newFileName}`);
+    
     // Update all images on the page that reference the old filename
     const images = document.querySelectorAll('img');
     images.forEach(img => {
         if (img.src.includes(oldFileName)) {
             img.src = img.src.replace(oldFileName, newFileName);
+            console.log(`Updated image src: ${img.src}`);
         }
     });
     
     // Update any onclick handlers that reference the old filename
-    const buttons = document.querySelectorAll('button[onclick*="' + oldFileName + '"]');
-    buttons.forEach(button => {
-        button.onclick = button.onclick.toString().replace(oldFileName, newFileName);
-    });
+    updateOnClickHandlers(oldFileName, newFileName);
     
     // Update any links that reference the old filename
     const links = document.querySelectorAll('a[href*="' + oldFileName + '"]');
     links.forEach(link => {
         link.href = link.href.replace(oldFileName, newFileName);
+        console.log(`Updated link href: ${link.href}`);
     });
     
-    // Force reload of the current page to reflect database changes
-    setTimeout(() => {
-        if (confirm('Image rotated successfully! Reload the page to see all updates?')) {
-            location.reload();
+    // Update modal content if currently open
+    updateModalContent(oldFileName, newFileName);
+    
+    console.log('All page references updated successfully - no refresh needed!');
+}
+
+function updateOnClickHandlers(oldFileName, newFileName) {
+    // Find all elements with onclick attributes that reference the old filename
+    const elementsWithOnClick = document.querySelectorAll('*[onclick]');
+    
+    elementsWithOnClick.forEach(element => {
+        const onclickStr = element.getAttribute('onclick');
+        if (onclickStr && onclickStr.includes(oldFileName)) {
+            const newOnClickStr = onclickStr.replace(new RegExp(escapeRegExp(oldFileName), 'g'), newFileName);
+            element.setAttribute('onclick', newOnClickStr);
+            console.log(`Updated onclick handler: ${newOnClickStr}`);
         }
-    }, 2000);
+    });
+    
+    // Also update any event listeners that might have been attached
+    const buttons = document.querySelectorAll('button, a');
+    buttons.forEach(button => {
+        // Check if the button has a data attribute or other reference to the old filename
+        const dataAttributes = button.attributes;
+        for (let attr of dataAttributes) {
+            if (attr.value && attr.value.includes(oldFileName)) {
+                attr.value = attr.value.replace(oldFileName, newFileName);
+                console.log(`Updated ${attr.name} attribute: ${attr.value}`);
+            }
+        }
+    });
+}
+
+function updateModalContent(oldFileName, newFileName) {
+    // Update any open modal content
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.style.display !== 'none' && modal.classList.contains('show')) {
+            // Update images in modal
+            const modalImages = modal.querySelectorAll('img');
+            modalImages.forEach(img => {
+                if (img.src.includes(oldFileName)) {
+                    img.src = img.src.replace(oldFileName, newFileName);
+                    console.log(`Updated modal image: ${img.src}`);
+                }
+            });
+            
+            // Update modal title if it contains the filename
+            const modalTitle = modal.querySelector('.modal-title');
+            if (modalTitle && modalTitle.textContent.includes(oldFileName)) {
+                modalTitle.textContent = modalTitle.textContent.replace(oldFileName, newFileName);
+                console.log(`Updated modal title: ${modalTitle.textContent}`);
+            }
+            
+            // Update any buttons or links in the modal
+            const modalButtons = modal.querySelectorAll('button[onclick], a[href]');
+            modalButtons.forEach(button => {
+                if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(oldFileName)) {
+                    const newOnClick = button.getAttribute('onclick').replace(oldFileName, newFileName);
+                    button.setAttribute('onclick', newOnClick);
+                }
+                if (button.href && button.href.includes(oldFileName)) {
+                    button.href = button.href.replace(oldFileName, newFileName);
+                }
+            });
+        }
+    });
+}
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // Function to get file type icon
