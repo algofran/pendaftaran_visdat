@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(90)" title="Rotate Right">
                                     <i class="fas fa-redo"></i> Rotate Right
                                 </button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${imageSrc}', getFileNameFromUrl('${imageSrc}'))" title="Save Rotation" id="saveRotationBtn" style="display: none;">
+                                <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${imageSrc}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
                                     <i class="fas fa-save"></i> Save Rotation
                                 </button>
                             </div>
@@ -469,7 +469,7 @@ function openFileModal(fileUrl, fileName, fileType) {
                     <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(90)" title="Rotate Right">
                         <i class="fas fa-redo"></i> Rotate Right
                     </button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${fileUrl}', '${fileName}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
+                    <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${fileUrl}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
                         <i class="fas fa-save"></i> Save Rotation
                     </button>
                 </div>
@@ -570,7 +570,9 @@ function rotateImage(degrees) {
     }
 }
 
-async function saveRotatedImage(fileUrl, fileName) {
+async function saveRotatedImage(fileUrl) {
+    // Extract filename from URL
+    const fileName = getFileNameFromUrl(fileUrl);
     const saveBtn = document.getElementById('saveRotationBtn');
     const previewImage = document.getElementById('previewImage');
     
@@ -617,7 +619,7 @@ async function saveRotatedImage(fileUrl, fileName) {
         // Send to server
         const formData = new FormData();
         formData.append('image', blob);
-        formData.append('fileName', fileName);
+        formData.append('fileUrl', fileUrl);
         formData.append('rotation', currentRotation);
         
         const response = await fetch('rotate_image.php', {
@@ -632,17 +634,20 @@ async function saveRotatedImage(fileUrl, fileName) {
             currentRotation = 0;
             previewImage.style.transform = 'rotate(0deg)';
             
-            // Update image source with timestamp to force reload
-            const newUrl = fileUrl + '?t=' + Date.now();
+            // Update image source with new filename
+            const newUrl = fileUrl.replace(result.oldFileName, result.newFileName);
             previewImage.src = newUrl;
             
+            // Update any thumbnails on the page with the new filename
+            updatePageThumbnails(result.oldFileName, result.newFileName);
             // Hide save button
             if (saveBtn) {
                 saveBtn.style.display = 'none';
             }
             
-            // Show success message
-            showSuccessMessage('Image rotation saved successfully!');
+
+            // Show success message with filename info
+            showSuccessMessage(`✅ Image rotation saved successfully! All references updated automatically.`);
         } else {
             throw new Error(result.message || 'Failed to save rotation');
         }
@@ -699,6 +704,101 @@ function showErrorMessage(message) {
             alert.parentNode.removeChild(alert);
         }
     }, 5000);
+}
+
+function updatePageThumbnails(oldFileName, newFileName) {
+    console.log(`Updating page references: ${oldFileName} -> ${newFileName}`);
+    
+    // Update all images on the page that reference the old filename
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        if (img.src.includes(oldFileName)) {
+            img.src = img.src.replace(oldFileName, newFileName);
+            console.log(`Updated image src: ${img.src}`);
+        }
+    });
+    
+    // Update any onclick handlers that reference the old filename
+    updateOnClickHandlers(oldFileName, newFileName);
+    
+    // Update any links that reference the old filename
+    const links = document.querySelectorAll('a[href*="' + oldFileName + '"]');
+    links.forEach(link => {
+        link.href = link.href.replace(oldFileName, newFileName);
+        console.log(`Updated link href: ${link.href}`);
+    });
+    
+    // Update modal content if currently open
+    updateModalContent(oldFileName, newFileName);
+    
+    console.log('All page references updated successfully - no refresh needed!');
+}
+
+function updateOnClickHandlers(oldFileName, newFileName) {
+    // Find all elements with onclick attributes that reference the old filename
+    const elementsWithOnClick = document.querySelectorAll('*[onclick]');
+    
+    elementsWithOnClick.forEach(element => {
+        const onclickStr = element.getAttribute('onclick');
+        if (onclickStr && onclickStr.includes(oldFileName)) {
+            const newOnClickStr = onclickStr.replace(new RegExp(escapeRegExp(oldFileName), 'g'), newFileName);
+            element.setAttribute('onclick', newOnClickStr);
+            console.log(`Updated onclick handler: ${newOnClickStr}`);
+        }
+    });
+    
+    // Also update any event listeners that might have been attached
+    const buttons = document.querySelectorAll('button, a');
+    buttons.forEach(button => {
+        // Check if the button has a data attribute or other reference to the old filename
+        const dataAttributes = button.attributes;
+        for (let attr of dataAttributes) {
+            if (attr.value && attr.value.includes(oldFileName)) {
+                attr.value = attr.value.replace(oldFileName, newFileName);
+                console.log(`Updated ${attr.name} attribute: ${attr.value}`);
+            }
+        }
+    });
+}
+
+function updateModalContent(oldFileName, newFileName) {
+    // Update any open modal content
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.style.display !== 'none' && modal.classList.contains('show')) {
+            // Update images in modal
+            const modalImages = modal.querySelectorAll('img');
+            modalImages.forEach(img => {
+                if (img.src.includes(oldFileName)) {
+                    img.src = img.src.replace(oldFileName, newFileName);
+                    console.log(`Updated modal image: ${img.src}`);
+                }
+            });
+            
+            // Update modal title if it contains the filename
+            const modalTitle = modal.querySelector('.modal-title');
+            if (modalTitle && modalTitle.textContent.includes(oldFileName)) {
+                modalTitle.textContent = modalTitle.textContent.replace(oldFileName, newFileName);
+                console.log(`Updated modal title: ${modalTitle.textContent}`);
+            }
+            
+            // Update any buttons or links in the modal
+            const modalButtons = modal.querySelectorAll('button[onclick], a[href]');
+            modalButtons.forEach(button => {
+                if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(oldFileName)) {
+                    const newOnClick = button.getAttribute('onclick').replace(oldFileName, newFileName);
+                    button.setAttribute('onclick', newOnClick);
+                }
+                if (button.href && button.href.includes(oldFileName)) {
+                    button.href = button.href.replace(oldFileName, newFileName);
+                }
+            });
+        }
+    });
+}
+
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // Function to get file type icon
