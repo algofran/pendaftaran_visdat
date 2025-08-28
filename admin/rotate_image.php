@@ -55,7 +55,6 @@ function updateDatabaseFilename($oldFileName, $newFileName) {
         throw new Exception('Failed to update database file references');
     }
 }
-
 // Set headers for JSON response
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');

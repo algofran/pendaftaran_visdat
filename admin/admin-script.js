@@ -640,12 +640,12 @@ async function saveRotatedImage(fileUrl) {
             
             // Update any thumbnails on the page with the new filename
             updatePageThumbnails(result.oldFileName, result.newFileName);
-            
             // Hide save button
             if (saveBtn) {
                 saveBtn.style.display = 'none';
             }
             
+
             // Show success message with filename info
             showSuccessMessage(`✅ Image rotation saved successfully! All references updated automatically.`);
         } else {
