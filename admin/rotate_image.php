@@ -42,12 +42,21 @@ try {
         throw new Exception('Invalid rotation value');
     }
     
-    // Construct file path
-    $filePath = '../uploads/' . basename($fileName);
+    // Construct file path with proper directory separators for cross-platform compatibility
+    $filePath = realpath(__DIR__ . '/../uploads/') . DIRECTORY_SEPARATOR . basename($fileName);
+    
+    // Fallback if realpath fails (directory doesn't exist)
+    if ($filePath === false) {
+        $filePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . basename($fileName);
+    }
     
     // Verify the original file exists and is an image
     if (!file_exists($filePath)) {
-        throw new Exception('Original file not found');
+        if (DEBUG) {
+            error_log("File not found - Path: $filePath, OS: " . PHP_OS . ", DIR: " . __DIR__);
+            error_log("Original fileName: $fileName, Basename: " . basename($fileName));
+        }
+        throw new Exception('Original file not found: ' . basename($fileName));
     }
     
     $imageInfo = getimagesize($filePath);
@@ -67,6 +76,11 @@ try {
     // Create a backup of the original file
     $backupPath = $filePath . '.backup.' . time();
     if (!copy($filePath, $backupPath)) {
+        if (DEBUG) {
+            error_log("Backup failed - Source: $filePath, Backup: $backupPath, OS: " . PHP_OS);
+            error_log("Source readable: " . (is_readable($filePath) ? 'yes' : 'no'));
+            error_log("Destination writable: " . (is_writable(dirname($backupPath)) ? 'yes' : 'no'));
+        }
         throw new Exception('Failed to create backup of original file');
     }
     
@@ -112,11 +126,25 @@ try {
         imagedestroy($rotatedImage);
         
         if (!$success) {
+            if (DEBUG) {
+                error_log("Image save failed - Path: $filePath, MIME: " . $imageInfo['mime'] . ", OS: " . PHP_OS);
+                error_log("Directory writable: " . (is_writable(dirname($filePath)) ? 'yes' : 'no'));
+                error_log("File writable: " . (is_writable($filePath) ? 'yes' : 'no'));
+            }
             throw new Exception('Failed to save rotated image');
         }
         
-        // Set proper file permissions
-        chmod($filePath, 0644);
+        // Set proper file permissions (skip on Windows as it behaves differently)
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            chmod($filePath, 0644);
+        } else {
+            // On Windows, ensure the file is writable
+            if (!is_writable($filePath)) {
+                if (DEBUG) {
+                    error_log("Warning: File may not be writable on Windows: $filePath");
+                }
+            }
+        }
         
         // Remove backup file on success
         if (file_exists($backupPath)) {
@@ -125,7 +153,7 @@ try {
         
         // Log the successful rotation
         if (DEBUG) {
-            error_log("Image rotated successfully: $fileName (rotation: {$rotation}°)");
+            error_log("Image rotated successfully: $fileName (rotation: {$rotation}°) on OS: " . PHP_OS);
         }
         
         echo json_encode([
