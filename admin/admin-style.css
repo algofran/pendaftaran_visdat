@@ -456,3 +456,50 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Photo Thumbnail Styles */
+.admin-photo-thumbnail {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.admin-photo-thumbnail:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.admin-photo-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.admin-photo-placeholder i {
+    font-size: 18px;
+    color: #adb5bd;
+}
+
+/* Responsive adjustments for thumbnails */
+@media (max-width: 768px) {
+    .admin-photo-thumbnail,
+    .admin-photo-placeholder {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .admin-photo-placeholder i {
+        font-size: 14px;
+    }
+}
