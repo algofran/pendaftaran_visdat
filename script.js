@@ -389,7 +389,15 @@ function updateFilePreview(previewContent, file, status, isCompressing) {
     if (file.type.startsWith('image/')) {
         const img = document.createElement('img');
         img.src = URL.createObjectURL(file);
+        img.style.cursor = 'pointer';
+        img.title = 'Click to view larger image and rotate';
         img.onload = () => URL.revokeObjectURL(img.src);
+        
+        // Add click handler to open image modal with rotation functionality
+        img.addEventListener('click', function() {
+            openImagePreviewModal(this.src, file.name, file);
+        });
+        
         previewContent.insertBefore(img, previewContent.firstChild);
     }
 }
@@ -416,6 +424,247 @@ function removeFile(input, container) {
     showUploadValidationAfterRemoval(input);
     
     console.log('File removed:', input.name);
+}
+
+// Image preview modal functionality for main form
+let currentRotation = 0;
+let currentFile = null;
+let currentInputName = '';
+
+function openImagePreviewModal(imageSrc, fileName, file) {
+    // Store current file info for rotation saving
+    currentFile = file;
+    currentRotation = 0;
+    
+    // Find the input element for this file
+    const inputs = document.querySelectorAll('input[type="file"]');
+    for (let input of inputs) {
+        if (input.files && input.files[0] === file) {
+            currentInputName = input.name;
+            break;
+        }
+    }
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('imagePreviewModal');
+    if (existingModal) {
+        document.body.removeChild(existingModal);
+    }
+    
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.id = 'imagePreviewModal';
+    modal.innerHTML = `
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-image me-2"></i>
+                        ${fileName}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div class="image-controls mb-3">
+                        <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotatePreviewImage(-90)" title="Rotate Left">
+                            <i class="fas fa-undo"></i> Rotate Left
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotatePreviewImage(90)" title="Rotate Right">
+                            <i class="fas fa-redo"></i> Rotate Right
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedPreviewImage()" title="Apply Rotation" id="savePreviewRotationBtn" style="display: none;">
+                            <i class="fas fa-save"></i> Apply Rotation
+                        </button>
+                    </div>
+                    <div class="image-container">
+                        <img id="modalPreviewImage" src="${imageSrc}" alt="${fileName}" class="img-fluid rounded shadow" style="max-height: 60vh; max-width: 100%; transition: transform 0.3s ease;">
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> 
+                            You can rotate the image and apply the rotation to update your upload.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Remove modal from DOM when hidden
+    modal.addEventListener('hidden.bs.modal', function() {
+        currentRotation = 0;
+        currentFile = null;
+        currentInputName = '';
+        if (document.body.contains(modal)) {
+            document.body.removeChild(modal);
+        }
+    });
+}
+
+function rotatePreviewImage(degrees) {
+    const previewImage = document.getElementById('modalPreviewImage');
+    const saveBtn = document.getElementById('savePreviewRotationBtn');
+    
+    if (!previewImage) return;
+    
+    currentRotation += degrees;
+    // Normalize rotation to 0-360 range
+    currentRotation = ((currentRotation % 360) + 360) % 360;
+    
+    previewImage.style.transform = `rotate(${currentRotation}deg)`;
+    
+    // Show save button if rotation is not 0
+    if (saveBtn) {
+        saveBtn.style.display = currentRotation !== 0 ? 'inline-block' : 'none';
+    }
+}
+
+async function saveRotatedPreviewImage() {
+    const saveBtn = document.getElementById('savePreviewRotationBtn');
+    const previewImage = document.getElementById('modalPreviewImage');
+    
+    if (!previewImage || !currentFile || currentRotation === 0) return;
+    
+    // Disable save button and show loading
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+    }
+    
+    try {
+        // Create canvas to apply rotation
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = previewImage.src;
+        });
+        
+        // Calculate new dimensions based on rotation
+        const angle = (currentRotation * Math.PI) / 180;
+        const cos = Math.abs(Math.cos(angle));
+        const sin = Math.abs(Math.sin(angle));
+        
+        canvas.width = img.width * cos + img.height * sin;
+        canvas.height = img.width * sin + img.height * cos;
+        
+        // Apply rotation
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(angle);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        
+        // Convert to blob
+        const blob = await new Promise(resolve => {
+            canvas.toBlob(resolve, currentFile.type, 0.9);
+        });
+        
+        // Create new file with rotated content
+        const rotatedFile = new File([blob], currentFile.name, {
+            type: currentFile.type,
+            lastModified: Date.now()
+        });
+        
+        // Update the file input and preview
+        updateFileInputWithRotatedImage(rotatedFile);
+        
+        // Reset rotation state
+        currentRotation = 0;
+        previewImage.style.transform = 'rotate(0deg)';
+        
+        // Hide save button
+        if (saveBtn) {
+            saveBtn.style.display = 'none';
+        }
+        
+        // Show success message
+        showPreviewSuccessMessage('Image rotation applied successfully!');
+        
+    } catch (error) {
+        console.error('Error applying image rotation:', error);
+        showPreviewErrorMessage('Failed to apply image rotation: ' + error.message);
+    } finally {
+        // Re-enable save button
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Apply Rotation';
+        }
+    }
+}
+
+function updateFileInputWithRotatedImage(rotatedFile) {
+    // Find the input element and update it
+    const inputs = document.querySelectorAll('input[type="file"]');
+    for (let input of inputs) {
+        if (input.name === currentInputName) {
+            // Create a new FileList with the rotated file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(rotatedFile);
+            input.files = dataTransfer.files;
+            
+            // Update the preview
+            const container = input.closest('.upload-container');
+            const previewContent = container.querySelector('.preview-content');
+            const preview = container.querySelector('.file-preview');
+            
+            // Update temp storage
+            tempFileStorage.set(input.name, rotatedFile);
+            
+            // Recompress if it's an image input
+            if (input.classList.contains('image-input')) {
+                compressImageSafely(rotatedFile, input.name, previewContent, preview, input);
+            } else {
+                updateFilePreview(previewContent, rotatedFile, 'Ready to upload', false);
+            }
+            
+            break;
+        }
+    }
+}
+
+function showPreviewSuccessMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 3000);
+}
+
+function showPreviewErrorMessage(message) {
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 5000);
 }
 
 // Clear upload field errors
