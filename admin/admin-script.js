@@ -389,14 +389,38 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.className = 'modal fade';
             modal.id = 'photoModal';
             modal.innerHTML = `
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-xl modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">${altText}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title">
+                                <i class="fas fa-image me-2"></i>
+                                ${altText}
+                            </h5>
+                            <div class="d-flex gap-2">
+                                <a href="${imageSrc}" target="_blank" class="btn btn-light btn-sm" title="Open in new tab">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                <a href="${imageSrc}" download class="btn btn-light btn-sm" title="Download">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
                         </div>
-                        <div class="modal-body text-center">
-                            <img src="${imageSrc}" alt="${altText}" class="img-fluid rounded" style="max-height: 500px;">
+                        <div class="modal-body text-center p-4">
+                            <div class="image-controls mb-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(-90)" title="Rotate Left">
+                                    <i class="fas fa-undo"></i> Rotate Left
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(90)" title="Rotate Right">
+                                    <i class="fas fa-redo"></i> Rotate Right
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${imageSrc}', getFileNameFromUrl('${imageSrc}'))" title="Save Rotation" id="saveRotationBtn" style="display: none;">
+                                    <i class="fas fa-save"></i> Save Rotation
+                                </button>
+                            </div>
+                            <div class="image-container">
+                                <img id="previewImage" src="${imageSrc}" alt="${altText}" class="img-fluid rounded shadow" style="max-height: 60vh; max-width: 100%; transition: transform 0.3s ease;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -404,10 +428,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             document.body.appendChild(modal);
             const bsModal = new bootstrap.Modal(modal);
+            
+            // Reset rotation state when opening modal
+            currentRotation = 0;
+            
             bsModal.show();
             
             // Remove modal from DOM when hidden
             modal.addEventListener('hidden.bs.modal', function() {
+                // Reset rotation state when closing
+                currentRotation = 0;
                 document.body.removeChild(modal);
             });
         });
@@ -432,7 +462,20 @@ function openFileModal(fileUrl, fileName, fileType) {
     if (isImage) {
         modalContent = `
             <div class="modal-body text-center p-4">
-                <img src="${fileUrl}" alt="${fileName}" class="img-fluid rounded shadow" style="max-height: 70vh; max-width: 100%;">
+                <div class="image-controls mb-3">
+                    <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(-90)" title="Rotate Left">
+                        <i class="fas fa-undo"></i> Rotate Left
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotateImage(90)" title="Rotate Right">
+                        <i class="fas fa-redo"></i> Rotate Right
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedImage('${fileUrl}', '${fileName}')" title="Save Rotation" id="saveRotationBtn" style="display: none;">
+                        <i class="fas fa-save"></i> Save Rotation
+                    </button>
+                </div>
+                <div class="image-container">
+                    <img id="previewImage" src="${fileUrl}" alt="${fileName}" class="img-fluid rounded shadow" style="max-height: 60vh; max-width: 100%; transition: transform 0.3s ease;">
+                </div>
             </div>`;
     } else if (isPdf) {
         modalContent = `
@@ -482,14 +525,180 @@ function openFileModal(fileUrl, fileName, fileType) {
     
     document.body.appendChild(modal);
     const bsModal = new bootstrap.Modal(modal);
+    
+    // Reset rotation state when opening modal
+    currentRotation = 0;
+    
     bsModal.show();
     
     // Remove modal from DOM when hidden
     modal.addEventListener('hidden.bs.modal', function() {
+        // Reset rotation state when closing
+        currentRotation = 0;
         if (document.body.contains(modal)) {
             document.body.removeChild(modal);
         }
     });
+}
+
+// Image rotation functionality
+let currentRotation = 0;
+let originalImageUrl = '';
+
+function getFileNameFromUrl(url) {
+    // Extract filename from URL, removing any query parameters
+    const urlParts = url.split('/');
+    const fileName = urlParts[urlParts.length - 1];
+    return fileName.split('?')[0]; // Remove query parameters if any
+}
+
+function rotateImage(degrees) {
+    const previewImage = document.getElementById('previewImage');
+    const saveBtn = document.getElementById('saveRotationBtn');
+    
+    if (!previewImage) return;
+    
+    currentRotation += degrees;
+    // Normalize rotation to 0-360 range
+    currentRotation = ((currentRotation % 360) + 360) % 360;
+    
+    previewImage.style.transform = `rotate(${currentRotation}deg)`;
+    
+    // Show save button if rotation is not 0
+    if (saveBtn) {
+        saveBtn.style.display = currentRotation !== 0 ? 'inline-block' : 'none';
+    }
+}
+
+async function saveRotatedImage(fileUrl, fileName) {
+    const saveBtn = document.getElementById('saveRotationBtn');
+    const previewImage = document.getElementById('previewImage');
+    
+    if (!previewImage || currentRotation === 0) return;
+    
+    // Disable save button and show loading
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    }
+    
+    try {
+        // Create canvas to apply rotation
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        img.crossOrigin = 'anonymous';
+        
+        await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = fileUrl;
+        });
+        
+        // Calculate new dimensions based on rotation
+        const angle = (currentRotation * Math.PI) / 180;
+        const cos = Math.abs(Math.cos(angle));
+        const sin = Math.abs(Math.sin(angle));
+        
+        canvas.width = img.width * cos + img.height * sin;
+        canvas.height = img.width * sin + img.height * cos;
+        
+        // Apply rotation
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(angle);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+        
+        // Convert to blob
+        const blob = await new Promise(resolve => {
+            canvas.toBlob(resolve, 'image/jpeg', 0.9);
+        });
+        
+        // Send to server
+        const formData = new FormData();
+        formData.append('image', blob);
+        formData.append('fileName', fileName);
+        formData.append('rotation', currentRotation);
+        
+        const response = await fetch('rotate_image.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Reset rotation state
+            currentRotation = 0;
+            previewImage.style.transform = 'rotate(0deg)';
+            
+            // Update image source with timestamp to force reload
+            const newUrl = fileUrl + '?t=' + Date.now();
+            previewImage.src = newUrl;
+            
+            // Hide save button
+            if (saveBtn) {
+                saveBtn.style.display = 'none';
+            }
+            
+            // Show success message
+            showSuccessMessage('Image rotation saved successfully!');
+        } else {
+            throw new Error(result.message || 'Failed to save rotation');
+        }
+        
+    } catch (error) {
+        console.error('Error saving rotated image:', error);
+        showErrorMessage('Failed to save image rotation: ' + error.message);
+    } finally {
+        // Re-enable save button
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Rotation';
+        }
+    }
+}
+
+function showSuccessMessage(message) {
+    // Create and show success toast/alert
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 3000);
+}
+
+function showErrorMessage(message) {
+    // Create and show error toast/alert
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+    alert.style.top = '20px';
+    alert.style.right = '20px';
+    alert.style.zIndex = '9999';
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alert);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.parentNode.removeChild(alert);
+        }
+    }, 5000);
 }
 
 // Function to get file type icon

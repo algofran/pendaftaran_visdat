@@ -629,6 +629,38 @@ header p {
     border-radius: 4px;
     object-fit: cover;
     border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.preview-content img:hover {
+    transform: scale(1.05);
+    border-color: var(--primary-color);
+}
+
+/* Image rotation controls */
+.image-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.image-container img {
+    transition: transform 0.3s ease;
+}
+
+#previewImage, #modalPreviewImage {
+    transition: transform 0.3s ease;
 }
 
 .preview-content .file-info {
@@ -894,6 +926,17 @@ footer p {
     .btn-lg {
         padding: 0.75rem 2rem;
         font-size: 1rem;
+    }
+    
+    /* Responsive adjustments for rotation controls */
+    .image-controls {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .image-controls .btn {
+        width: 100%;
+        max-width: 200px;
     }
 }
 

@@ -562,6 +562,31 @@ body {
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
+/* Image rotation controls */
+.image-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+.image-container img {
+    transition: transform 0.3s ease;
+}
+
+#previewImage, #modalPreviewImage {
+    transition: transform 0.3s ease;
+}
+
 /* File Type Preview Styling */
 .file-preview-container {
     display: flex;
@@ -637,6 +662,17 @@ body {
     
     #fileModal .modal-body iframe {
         height: 60vh;
+    }
+    
+    /* Responsive adjustments for rotation controls */
+    .image-controls {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .image-controls .btn {
+        width: 100%;
+        max-width: 200px;
     }
     
     .file-preview-container {
