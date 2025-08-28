@@ -369,3 +369,47 @@ function exportToExcel() {
             button.disabled = false;
         });
 }
+
+// Photo thumbnail functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips for photo thumbnails
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Add click handler for photo thumbnails to open larger view
+    document.querySelectorAll('.admin-photo-thumbnail').forEach(function(thumbnail) {
+        thumbnail.addEventListener('click', function() {
+            const imageSrc = this.src;
+            const altText = this.alt;
+            
+            // Create modal for larger image view
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'photoModal';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${altText}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${imageSrc}" alt="${altText}" class="img-fluid rounded" style="max-height: 500px;">
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+            
+            // Remove modal from DOM when hidden
+            modal.addEventListener('hidden.bs.modal', function() {
+                document.body.removeChild(modal);
+            });
+        });
+    });
+});

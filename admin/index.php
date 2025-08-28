@@ -107,7 +107,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
     <title>Admin Panel - PT. Visdat Teknik Utama</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="admin-style.css?v=1.0.8" rel="stylesheet">
+    <link href="admin-style.css?v=1.0.9" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -256,6 +256,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                         <thead class="table-dark">
                             <tr>
                                 <th>No</th>
+                                <th>Foto</th>
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Posisi</th>
@@ -270,12 +271,26 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                         <tbody>
                             <?php if (empty($applications)): ?>
                                 <tr>
-                                    <td colspan="10" class="text-center">Tidak ada data lamaran</td>
+                                    <td colspan="11" class="text-center">Tidak ada data lamaran</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($applications as $app): ?>
                                     <tr>
                                         <td><?= $app['registration_number'] ?></td>
+                                        <td class="text-center">
+                                            <?php if (!empty($app['photo_file'])): ?>
+                                                <img src="../uploads/<?= $app['photo_file'] ?>" 
+                                                     alt="Foto <?= htmlspecialchars($app['full_name']) ?>" 
+                                                     class="admin-photo-thumbnail"
+                                                     data-bs-toggle="tooltip" 
+                                                     data-bs-placement="top" 
+                                                     title="<?= htmlspecialchars($app['full_name']) ?>">
+                                            <?php else: ?>
+                                                <div class="admin-photo-placeholder">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= htmlspecialchars($app['full_name']) ?></td>
                                         <td><?= htmlspecialchars($app['email']) ?></td>
                                         <td><?= htmlspecialchars($app['position']) ?></td>
@@ -384,7 +399,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="admin-script.js?v=1.0.8"></script>
+    <script src="admin-script.js?v=1.0.9"></script>
 </body>
 </html>
 
