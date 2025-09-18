@@ -8,7 +8,7 @@ if ($_POST) {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
     
-    if ($username === 'admin' && $password === 'admin123') {
+    if ($username === 'admin' && $password === 'visdatkom12@2025') {
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_username'] = $username;
         header('Location: index.php');
