@@ -1324,6 +1324,62 @@ function setupDynamicForm() {
     .querySelector('[name="certificate_file"]')
     ?.closest(".col-md-6");
 
+  // Filter location options based on position
+  const locationSelect = document.getElementById("location");
+  if (locationSelect && positionSelect) {
+    // Store original options
+    if (!locationSelect.dataset.originalOptions) {
+      const options = [];
+      for (let i = 0; i < locationSelect.options.length; i++) {
+        options.push({ value: locationSelect.options[i].value, text: locationSelect.options[i].text });
+      }
+      locationSelect.dataset.originalOptions = JSON.stringify(options);
+    }
+
+    const filterLocations = (position) => {
+      const originalOptions = JSON.parse(locationSelect.dataset.originalOptions);
+      const currentValue = locationSelect.value;
+      locationSelect.innerHTML = "";
+      
+      // Allowed locations for Admin
+      const adminAllowed = ["Makassar", "Manado"];
+      
+      originalOptions.forEach(opt => {
+        if (position === "Admin") {
+          // If admin, only allow placeholder and specific cities
+          if (opt.value === "" || adminAllowed.includes(opt.value)) {
+            locationSelect.add(new Option(opt.text, opt.value));
+          }
+        } else {
+          // If not admin, allow all
+          locationSelect.add(new Option(opt.text, opt.value));
+        }
+      });
+      
+      // Restore value if it still exists in the new options
+      let valueExists = false;
+      for (let i = 0; i < locationSelect.options.length; i++) {
+         if (locationSelect.options[i].value === currentValue) {
+             valueExists = true;
+             break;
+         }
+      }
+      if (valueExists) {
+         locationSelect.value = currentValue;
+      } else {
+         locationSelect.value = "";
+      }
+    };
+
+    // Add listener to position select
+    positionSelect.addEventListener("change", function() {
+       filterLocations(this.value);
+    });
+    
+    // Initial run
+    filterLocations(positionSelect.value);
+  }
+
   // Show/hide SIM upload based on position
   positionSelect.addEventListener("change", function () {
     // Show certificate field for technical positions
@@ -1647,6 +1703,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize modal functionality
   initializeModalSystem();
+  
+  // Setup dynamic form
+  setupDynamicForm();
 });
 
 // Modal system for registration type selection
@@ -2133,7 +2192,11 @@ function fillFormWithExistingData(data) {
 
   // Fill select fields
   if (data.gender) document.getElementById("gender").value = data.gender;
-  if (data.position) document.getElementById("position").value = data.position;
+  if (data.position) {
+    document.getElementById("position").value = data.position;
+    // Trigger change event to update locations and other dynamic fields
+    document.getElementById("position").dispatchEvent(new Event('change'));
+  }
   if (data.location) document.getElementById("location").value = data.location;
   if (data.education)
     document.getElementById("education").value = data.education;
