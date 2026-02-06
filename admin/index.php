@@ -12,6 +12,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
 $statusFilter = $_GET['status'] ?? 'all';
 $positionFilter = $_GET['position'] ?? 'all';
 $locationFilter = $_GET['location'] ?? 'all';
+$yearFilter = $_GET['year'] ?? date('Y');
 $searchTerm = $_GET['search'] ?? '';
 
 // Build query
@@ -55,40 +56,44 @@ foreach ($allApplications as $index => $app) {
 }
 
 // Now filter the applications if needed
-if (!empty($whereConditions)) {
-    $applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $locationFilter, $searchTerm) {
-        // Apply status filter
-        if ($statusFilter !== 'all' && $app['application_status'] !== $statusFilter) {
+$applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $locationFilter, $yearFilter, $searchTerm) {
+    // Apply year filter
+    if ($yearFilter !== 'all') {
+        $appYear = date('Y', strtotime($app['created_at']));
+        if ($appYear !== $yearFilter) {
             return false;
         }
-        
-        // Apply position filter
-        if ($positionFilter !== 'all' && $app['position'] !== $positionFilter) {
-            return false;
-        }
+    }
 
-        // Apply location filter
-        if ($locationFilter !== 'all' && ($app['location'] ?? '') !== $locationFilter) {
+    // Apply status filter
+    if ($statusFilter !== 'all' && $app['application_status'] !== $statusFilter) {
+        return false;
+    }
+    
+    // Apply position filter
+    if ($positionFilter !== 'all' && $app['position'] !== $positionFilter) {
+        return false;
+    }
+
+    // Apply location filter
+    if ($locationFilter !== 'all' && ($app['location'] ?? '') !== $locationFilter) {
+        return false;
+    }
+    
+    // Apply search filter
+    if (!empty($searchTerm)) {
+        $searchLower = strtolower($searchTerm);
+        $fullNameMatch = strpos(strtolower($app['full_name']), $searchLower) !== false;
+        $emailMatch = strpos(strtolower($app['email']), $searchLower) !== false;
+        $phoneMatch = strpos(strtolower($app['phone']), $searchLower) !== false;
+        
+        if (!($fullNameMatch || $emailMatch || $phoneMatch)) {
             return false;
         }
-        
-        // Apply search filter
-        if (!empty($searchTerm)) {
-            $searchLower = strtolower($searchTerm);
-            $fullNameMatch = strpos(strtolower($app['full_name']), $searchLower) !== false;
-            $emailMatch = strpos(strtolower($app['email']), $searchLower) !== false;
-            $phoneMatch = strpos(strtolower($app['phone']), $searchLower) !== false;
-            
-            if (!($fullNameMatch || $emailMatch || $phoneMatch)) {
-                return false;
-            }
-        }
-        
-        return true;
-    });
-} else {
-    $applications = $allApplications;
-}
+    }
+    
+    return true;
+});
 
 // Sort by created_at DESC for display
 usort($applications, function($a, $b) {
@@ -120,6 +125,20 @@ $availableLocations = [
     "Polman - Majene", "Sinjai", "Manado", "Minahasa - Tomohon",
     "Bitung - Minahasa Utara", "Bolsel - Kotamobagu", "Gorontalo - Bone Bolango"
 ];
+
+// Get available years for filter
+$yearsQuery = "SELECT DISTINCT YEAR(created_at) as year FROM applications ORDER BY year DESC";
+try {
+    $yearsStmt = $pdo->query($yearsQuery);
+    $availableYears = $yearsStmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (Exception $e) {
+    // Fallback for empty table or other issues
+    $availableYears = [date('Y')];
+}
+// Ensure current year is always in the list
+if (!in_array(date('Y'), $availableYears)) {
+    array_unshift($availableYears, date('Y'));
+}
 ?>
 
 <!DOCTYPE html>
@@ -254,16 +273,26 @@ $availableLocations = [
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div class="col-md-1">
+                        <label class="form-label">Tahun</label>
+                        <select name="year" class="form-select">
+                            <option value="all" <?= $yearFilter === 'all' ? 'selected' : '' ?>>Semua</option>
+                            <?php foreach ($availableYears as $year): ?>
+                                <option value="<?= $year ?>" <?= (string)$yearFilter === (string)$year ? 'selected' : '' ?>>
+                                    <?= $year ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <div class="col-md-3">
                         <label class="form-label">Pencarian</label>
                         <input type="text" name="search" class="form-control" placeholder="Nama, email, atau telp" value="<?= htmlspecialchars($searchTerm) ?>">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-1"></i>
-                                Filter
+                                <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
