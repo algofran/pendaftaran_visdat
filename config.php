@@ -1,6 +1,6 @@
 <?php
 // Konfigurasi Database - SQLite
-define('DB_FILE', __DIR__ . '/visdat.sqlite');
+define('DB_FILE', dirname(__FILE__) . '/visdat.sqlite');
 
 // Konfigurasi Upload
 define('UPLOAD_DIR', __DIR__ . '/uploads/');
