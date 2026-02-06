@@ -749,7 +749,7 @@ function showUploadValidationAfterRemoval(fileInput) {
   } else if (inputName === "photo_file") {
     showUploadFieldError(fileInput, "Foto 3x4 wajib diupload");
   } else if (inputName === "certificate_file") {
-    const technicalPositions = ["Teknisi FOT", "Teknisi FOC"];
+    const technicalPositions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic"];
     if (technicalPositions.includes(position)) {
       showUploadFieldError(
         fileInput,
@@ -1116,7 +1116,7 @@ function validateForm() {
   // Validate position-specific required files
   const position = document.getElementById("position").value;
 
-  const technicalPositions = ["Teknisi FOT", "Teknisi FOC"];
+  const technicalPositions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic"];
   if (
     technicalPositions.includes(position) &&
     !compressedFiles.has("certificate_file") &&
@@ -1322,7 +1322,7 @@ function setupDynamicForm() {
       const certFileInput = certificateFileContainer.querySelector(
         '[name="certificate_file"]',
       );
-      const technicalPositions = ["Teknisi FOT", "Teknisi FOC"];
+      const technicalPositions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic"];
 
       if (technicalPositions.includes(this.value)) {
         if (label)
