@@ -42,7 +42,7 @@ try {
     error_log("Database connection confirmed");
     
     // Check if applications table exists
-    $tableCheck = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='applications'");
+    $tableCheck = $pdo->query("SHOW TABLES LIKE 'applications'");
     if (!$tableCheck->fetch()) {
         throw new Exception("Applications table does not exist");
     }

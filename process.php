@@ -46,10 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     // Check if database exists and is accessible
-    $stmt = $pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='applications'");
+    $stmt = $pdo->prepare("SHOW TABLES LIKE 'applications'");
     $stmt->execute();
     if (!$stmt->fetch()) {
-        throw new Exception("Tabel 'applications' tidak ditemukan. Silakan jalankan script setup terlebih dahulu.");
+        throw new Exception("Tabel 'applications' tidak ditemukan. Silakan import database.sql terlebih dahulu.");
     }
     
     // Create upload directory if not exists
