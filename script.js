@@ -1380,29 +1380,33 @@ function setupDynamicForm() {
     filterLocations(positionSelect.value);
   }
 
-  // Show/hide SIM upload based on position
+  // Show/hide Certificate upload logic based on position
   positionSelect.addEventListener("change", function () {
-    // Show certificate field for technical positions
     if (certificateFileContainer) {
       const label = certificateFileContainer.querySelector("label");
       const certFileInput = certificateFileContainer.querySelector(
         '[name="certificate_file"]',
       );
-      const technicalPositions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic"];
+      
+      const isMandatoryK3 = this.value === "Teknisi Fiber Optic Bersertifikat K3";
+      const isTechnical = this.value === "Teknisi Fiber Optic" || isMandatoryK3;
 
-      if (technicalPositions.includes(this.value)) {
-        if (label)
-          label.innerHTML = "Sertifikat K3 (wajib untuk posisi teknis) *";
-        // Show validation error if no file uploaded for technical position
+      if (isMandatoryK3) {
+        if (label) label.innerHTML = "Sertifikat K3 (Wajib) *";
+        // Show validation error if no file uploaded
         if (certFileInput && !compressedFiles.has("certificate_file")) {
           showUploadFieldError(
             certFileInput,
-            "Sertifikat K3 wajib untuk posisi teknis",
+            "Sertifikat K3 wajib untuk posisi ini",
           );
         }
+      } else if (isTechnical) {
+        if (label) label.innerHTML = "Sertifikat K3 (Opsional)";
+        if (certFileInput) {
+          clearUploadFieldError(certFileInput);
+        }
       } else {
-        if (label) label.innerHTML = "Sertifikat K3 (jika ada)";
-        // Clear validation error if not technical position
+        if (label) label.innerHTML = "Sertifikat K3 (Jika Ada)";
         if (certFileInput) {
           clearUploadFieldError(certFileInput);
         }

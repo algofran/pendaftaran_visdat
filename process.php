@@ -133,9 +133,8 @@ try {
             $errors[] = "SIM A/C wajib untuk posisi Driver";
         }
         
-        $technicalPositions = ['Teknisi FOT', 'Teknisi FOC', 'Teknisi Jointer'];
-        if (in_array($position, $technicalPositions) && empty($_FILES['certificate_file']['name'])) {
-            $errors[] = "Sertifikat K3 wajib untuk posisi teknis";
+        if ($position === 'Teknisi Fiber Optic Bersertifikat K3' && empty($_FILES['certificate_file']['name'])) {
+            $errors[] = "Sertifikat K3 wajib untuk posisi ini";
         }
     }
     
