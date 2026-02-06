@@ -2221,18 +2221,58 @@ function fillFormWithExistingData(data) {
 
 // Show notification
 function showNotification(message, type = "info") {
-  // Create notification element
-  const notification = document.createElement("div");
-  notification.className = `alert alert-${type} notification-toast`;
-  notification.style.cssText = `
+  // Try to find existing container
+  let container = document.getElementById("notificationContainer");
+  
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "notificationContainer";
+    container.style.cssText = `
         position: fixed;
         top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        border: none;
-        animation: slideInRight 0.3s ease;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        pointer-events: none;
+        width: 100%;
+        max-width: 90%;
+    `;
+    document.body.appendChild(container);
+  }
+
+  // Create notification element
+  const notification = document.createElement("div");
+  notification.className = `alert alert-${type === 'error' ? 'danger' : type} notification-toast mb-0`;
+  
+  // Choose colors based on type
+  const colors = {
+    success: { bg: '#dcfce7', text: '#16a34a', border: '#22c55e' },
+    danger: { bg: '#fee2e2', text: '#dc2626', border: '#ef4444' },
+    error: { bg: '#fee2e2', text: '#dc2626', border: '#ef4444' },
+    info: { bg: '#eff6ff', text: '#1e40af', border: '#3b82f6' },
+    warning: { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' }
+  };
+  
+  const theme = colors[type] || colors.info;
+
+  notification.style.cssText = `
+        min-width: 350px;
+        max-width: 500px;
+        background-color: ${theme.bg} !important;
+        color: ${theme.text} !important;
+        border: 1px solid ${theme.border} !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        animation: slideInDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        pointer-events: auto;
+        border-radius: 12px;
+        position: relative;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        background-opacity: 0.95;
     `;
 
   const icon =
@@ -2243,12 +2283,14 @@ function showNotification(message, type = "info") {
         : "fa-info-circle";
 
   notification.innerHTML = `
-        <i class="fas ${icon} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" aria-label="Close"></button>
+        <div class="d-flex align-items-center">
+            <i class="fas ${icon} me-3" style="font-size: 1.2rem;"></i>
+            <div class="me-4">${message}</div>
+            <button type="button" class="btn-close ms-auto" aria-label="Close"></button>
+        </div>
     `;
 
-  document.body.appendChild(notification);
+  container.appendChild(notification);
 
   // Handle close button
   const closeBtn = notification.querySelector(".btn-close");
@@ -2256,51 +2298,57 @@ function showNotification(message, type = "info") {
     removeNotification(notification);
   });
 
-  // Auto remove after 5 seconds
+  // Auto remove after 6 seconds
   setTimeout(() => {
     removeNotification(notification);
-  }, 5000);
+  }, 6000);
 }
 
 // Remove notification with animation
 function removeNotification(notification) {
   if (notification.parentNode) {
-    notification.style.animation = "slideOutRight 0.3s ease";
+    notification.style.animation = "slideOutUp 0.4s ease forwards";
     setTimeout(() => {
       if (notification.parentNode) {
         notification.parentNode.removeChild(notification);
+        
+        // Hide container if no more notifications
+        const container = document.getElementById("notificationContainer");
+        if (container && container.children.length === 0) {
+            // container.remove(); // Optional: remove container or just leave it
+        }
       }
-    }, 300);
+    }, 400);
   }
 }
 
 // Add CSS animations for notifications
 const notificationStyles = document.createElement("style");
 notificationStyles.textContent = `
-    @keyframes slideInRight {
+    @keyframes slideInDown {
         from {
-            transform: translateX(100%);
+            transform: translateY(-100%);
             opacity: 0;
         }
         to {
-            transform: translateX(0);
+            transform: translateY(0);
             opacity: 1;
         }
     }
     
-    @keyframes slideOutRight {
+    @keyframes slideOutUp {
         from {
-            transform: translateX(0);
+            transform: translateY(0);
             opacity: 1;
         }
         to {
-            transform: translateX(100%);
+            transform: translateY(-100%);
             opacity: 0;
         }
     }
     
     .notification-toast {
-        transition: all 0.3s ease;
+        transition: all 0.4s ease;
     }
 `;
 document.head.appendChild(notificationStyles);
