@@ -11,6 +11,7 @@ if (!isset($_SESSION['admin_logged_in'])) {
 // Get filter parameters
 $statusFilter = $_GET['status'] ?? 'all';
 $positionFilter = $_GET['position'] ?? 'all';
+$locationFilter = $_GET['location'] ?? 'all';
 $searchTerm = $_GET['search'] ?? '';
 
 // Build query
@@ -25,6 +26,11 @@ if ($statusFilter !== 'all') {
 if ($positionFilter !== 'all') {
     $whereConditions[] = "position = ?";
     $params[] = $positionFilter;
+}
+
+if ($locationFilter !== 'all') {
+    $whereConditions[] = "location = ?";
+    $params[] = $locationFilter;
 }
 
 if (!empty($searchTerm)) {
@@ -50,7 +56,7 @@ foreach ($allApplications as $index => $app) {
 
 // Now filter the applications if needed
 if (!empty($whereConditions)) {
-    $applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $searchTerm) {
+    $applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $locationFilter, $searchTerm) {
         // Apply status filter
         if ($statusFilter !== 'all' && $app['application_status'] !== $statusFilter) {
             return false;
@@ -58,6 +64,11 @@ if (!empty($whereConditions)) {
         
         // Apply position filter
         if ($positionFilter !== 'all' && $app['position'] !== $positionFilter) {
+            return false;
+        }
+
+        // Apply location filter
+        if ($locationFilter !== 'all' && ($app['location'] ?? '') !== $locationFilter) {
             return false;
         }
         
@@ -93,10 +104,22 @@ $statsQuery = "SELECT
 $statsStmt = $pdo->query($statsQuery);
 $stats = $statsStmt->fetchAll(PDO::FETCH_KEY_PAIR);
 
-// Get positions
-$positionsQuery = "SELECT DISTINCT position FROM applications ORDER BY position";
-$positionsStmt = $pdo->query($positionsQuery);
-$positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
+// Get positions - using fixed list to ensure all are visible
+$availablePositions = [
+    "Teknisi Fiber Optic Bersertifikat K3",
+    "Teknisi Fiber Optic",
+    "Admin"
+];
+
+// Get locations - using fixed list to ensure all are visible
+$availableLocations = [
+    "Makassar", "Maros", "Gowa", "Takalar", "Pangkep - Barru", "Pare Pare - Sidrap",
+    "Pinrang - Enrekang", "Palopo - Luwu", "Luwu Utara - Luwu Timur", "Bulukumba",
+    "Bone", "Kendari - Konawe - Konsel", "Kolaka", "Bau Bau - Buton", "Morowali",
+    "Palu - Donggala - Sigi", "Toli Toli - Parigi Moutong", "Mamuju - Mamasa",
+    "Polman - Majene", "Sinjai", "Manado", "Minahasa - Tomohon",
+    "Bitung - Minahasa Utara", "Bolsel - Kotamobagu", "Gorontalo - Bone Bolango"
+];
 ?>
 
 <!DOCTYPE html>
@@ -198,7 +221,7 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
         <div class="card mb-4">
             <div class="card-body">
                 <form method="GET" class="row g-3">
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label">Status</label>
                         <select name="status" class="form-select">
                             <option value="all" <?= $statusFilter === 'all' ? 'selected' : '' ?>>Semua Status</option>
@@ -213,16 +236,27 @@ $positions = $positionsStmt->fetchAll(PDO::FETCH_COLUMN);
                         <label class="form-label">Posisi</label>
                         <select name="position" class="form-select">
                             <option value="all" <?= $positionFilter === 'all' ? 'selected' : '' ?>>Semua Posisi</option>
-                            <?php foreach ($positions as $position): ?>
+                            <?php foreach ($availablePositions as $position): ?>
                                 <option value="<?= htmlspecialchars($position) ?>" <?= $positionFilter === $position ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($position) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-2">
+                        <label class="form-label">Lokasi</label>
+                        <select name="location" class="form-select">
+                            <option value="all" <?= $locationFilter === 'all' ? 'selected' : '' ?>>Semua Lokasi</option>
+                            <?php foreach ($availableLocations as $loc): ?>
+                                <option value="<?= htmlspecialchars($loc) ?>" <?= $locationFilter === $loc ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($loc) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
                         <label class="form-label">Pencarian</label>
-                        <input type="text" name="search" class="form-control" placeholder="Nama, email, atau telepon" value="<?= htmlspecialchars($searchTerm) ?>">
+                        <input type="text" name="search" class="form-control" placeholder="Nama, email, atau telp" value="<?= htmlspecialchars($searchTerm) ?>">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">&nbsp;</label>
