@@ -46,10 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     // Check if database exists and is accessible
-    $stmt = $pdo->prepare("SHOW TABLES LIKE 'applications'");
+    $stmt = $pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='applications'");
     $stmt->execute();
     if (!$stmt->fetch()) {
-        throw new Exception("Tabel 'applications' tidak ditemukan. Silakan import database.sql terlebih dahulu.");
+        throw new Exception("Tabel 'applications' tidak ditemukan. Silakan jalankan script setup terlebih dahulu.");
     }
     
     // Create upload directory if not exists
@@ -57,7 +57,7 @@ try {
     
     // Validate required fields
     $requiredFields = [
-        'full_name', 'email', 'phone', 'birth_date', 'gender', 'position',
+        'full_name', 'email', 'phone', 'birth_date', 'gender', 'position', 'location',
         'education', 'experience_years', 'address', 'work_vision', 'work_mission', 'motivation'
     ];
     
@@ -187,6 +187,7 @@ try {
         'email' => sanitize($_POST['email']),
         'phone' => sanitize($_POST['phone']),
         'position' => sanitize($_POST['position']),
+        'location' => sanitize($_POST['location']),
         'education' => sanitize($_POST['education']),
         'experience_years' => (int)$_POST['experience_years'],
         'address' => sanitize($_POST['address']),
@@ -201,7 +202,7 @@ try {
         'fiber_optic_knowledge' => sanitize($_POST['fiber_optic_knowledge'] ?? ''),
         'otdr_experience' => sanitize($_POST['otdr_experience'] ?? 'Tidak'),
         'jointing_experience' => sanitize($_POST['jointing_experience'] ?? 'Tidak'),
-        'tower_climbing_experience' => sanitize($_POST['tower_climbing_experience'] ?? 'Tidak'),
+        'tower_climbing_experience' => sanitize($_POST['pole_climbing_experience'] ?? 'Tidak'),
         'k3_certificate' => sanitize($_POST['k3_certificate'] ?? 'Tidak'),
         'work_vision' => sanitize($_POST['work_vision']),
         'work_mission' => sanitize($_POST['work_mission']),
@@ -213,7 +214,7 @@ try {
     if ($isUpdate) {
         // Update existing record
         $sql = "UPDATE applications SET 
-            full_name = :full_name, phone = :phone, position = :position, education = :education, 
+            full_name = :full_name, phone = :phone, position = :position, location = :location, education = :education, 
             experience_years = :experience_years, address = :address, birth_date = :birth_date, gender = :gender,
             fiber_optic_knowledge = :fiber_optic_knowledge, otdr_experience = :otdr_experience, 
             jointing_experience = :jointing_experience, tower_climbing_experience = :tower_climbing_experience, 
@@ -273,12 +274,12 @@ try {
     } else {
         // Insert new record
         $sql = "INSERT INTO applications (
-            full_name, email, phone, position, education, experience_years, address, birth_date, gender,
+            full_name, email, phone, position, location, education, experience_years, address, birth_date, gender,
             cv_file, photo_file, ktp_file, ijazah_file, certificate_file, sim_file,
             fiber_optic_knowledge, otdr_experience, jointing_experience, tower_climbing_experience, k3_certificate,
             work_vision, work_mission, motivation, application_status
         ) VALUES (
-            :full_name, :email, :phone, :position, :education, :experience_years, :address, :birth_date, :gender,
+            :full_name, :email, :phone, :position, :location, :education, :experience_years, :address, :birth_date, :gender,
             :cv_file, :photo_file, :ktp_file, :ijazah_file, :certificate_file, :sim_file,
             :fiber_optic_knowledge, :otdr_experience, :jointing_experience, :tower_climbing_experience, :k3_certificate,
             :work_vision, :work_mission, :motivation, :application_status

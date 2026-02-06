@@ -42,89 +42,46 @@ try {
     error_log("Database connection confirmed");
     
     // Check if applications table exists
-    $tableCheck = $pdo->query("SHOW TABLES LIKE 'applications'");
-    if ($tableCheck->rowCount() == 0) {
+    $tableCheck = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='applications'");
+    if (!$tableCheck->fetch()) {
         throw new Exception("Applications table does not exist");
     }
     
     error_log("Applications table exists");
     
-    // Check MySQL version to determine if ROW_NUMBER() is supported
-    $versionStmt = $pdo->query("SELECT VERSION() as version");
-    $version = $versionStmt->fetch()['version'];
-    $versionNumber = floatval($version);
-    
-    error_log("MySQL version: $version");
-    
-    // Get all applications with full data
-    if ($versionNumber >= 8.0) {
-        // Use ROW_NUMBER() for MySQL 8.0+
-        error_log("Using ROW_NUMBER() for MySQL 8.0+");
-        $sql = "SELECT 
-                    id,
-                    ROW_NUMBER() OVER (ORDER BY created_at ASC) as registration_number,
-                    full_name,
-                    email,
-                    phone,
-                    position,
-                    education,
-                    experience_years,
-                    address,
-                    birth_date,
-                    gender,
-                    cv_file,
-                    photo_file,
-                    ktp_file,
-                    ijazah_file,
-                    certificate_file,
-                    sim_file,
-                    fiber_optic_knowledge,
-                    otdr_experience,
-                    jointing_experience,
-                    tower_climbing_experience,
-                    k3_certificate,
-                    work_vision,
-                    work_mission,
-                    motivation,
-                    application_status,
-                    created_at,
-                    updated_at
-                FROM applications 
-                ORDER BY created_at ASC";
-    } else {
-        // Use simple query for older MySQL versions
-        error_log("Using compatible query for MySQL < 8.0");
-        $sql = "SELECT 
-                    id,
-                    full_name,
-                    email,
-                    phone,
-                    position,
-                    education,
-                    experience_years,
-                    address,
-                    birth_date,
-                    gender,
-                    cv_file,
-                    photo_file,
-                    ktp_file,
-                    ijazah_file,
-                    certificate_file,
-                    sim_file,
-                    fiber_optic_knowledge,
-                    otdr_experience,
-                    jointing_experience,
-                    tower_climbing_experience,
-                    k3_certificate,
-                    work_vision,
-                    work_mission,
-                    motivation,
-                    application_status,
-                    created_at,
-                    updated_at
-                FROM applications 
-                ORDER BY created_at ASC";
-    }
+    // Get all applications
+    error_log("Using standard query for SQLite");
+    $sql = "SELECT 
+                id,
+                full_name,
+                email,
+                phone,
+                position,
+                location,
+                education,
+                experience_years,
+                address,
+                birth_date,
+                gender,
+                cv_file,
+                photo_file,
+                ktp_file,
+                ijazah_file,
+                certificate_file,
+                sim_file,
+                fiber_optic_knowledge,
+                otdr_experience,
+                jointing_experience,
+                tower_climbing_experience,
+                k3_certificate,
+                work_vision,
+                work_mission,
+                motivation,
+                application_status,
+                created_at,
+                updated_at
+            FROM applications 
+            ORDER BY created_at ASC";
     
     error_log("Preparing SQL query");
     $stmt = $pdo->prepare($sql);
@@ -157,6 +114,7 @@ try {
             'Email' => $app['email'],
             'Telepon' => $app['phone'],
             'Posisi' => $app['position'],
+            'Lokasi Penempatan' => $app['location'] ?? '',
             'Pendidikan' => $app['education'],
             'Pengalaman (Tahun)' => $app['experience_years'],
             'Alamat' => $app['address'],
@@ -193,6 +151,7 @@ try {
             'Email' => '',
             'Telepon' => '',
             'Posisi' => '',
+            'Lokasi Penempatan' => '',
             'Pendidikan' => '',
             'Pengalaman (Tahun)' => '',
             'Alamat' => '',

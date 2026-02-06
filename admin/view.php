@@ -90,6 +90,10 @@ if (!$application) {
                                         <td><span class="badge bg-info"><?= htmlspecialchars($application['position']) ?></span></td>
                                     </tr>
                                     <tr>
+                                        <td><strong>Lokasi Penempatan:</strong></td>
+                                        <td><?= htmlspecialchars($application['location'] ?? '-') ?></td>
+                                    </tr>
+                                    <tr>
                                         <td><strong>Pendidikan:</strong></td>
                                         <td><?= htmlspecialchars($application['education']) ?></td>
                                     </tr>

@@ -23,6 +23,14 @@ function autoFillForm() {
   const genders = ["Laki-laki", "Perempuan"];
   const yesNoOptions = ["Ya", "Tidak"];
   const experienceOptions = ["Tidak", "Sedikit", "Ya"];
+  const locations = [
+    "Makassar", "Maros", "Gowa", "Takalar", "Pangkep - Barru", "Pare Pare - Sidrap",
+    "Pinrang - Enrekang", "Palopo - Luwu", "Luwu Utara - Luwu Timur", "Bulukumba",
+    "Bone", "Kendari - Konawe - Konsel", "Kolaka", "Bau Bau - Buton", "Morowali",
+    "Palu - Donggala - Sigi", "Toli Toli - Parigi Moutong", "Mamuju - Mamasa",
+    "Polman - Majene", "Sinjai", "Manado", "Minahasa - Tomohon",
+    "Bitung - Minahasa Utara", "Bolsel - Kotamobagu", "Gorontalo - Bone Bolango"
+  ];
 
   // Generate a birth date between 18-60 years old
   const birthDate = faker.date.birthdate({ min: 18, max: 60, mode: "age" });
@@ -58,13 +66,15 @@ function autoFillForm() {
   document.getElementById("gender").value = faker.helpers.arrayElement(genders);
   document.getElementById("position").value =
     faker.helpers.arrayElement(positions);
+  document.getElementById("location").value =
+    faker.helpers.arrayElement(locations);
   document.getElementById("education").value =
     faker.helpers.arrayElement(educations);
   document.getElementById("otdr_experience").value =
     faker.helpers.arrayElement(experienceOptions);
   document.getElementById("jointing_experience").value =
     faker.helpers.arrayElement(experienceOptions);
-  document.getElementById("tower_climbing_experience").value =
+  document.getElementById("pole_climbing_experience").value =
     faker.helpers.arrayElement(yesNoOptions);
   document.getElementById("k3_certificate").value =
     faker.helpers.arrayElement(yesNoOptions);
@@ -2124,6 +2134,7 @@ function fillFormWithExistingData(data) {
   // Fill select fields
   if (data.gender) document.getElementById("gender").value = data.gender;
   if (data.position) document.getElementById("position").value = data.position;
+  if (data.location) document.getElementById("location").value = data.location;
   if (data.education)
     document.getElementById("education").value = data.education;
   if (data.otdr_experience)
@@ -2131,9 +2142,9 @@ function fillFormWithExistingData(data) {
   if (data.jointing_experience)
     document.getElementById("jointing_experience").value =
       data.jointing_experience;
-  if (data.tower_climbing_experience)
-    document.getElementById("tower_climbing_experience").value =
-      data.tower_climbing_experience;
+  if (data.pole_climbing_experience)
+    document.getElementById("pole_climbing_experience").value =
+      data.pole_climbing_experience;
   if (data.k3_certificate)
     document.getElementById("k3_certificate").value = data.k3_certificate;
 
