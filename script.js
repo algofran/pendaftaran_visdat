@@ -18,7 +18,7 @@ function autoFillForm() {
   }
 
   // Define position options
-  const positions = ["Teknisi FOT", "Teknisi FOC", "Admin Zona"];
+  const positions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic", "Admin"];
   const educations = ["SMA/SMK", "D3", "S1", "S2"];
   const genders = ["Laki-laki", "Perempuan"];
   const yesNoOptions = ["Ya", "Tidak"];
