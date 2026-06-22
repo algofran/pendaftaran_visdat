@@ -93,6 +93,7 @@ try {
                     'photo_file' => $application['photo_file'],
                     'ktp_file' => $application['ktp_file'],
                     'ijazah_file' => $application['ijazah_file'],
+                    'kk_file' => $application['kk_file'],
                     'certificate_file' => $application['certificate_file'],
                     'sim_file' => $application['sim_file']
                 ]

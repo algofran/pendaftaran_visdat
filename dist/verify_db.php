@@ -34,6 +34,7 @@ try {
             photo_file VARCHAR(255),
             ktp_file VARCHAR(255),
             ijazah_file VARCHAR(255),
+            kk_file VARCHAR(255),
             certificate_file VARCHAR(255),
             sim_file VARCHAR(255),
             fiber_optic_knowledge TEXT,
@@ -61,6 +62,7 @@ try {
         'location' => "VARCHAR(100) AFTER position",
         'ktp_file' => "VARCHAR(255) AFTER photo_file",
         'ijazah_file' => "VARCHAR(255) AFTER ktp_file",
+        'kk_file' => "VARCHAR(255) AFTER ijazah_file",
         'tower_climbing_experience' => "ENUM('Ya', 'Tidak') DEFAULT 'Tidak' AFTER jointing_experience"
     ];
 

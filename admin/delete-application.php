@@ -33,7 +33,7 @@ try {
     $applicationId = intval($input['application_id']);
     
     // First, get the application details to delete associated files
-    $stmt = $pdo->prepare("SELECT cv_file, photo_file, certificate_file, sim_file FROM applications WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT cv_file, photo_file, ktp_file, ijazah_file, kk_file, certificate_file, sim_file FROM applications WHERE id = ?");
     $stmt->execute([$applicationId]);
     $application = $stmt->fetch();
     
@@ -46,6 +46,9 @@ try {
     $filesToDelete = [
         $application['cv_file'],
         $application['photo_file'],
+        $application['ktp_file'],
+        $application['ijazah_file'],
+        $application['kk_file'],
         $application['certificate_file'],
         $application['sim_file']
     ];

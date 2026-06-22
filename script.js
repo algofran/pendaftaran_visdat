@@ -822,7 +822,11 @@ function getAcceptedExtensions(inputName) {
       return ["pdf", "doc", "docx"];
     case "photo_file":
       return ["jpg", "jpeg", "png"];
+    case "ktp_file":
+    case "ijazah_file":
+    case "kk_file":
     case "certificate_file":
+    case "sim_file":
       return ["pdf", "jpg", "jpeg", "png"];
     default:
       return ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
@@ -1142,6 +1146,17 @@ function validateForm() {
       showUploadFieldError(ijazahFileInput, "Foto Ijazah wajib diupload");
       if (!firstInvalidField) {
         firstInvalidField = ijazahFileInput;
+      }
+      isValid = false;
+    }
+  }
+
+  if (!compressedFiles.has("kk_file") && !existingFiles.kk_file) {
+    const kkFileInput = document.querySelector('[name="kk_file"]');
+    if (kkFileInput && kkFileInput.hasAttribute("required")) {
+      showUploadFieldError(kkFileInput, "Foto Kartu Keluarga (KK) wajib diupload");
+      if (!firstInvalidField) {
+        firstInvalidField = kkFileInput;
       }
       isValid = false;
     }
@@ -2151,6 +2166,7 @@ function showUploadFieldsForExistingUser() {
     { key: "photo_file", statusId: "photo-file-status", label: "foto" },
     { key: "ktp_file", statusId: "ktp-file-status", label: "KTP" },
     { key: "ijazah_file", statusId: "ijazah-file-status", label: "ijazah" },
+    { key: "kk_file", statusId: "kk-file-status", label: "Kartu Keluarga" },
     {
       key: "certificate_file",
       statusId: "certificate-file-status",
@@ -2195,7 +2211,7 @@ function showUploadFieldsForExistingUser() {
 
       // Keep required attribute for required fields
       if (
-        ["cv_file", "photo_file", "ktp_file", "ijazah_file"].includes(field.key)
+        ["cv_file", "photo_file", "ktp_file", "ijazah_file", "kk_file"].includes(field.key)
       ) {
         fileInput.setAttribute("required", "required");
       }
@@ -2232,6 +2248,7 @@ function toggleFileReplacement(fieldName) {
     photo_file: "photo-file-status",
     ktp_file: "ktp-file-status",
     ijazah_file: "ijazah-file-status",
+    kk_file: "kk-file-status",
     certificate_file: "certificate-file-status",
     sim_file: "sim-file-status",
   };
@@ -2269,7 +2286,7 @@ function toggleFileReplacement(fieldName) {
 
       // Add required attribute for required fields when replacing
       if (
-        ["cv_file", "photo_file", "ktp_file", "ijazah_file"].includes(fieldName)
+        ["cv_file", "photo_file", "ktp_file", "ijazah_file", "kk_file"].includes(fieldName)
       ) {
         fileInput.setAttribute("required", "required");
       }

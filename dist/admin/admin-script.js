@@ -408,29 +408,33 @@ function exportToExcel() {
                 { wch: 20 },  // Nama Lengkap
                 { wch: 25 },  // Email
                 { wch: 15 },  // Telepon
-                { wch: 15 },  // Posisi
+                { wch: 20 },  // Posisi
+                { wch: 20 },  // Lokasi Penempatan
                 { wch: 15 },  // Pendidikan
-                { wch: 12 },  // Pengalaman
+                { wch: 15 },  // Pengalaman (Tahun)
                 { wch: 30 },  // Alamat
                 { wch: 12 },  // Tanggal Lahir
                 { wch: 12 },  // Jenis Kelamin
                 { wch: 40 },  // File CV
                 { wch: 40 },  // File Foto
+                { wch: 40 },  // File KTP
+                { wch: 40 },  // File Ijazah
+                { wch: 40 },  // File Kartu Keluarga
                 { wch: 40 },  // File Sertifikat K3
                 { wch: 40 },  // File SIM
                 { wch: 30 },  // Driver Pre-trip
                 { wch: 30 },  // Driver Emergency
                 { wch: 30 },  // Driver Integrity
                 { wch: 30 },  // Driver Fatigue
-                { wch: 40 },  // Driver Commitment (new)
+                { wch: 40 },  // Driver Commitment
                 { wch: 30 },  // Tech Troubleshooting
-                { wch: 40 },  // Tech Commitment (new)
+                { wch: 40 },  // Tech Commitment
                 { wch: 30 },  // Tech Inventory
                 { wch: 30 },  // Tech Safety
                 { wch: 30 },  // Tech Communication
-                { wch: 30 },  // Visi Kerja
-                { wch: 30 },  // Misi Kerja
-                { wch: 30 },  // Motivasi
+                { wch: 35 },  // Visi Kerja
+                { wch: 35 },  // Misi Kerja
+                { wch: 35 },  // Motivasi
                 { wch: 15 },  // Status Lamaran
                 { wch: 18 },  // Tanggal Daftar
                 { wch: 18 }   // Terakhir Update

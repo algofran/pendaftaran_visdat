@@ -158,6 +158,13 @@ function getStatusBadgeClass($status) {
                                 </button>
                             <?php endif; ?>
                             
+                            <?php if (!empty($app['kk_file'])): ?>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['kk_file'] ?>', 'Kartu Keluarga - <?= addslashes($app['full_name']) ?>', 'image')">
+                                    <span><i class="fas fa-users text-success me-2"></i>Kartu Keluarga</span>
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            <?php endif; ?>
+                            
                             <?php if (!empty($app['certificate_file'])): ?>
                                 <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['certificate_file'] ?>', 'Sertifikat K3 - <?= addslashes($app['full_name']) ?>', 'pdf')">
                                     <span><i class="fas fa-certificate text-warning me-2"></i>Sertifikat K3</span>

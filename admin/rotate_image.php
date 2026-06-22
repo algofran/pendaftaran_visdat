@@ -29,6 +29,7 @@ function updateDatabaseFilename($oldFileName, $newFileName) {
         'photo_file', 
         'ktp_file',
         'ijazah_file',
+        'kk_file',
         'certificate_file',
         'sim_file'
     ];

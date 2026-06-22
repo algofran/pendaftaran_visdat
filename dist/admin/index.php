@@ -414,6 +414,11 @@ if (!in_array(date('Y'), $availableYears)) {
                                                         <i class="fas fa-graduation-cap"></i> Ijazah
                                                     </button>
                                                 <?php endif; ?>
+                                                <?php if (!empty($app['kk_file'])): ?>
+                                                    <button type="button" class="btn btn-sm btn-outline-info mb-1" title="Kartu Keluarga" onclick="openFileModal('../uploads/<?= $app['kk_file'] ?>', 'Kartu Keluarga - <?= htmlspecialchars($app['full_name']) ?>', 'image')">
+                                                        <i class="fas fa-users"></i> KK
+                                                    </button>
+                                                <?php endif; ?>
                                                 <?php if (!empty($app['certificate_file'])): ?>
                                                     <button type="button" class="btn btn-sm btn-outline-warning mb-1" title="Sertifikat K3" onclick="openFileModal('../uploads/<?= $app['certificate_file'] ?>', 'Sertifikat K3 - <?= htmlspecialchars($app['full_name']) ?>', 'pdf')">
                                                         <i class="fas fa-certificate"></i> K3
@@ -424,7 +429,7 @@ if (!in_array(date('Y'), $availableYears)) {
                                                         <i class="fas fa-id-card"></i> SIM
                                                     </button>
                                                 <?php endif; ?>
-                                                <?php if (empty($app['cv_file']) && empty($app['photo_file']) && empty($app['ktp_file']) && empty($app['ijazah_file']) && empty($app['certificate_file']) && empty($app['sim_file'])): ?>
+                                                <?php if (empty($app['cv_file']) && empty($app['photo_file']) && empty($app['ktp_file']) && empty($app['ijazah_file']) && empty($app['kk_file']) && empty($app['certificate_file']) && empty($app['sim_file'])): ?>
                                                     <small class="text-muted">Tidak ada file</small>
                                                 <?php endif; ?>
                                             </div>

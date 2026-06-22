@@ -450,6 +450,37 @@
                                     </div>
                                 </div>
                                 
+                                <div id="upload-fields-kk" class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto Kartu Keluarga (KK) *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="kk-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                File Kartu Keluarga sudah tersimpan
+                                                <button type="button" class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn" data-field="kk_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input" name="kk_file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <strong>Petunjuk Upload Kartu Keluarga:</strong>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG, PDF</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Foto/scan Kartu Keluarga (KK) harus jelas dan mudah dibaca</li>
+                                                    <li>Pastikan seluruh anggota keluarga terlihat dengan jelas</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div id="upload-fields-optional" class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Sertifikat K3 (jika ada)</label>

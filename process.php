@@ -90,7 +90,7 @@ try {
     
     // Check which files are uploaded
     $hasFileUploads = false;
-    $fileFields = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'certificate_file', 'sim_file'];
+    $fileFields = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'kk_file', 'certificate_file', 'sim_file'];
     foreach ($fileFields as $field) {
         if (!empty($_FILES[$field]['name'])) {
             $hasFileUploads = true;
@@ -114,6 +114,10 @@ try {
         
         if (empty($_FILES['ijazah_file']['name'])) {
             $errors[] = "Foto Ijazah wajib diupload";
+        }
+
+        if (empty($_FILES['kk_file']['name'])) {
+            $errors[] = "Foto Kartu Keluarga (KK) wajib diupload";
         }
         
         if (DEBUG) {
@@ -146,7 +150,7 @@ try {
     
     // Process file uploads
     $uploadedFiles = [];
-    $fileFields = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'certificate_file', 'sim_file'];
+    $fileFields = ['cv_file', 'photo_file', 'ktp_file', 'ijazah_file', 'kk_file', 'certificate_file', 'sim_file'];
     
     foreach ($fileFields as $field) {
         if (!empty($_FILES[$field]['name'])) {
@@ -214,6 +218,7 @@ try {
         'photo_file' => $uploadedFiles['photo_file'] ?? null,
         'ktp_file' => $uploadedFiles['ktp_file'] ?? null,
         'ijazah_file' => $uploadedFiles['ijazah_file'] ?? null,
+        'kk_file' => $uploadedFiles['kk_file'] ?? null,
         'certificate_file' => $uploadedFiles['certificate_file'] ?? null,
         'sim_file' => $uploadedFiles['sim_file'] ?? null,
         'motivation' => sanitize($_POST['motivation']),
@@ -249,6 +254,7 @@ try {
         if (!empty($uploadedFiles['photo_file'])) $sql .= ", photo_file = :photo_file";
         if (!empty($uploadedFiles['ktp_file'])) $sql .= ", ktp_file = :ktp_file";
         if (!empty($uploadedFiles['ijazah_file'])) $sql .= ", ijazah_file = :ijazah_file";
+        if (!empty($uploadedFiles['kk_file'])) $sql .= ", kk_file = :kk_file";
         if (!empty($uploadedFiles['certificate_file'])) $sql .= ", certificate_file = :certificate_file";
         if (!empty($uploadedFiles['sim_file'])) $sql .= ", sim_file = :sim_file";
         
@@ -260,6 +266,7 @@ try {
         if (empty($uploadedFiles['photo_file'])) unset($updateData['photo_file']);
         if (empty($uploadedFiles['ktp_file'])) unset($updateData['ktp_file']);
         if (empty($uploadedFiles['ijazah_file'])) unset($updateData['ijazah_file']);
+        if (empty($uploadedFiles['kk_file'])) unset($updateData['kk_file']);
         if (empty($uploadedFiles['certificate_file'])) unset($updateData['certificate_file']);
         if (empty($uploadedFiles['sim_file'])) unset($updateData['sim_file']);
         unset($updateData['application_status']); // Don't update application status
@@ -298,13 +305,13 @@ try {
         // Insert new record
         $sql = "INSERT INTO applications (
             full_name, email, phone, position, location, education, experience_years, work_experiences, address, birth_date, gender,
-            cv_file, photo_file, ktp_file, ijazah_file, certificate_file, sim_file,
+            cv_file, photo_file, ktp_file, ijazah_file, kk_file, certificate_file, sim_file,
             driver_pre_trip, driver_emergency, driver_integrity, driver_fatigue, driver_commitment,
             tech_troubleshooting, tech_commitment, tech_inventory, tech_safety, tech_communication,
             work_vision, work_mission, motivation, application_status
         ) VALUES (
             :full_name, :email, :phone, :position, :location, :education, :experience_years, :work_experiences, :address, :birth_date, :gender,
-            :cv_file, :photo_file, :ktp_file, :ijazah_file, :certificate_file, :sim_file,
+            :cv_file, :photo_file, :ktp_file, :ijazah_file, :kk_file, :certificate_file, :sim_file,
             :driver_pre_trip, :driver_emergency, :driver_integrity, :driver_fatigue, :driver_commitment,
             :tech_troubleshooting, :tech_commitment, :tech_inventory, :tech_safety, :tech_communication,
             :work_vision, :work_mission, :motivation, :application_status
@@ -401,6 +408,7 @@ function uploadFile($file, $fieldName) {
             break;
         case 'ktp_file':
         case 'ijazah_file':
+        case 'kk_file':
         case 'certificate_file':
         case 'sim_file':
             $allowedTypes = ['pdf', 'jpg', 'jpeg', 'png'];
