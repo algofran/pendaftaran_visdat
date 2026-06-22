@@ -18,7 +18,7 @@ function autoFillForm() {
   }
 
   // Define position options
-  const positions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic", "Admin"];
+  const positions = ["Teknisi Fiber Optic Bersertifikat K3", "Teknisi Fiber Optic", "Administrasi Proyek", "Driver"];
   const educations = ["SMA/SMK", "D3", "S1", "S2"];
   const genders = ["Laki-laki", "Perempuan"];
   const yesNoOptions = ["Ya", "Tidak"];
@@ -47,37 +47,61 @@ function autoFillForm() {
   });
 
   // Fill textareas
-  document.getElementById("address").value =
-    faker.location.streetAddress() +
-    ", " +
-    faker.location.city() +
-    ", " +
-    faker.location.state();
-  document.getElementById("fiber_optic_knowledge").value =
-    faker.lorem.paragraphs(2, "\n\n");
-  document.getElementById("work_vision").value = faker.lorem.paragraph();
-  document.getElementById("work_mission").value = faker.lorem.paragraph();
-  document.getElementById("motivation").value = faker.lorem.paragraphs(
-    2,
-    "\n\n",
-  );
+  if (document.getElementById("address")) {
+    document.getElementById("address").value =
+      faker.location.streetAddress() +
+      ", " +
+      faker.location.city() +
+      ", " +
+      faker.location.state();
+  }
+  
+  // New Technical Questions
+  const techFields = ["tech_troubleshooting", "tech_commitment", "tech_inventory", "tech_safety", "tech_communication"];
+  techFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = faker.lorem.paragraphs(2, "\n\n");
+  });
+
+  // New Driver Questions
+  const driverFields = ["driver_pre_trip", "driver_emergency", "driver_integrity", "driver_fatigue", "driver_commitment"];
+  driverFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = faker.lorem.paragraphs(2, "\n\n");
+  });
+
+  if (document.getElementById("work_vision")) document.getElementById("work_vision").value = faker.lorem.paragraph();
+  if (document.getElementById("work_mission")) document.getElementById("work_mission").value = faker.lorem.paragraph();
+  if (document.getElementById("motivation")) document.getElementById("motivation").value = faker.lorem.paragraphs(2, "\n\n");
+
+  // Fill work experience
+  const expItems = document.querySelectorAll(".work-experience-item");
+  expItems.forEach((item) => {
+    const company = item.querySelector('input[name="exp_company[]"]');
+    if (company && !company.value) company.value = faker.company.name();
+
+    const exp_position = item.querySelector('input[name="exp_position[]"]');
+    if (exp_position && !exp_position.value) exp_position.value = faker.person.jobTitle();
+
+    const start = item.querySelector('input[name="exp_start[]"]');
+    if (start && !start.value) start.value = faker.date.past({ years: 10 }).getFullYear().toString();
+
+    const end = item.querySelector('input[name="exp_end[]"]');
+    if (end && !end.value) end.value = faker.helpers.arrayElement([faker.date.recent().getFullYear().toString(), "Skrg"]);
+
+    const desc = item.querySelector('input[name="exp_desc[]"]');
+    if (desc && !desc.value) desc.value = faker.lorem.sentence();
+  });
 
   // Fill select dropdowns
-  document.getElementById("gender").value = faker.helpers.arrayElement(genders);
-  document.getElementById("position").value =
-    faker.helpers.arrayElement(positions);
-  document.getElementById("location").value =
-    faker.helpers.arrayElement(locations);
-  document.getElementById("education").value =
-    faker.helpers.arrayElement(educations);
-  document.getElementById("otdr_experience").value =
-    faker.helpers.arrayElement(experienceOptions);
-  document.getElementById("jointing_experience").value =
-    faker.helpers.arrayElement(experienceOptions);
-  document.getElementById("pole_climbing_experience").value =
-    faker.helpers.arrayElement(yesNoOptions);
-  document.getElementById("k3_certificate").value =
-    faker.helpers.arrayElement(yesNoOptions);
+  if (document.getElementById("gender")) document.getElementById("gender").value = faker.helpers.arrayElement(genders);
+  if (document.getElementById("position")) document.getElementById("position").value = faker.helpers.arrayElement(positions);
+  if (document.getElementById("location")) document.getElementById("location").value = faker.helpers.arrayElement(locations);
+  if (document.getElementById("education")) document.getElementById("education").value = faker.helpers.arrayElement(educations);
+  if (document.getElementById("otdr_experience")) document.getElementById("otdr_experience").value = faker.helpers.arrayElement(experienceOptions);
+  if (document.getElementById("jointing_experience")) document.getElementById("jointing_experience").value = faker.helpers.arrayElement(experienceOptions);
+  if (document.getElementById("pole_climbing_experience")) document.getElementById("pole_climbing_experience").value = faker.helpers.arrayElement(yesNoOptions);
+  if (document.getElementById("k3_certificate")) document.getElementById("k3_certificate").value = faker.helpers.arrayElement(yesNoOptions);
 
   // Show success message
   console.log("Form auto-filled with fake data");
@@ -176,6 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Dynamic form behavior
   setTimeout(() => {
     setupDynamicForm();
+    setupWorkExperience();
     setupUploadFieldValidation();
   }, 100);
 });
@@ -513,21 +538,20 @@ function openImagePreviewModal(imageSrc, fileName, file) {
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title">
-                        <i class="fas fa-image me-2"></i>
-                        ${fileName}
+                        🖼️ ${fileName}
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center p-4">
                     <div class="image-controls mb-3">
                         <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotatePreviewImage(-90)" title="Rotate Left">
-                            <i class="fas fa-undo"></i> Rotate Left
+                            ↺ Rotate Left
                         </button>
                         <button type="button" class="btn btn-outline-primary btn-sm me-2" onclick="rotatePreviewImage(90)" title="Rotate Right">
-                            <i class="fas fa-redo"></i> Rotate Right
+                            ↻ Rotate Right
                         </button>
                         <button type="button" class="btn btn-success btn-sm" onclick="saveRotatedPreviewImage()" title="Apply Rotation" id="savePreviewRotationBtn" style="display: none;">
-                            <i class="fas fa-save"></i> Apply Rotation
+                            💾 Apply Rotation
                         </button>
                     </div>
                     <div class="image-container">
@@ -535,7 +559,7 @@ function openImagePreviewModal(imageSrc, fileName, file) {
                     </div>
                     <div class="mt-3">
                         <small class="text-muted">
-                            <i class="fas fa-info-circle"></i> 
+                            ℹ️ 
                             You can rotate the image and apply the rotation to update your upload.
                         </small>
                     </div>
@@ -586,7 +610,7 @@ async function saveRotatedPreviewImage() {
   // Disable save button and show loading
   if (saveBtn) {
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying...';
+    saveBtn.innerHTML = '⌛ Applying...';
   }
 
   try {
@@ -1280,7 +1304,7 @@ function showMessage(message, type) {
   const alertDiv = document.createElement("div");
   alertDiv.className = `alert alert-${type === "success" ? "success" : "danger"} alert-dismissible fade show mb-3`;
   alertDiv.innerHTML = `
-        <i class="fas fa-${type === "success" ? "check-circle" : "exclamation-triangle"}"></i>
+        ${type === "success" ? "✅" : "⚠️"}
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
@@ -1326,7 +1350,7 @@ function setupDynamicForm() {
 
   // Filter location options based on position
   const locationSelect = document.getElementById("location");
-  if (locationSelect && positionSelect) {
+  if (locationSelect && positionSelect && locationSelect.tagName === "SELECT") {
     // Store original options
     if (!locationSelect.dataset.originalOptions) {
       const options = [];
@@ -1345,7 +1369,7 @@ function setupDynamicForm() {
       const adminAllowed = ["Makassar", "Manado"];
       
       originalOptions.forEach(opt => {
-        if (position === "Admin") {
+        if (position === "Administrasi Proyek" || position === "Admin Zona" || position === "Admin" || position === "admin proyek") {
           // If admin, only allow placeholder and specific cities
           if (opt.value === "" || adminAllowed.includes(opt.value)) {
             locationSelect.add(new Option(opt.text, opt.value));
@@ -1414,6 +1438,26 @@ function setupDynamicForm() {
     }
   });
 
+  // Show/hide special questions based on position
+  const techQuestions = document.getElementById("technician-questions");
+  const driverQuestions = document.getElementById("driver-questions");
+
+  const toggleSpecialQuestions = (position) => {
+    if (techQuestions) {
+      techQuestions.style.display = (position && position.includes("Teknisi")) ? "block" : "none";
+    }
+    if (driverQuestions) {
+      driverQuestions.style.display = (position === "Driver") ? "block" : "none";
+    }
+  };
+
+  positionSelect.addEventListener("change", function() {
+    toggleSpecialQuestions(this.value);
+  });
+
+  // Initial call
+  toggleSpecialQuestions(positionSelect.value);
+
   // Auto-format phone number
   const phoneInput = document.getElementById("phone");
   if (phoneInput) {
@@ -1456,6 +1500,75 @@ function setupDynamicForm() {
       }
     });
   });
+}
+
+// Work experience dynamic items handling
+function setupWorkExperience() {
+  const addBtn = document.getElementById("add-experience-btn");
+  const container = document.getElementById("work-experience-container");
+
+  if (!addBtn || !container) return;
+
+  // Function to update indices after addition/removal
+  const updateIndices = () => {
+    const items = container.querySelectorAll(".work-experience-item");
+    items.forEach((item, index) => {
+      const title = item.querySelector(".experience-title");
+      if (title) title.textContent = `Pengalaman #${index + 1}`;
+      
+      const removeBtn = item.querySelector(".remove-experience");
+      if (removeBtn) {
+        removeBtn.style.display = items.length > 1 ? "block" : "none";
+      }
+    });
+  };
+
+  addBtn.addEventListener("click", function () {
+    const items = container.querySelectorAll(".work-experience-item");
+    const newIndex = items.length + 1;
+    
+    // Check if limit reached
+    if (newIndex > 10) {
+      showNotification("Maksimal 10 pengalaman kerja", "warning");
+      return;
+    }
+
+    const newItem = items[items.length - 1].cloneNode(true);
+    
+    // Clear inputs in the new item
+    newItem.querySelectorAll("input").forEach(input => {
+      input.value = "";
+    });
+
+    // Setup remove button for the new item
+    const removeBtn = newItem.querySelector(".remove-experience");
+    if (removeBtn) {
+      removeBtn.style.display = "block";
+      removeBtn.onclick = function() {
+        newItem.remove();
+        updateIndices();
+      };
+    }
+
+    container.appendChild(newItem);
+    updateIndices();
+  });
+
+  // Initial setup for existing items and click handlers
+  container.querySelectorAll(".work-experience-item").forEach(item => {
+    const removeBtn = item.querySelector(".remove-experience");
+    if (removeBtn) {
+      removeBtn.onclick = function() {
+        const currentItems = container.querySelectorAll(".work-experience-item");
+        if (currentItems.length > 1) {
+          item.remove();
+          updateIndices();
+        }
+      };
+    }
+  });
+  
+  updateIndices();
 }
 
 // Smooth scrolling for form sections
@@ -2147,7 +2260,7 @@ function toggleFileReplacement(fieldName) {
       // Update button text
       const button = statusElement.querySelector(".upload-ulang-btn");
       if (button) {
-        button.innerHTML = '<i class="fas fa-upload"></i> Upload Ulang';
+        button.innerHTML = 'Upload Ulang';
       }
     } else {
       // Enter replacement mode - show upload field
@@ -2164,7 +2277,7 @@ function toggleFileReplacement(fieldName) {
       // Update button text
       const button = statusElement.querySelector(".upload-ulang-btn");
       if (button) {
-        button.innerHTML = '<i class="fas fa-times"></i> Batal';
+        button.innerHTML = 'Batal';
       }
     }
   }
@@ -2184,9 +2297,16 @@ function fillFormWithExistingData(data) {
 
   // Fill textareas
   if (data.address) document.getElementById("address").value = data.address;
-  if (data.fiber_optic_knowledge)
-    document.getElementById("fiber_optic_knowledge").value =
-      data.fiber_optic_knowledge;
+  // New Specific Questions
+  const allSpecialFields = [
+    "tech_troubleshooting", "tech_commitment", "tech_inventory", "tech_safety", "tech_communication",
+    "driver_pre_trip", "driver_emergency", "driver_integrity", "driver_fatigue", "driver_commitment"
+  ];
+  allSpecialFields.forEach(field => {
+    if (data[field] && document.getElementById(field)) {
+      document.getElementById(field).value = data[field];
+    }
+  });
   if (data.work_vision)
     document.getElementById("work_vision").value = data.work_vision;
   if (data.work_mission)
@@ -2202,18 +2322,16 @@ function fillFormWithExistingData(data) {
     document.getElementById("position").dispatchEvent(new Event('change'));
   }
   if (data.location) document.getElementById("location").value = data.location;
-  if (data.education)
+  if (data.education && document.getElementById("education"))
     document.getElementById("education").value = data.education;
-  if (data.otdr_experience)
-    document.getElementById("otdr_experience").value = data.otdr_experience;
-  if (data.jointing_experience)
-    document.getElementById("jointing_experience").value =
-      data.jointing_experience;
-  if (data.pole_climbing_experience)
-    document.getElementById("pole_climbing_experience").value =
-      data.pole_climbing_experience;
-  if (data.k3_certificate)
-    document.getElementById("k3_certificate").value = data.k3_certificate;
+  
+  // Fill other standard fields with safety checks
+  const standardFields = ["otdr_experience", "jointing_experience", "pole_climbing_experience", "k3_certificate"];
+  standardFields.forEach(field => {
+    if (data[field] && document.getElementById(field)) {
+      document.getElementById(field).value = data[field];
+    }
+  });
 
   // Store file information for later use
   window.existingFiles = data.files || {};

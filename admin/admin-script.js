@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (statusForm) {
         statusForm.addEventListener('submit', handleStatusUpdate);
     }
+
+    // Initialize bulk archive form
+    const bulkArchiveForm = document.getElementById('bulkArchiveForm');
+    if (bulkArchiveForm) {
+        bulkArchiveForm.addEventListener('submit', handleBulkArchive);
+    }
 });
 
 // Update application status
@@ -85,6 +91,95 @@ function deleteApplication(applicationId) {
         .catch(error => {
             console.error('Delete error:', error);
             showAlert(`❌ Terjadi kesalahan: ${error.message}`, 'danger');
+        });
+    }
+}
+
+// Archive application
+function archiveApplication(applicationId, shouldArchive) {
+    const action = shouldArchive ? 'mengarsipkan' : 'mengembalikan';
+    const confirmed = confirm(`Apakah Anda yakin ingin ${action} lamaran ini?`);
+    
+    if (confirmed) {
+        showAlert(`${shouldArchive ? 'Mengarsipkan' : 'Mengembalikan'} lamaran...`, 'info');
+        
+        const formData = new FormData();
+        formData.append('id', applicationId);
+        formData.append('archive', shouldArchive ? 1 : 0);
+
+        fetch('toggle-archive.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(`✅ ${data.message}`, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showAlert(`❌ Gagal: ${data.message}`, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Archive error:', error);
+            showAlert('❌ Terjadi kesalahan saat memproses arsip', 'danger');
+        });
+    }
+}
+
+// Handle bulk archive form submission
+function handleBulkArchive(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const startDate = formData.get('start_date');
+    const endDate = formData.get('end_date');
+
+    if (!startDate || !endDate) {
+        showAlert('Silakan pilih rentang tanggal', 'warning');
+        return;
+    }
+
+    if (new Date(startDate) > new Date(endDate)) {
+        showAlert('Tanggal mulai tidak boleh lebih besar dari tanggal akhir', 'warning');
+        return;
+    }
+
+    const confirmed = confirm(`Apakah Anda yakin ingin mengarsipkan semua data dari ${startDate} sampai ${endDate}?`);
+    
+    if (confirmed) {
+        showAlert('Memproses arsip massal...', 'info');
+        
+        fetch('toggle-archive.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(`✅ ${data.message}`, 'success');
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkArchiveModal'));
+                if (modal) modal.hide();
+                
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            } else {
+                showAlert(`❌ Gagal: ${data.message}`, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Bulk archive error:', error);
+            showAlert('❌ Terjadi kesalahan saat memproses arsip massal', 'danger');
         });
     }
 }
@@ -323,11 +418,16 @@ function exportToExcel() {
                 { wch: 40 },  // File Foto
                 { wch: 40 },  // File Sertifikat K3
                 { wch: 40 },  // File SIM
-                { wch: 30 },  // Pengetahuan Fiber Optik
-                { wch: 15 },  // Pengalaman OTDR
-                { wch: 15 },  // Pengalaman Jointing
-                { wch: 20 },  // Pengalaman Panjat Tower
-                { wch: 12 },  // Sertifikat K3
+                { wch: 30 },  // Driver Pre-trip
+                { wch: 30 },  // Driver Emergency
+                { wch: 30 },  // Driver Integrity
+                { wch: 30 },  // Driver Fatigue
+                { wch: 40 },  // Driver Commitment (new)
+                { wch: 30 },  // Tech Troubleshooting
+                { wch: 40 },  // Tech Commitment (new)
+                { wch: 30 },  // Tech Inventory
+                { wch: 30 },  // Tech Safety
+                { wch: 30 },  // Tech Communication
                 { wch: 30 },  // Visi Kerja
                 { wch: 30 },  // Misi Kerja
                 { wch: 30 },  // Motivasi

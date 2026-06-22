@@ -13,6 +13,7 @@ $statusFilter = $_GET['status'] ?? 'all';
 $positionFilter = $_GET['position'] ?? 'all';
 $locationFilter = $_GET['location'] ?? 'all';
 $yearFilter = $_GET['year'] ?? date('Y');
+$archiveFilter = $_GET['archive'] ?? '0';
 $searchTerm = $_GET['search'] ?? '';
 
 // Build query
@@ -32,6 +33,11 @@ if ($positionFilter !== 'all') {
 if ($locationFilter !== 'all') {
     $whereConditions[] = "location = ?";
     $params[] = $locationFilter;
+}
+
+if ($archiveFilter !== 'all') {
+    $whereConditions[] = "is_archived = ?";
+    $params[] = $archiveFilter;
 }
 
 if (!empty($searchTerm)) {
@@ -56,7 +62,7 @@ foreach ($allApplications as $index => $app) {
 }
 
 // Now filter the applications if needed
-$applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $locationFilter, $yearFilter, $searchTerm) {
+$applications = array_filter($allApplications, function($app) use ($statusFilter, $positionFilter, $locationFilter, $yearFilter, $searchTerm, $archiveFilter) {
     // Apply year filter
     if ($yearFilter !== 'all') {
         $appYear = date('Y', strtotime($app['created_at']));
@@ -92,6 +98,11 @@ $applications = array_filter($allApplications, function($app) use ($statusFilter
         }
     }
     
+    // Apply archive filter
+    if ($archiveFilter !== 'all' && (string)$app['is_archived'] !== (string)$archiveFilter) {
+        return false;
+    }
+    
     return true;
 });
 
@@ -100,20 +111,32 @@ usort($applications, function($a, $b) {
     return strtotime($b['created_at']) - strtotime($a['created_at']);
 });
 
-// Get statistics
+// Get statistics (excluding archived)
 $statsQuery = "SELECT 
     application_status,
     COUNT(*) as count
     FROM applications 
+    WHERE is_archived = 0
     GROUP BY application_status";
 $statsStmt = $pdo->query($statsQuery);
 $stats = $statsStmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+// Total non-archived
+$totalNonArchivedQuery = "SELECT COUNT(*) FROM applications WHERE is_archived = 0";
+$totalNonArchived = $pdo->query($totalNonArchivedQuery)->fetchColumn();
+
+// Total archived
+$totalArchivedQuery = "SELECT COUNT(*) FROM applications WHERE is_archived = 1";
+$totalArchived = $pdo->query($totalArchivedQuery)->fetchColumn();
 
 // Get positions - using fixed list to ensure all are visible
 $availablePositions = [
     "Teknisi Fiber Optic Bersertifikat K3",
     "Teknisi Fiber Optic",
-    "Admin"
+    "Administrasi Proyek",
+    "Admin Proyek",
+    "Admin Zona",
+    "Driver"
 ];
 
 // Get locations - using fixed list to ensure all are visible
@@ -149,7 +172,7 @@ if (!in_array(date('Y'), $availableYears)) {
     <title>Admin Panel - PT. Visdat Teknik Utama</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="admin-style.css?v=1.1.1" rel="stylesheet">
+    <link href="admin-style.css?v=1.1.6" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -179,11 +202,26 @@ if (!in_array(date('Y'), $availableYears)) {
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <h4><?= array_sum($stats) ?></h4>
-                                <p class="mb-0">Total Lamaran</p>
+                                <h4><?= $totalNonArchived ?></h4>
+                                <p class="mb-0">Aktif</p>
                             </div>
                             <div class="align-self-center">
                                 <i class="fas fa-file-alt fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-secondary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4><?= $totalArchived ?></h4>
+                                <p class="mb-0">Diarsipkan</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-archive fa-2x"></i>
                             </div>
                         </div>
                     </div>
@@ -219,20 +257,6 @@ if (!in_array(date('Y'), $availableYears)) {
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h4><?= $stats['Accepted'] ?? 0 ?></h4>
-                                <p class="mb-0">Diterima</p>
-                            </div>
-                            <div class="align-self-center">
-                                <i class="fas fa-check fa-2x"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -284,13 +308,18 @@ if (!in_array(date('Y'), $availableYears)) {
                             <?php endforeach; ?>
                         </select>
                     </div>
+                    <div class="col-md-1">
+                        <label class="form-label">Arsip</label>
+                        <select name="archive" class="form-select">
+                            <option value="0" <?= $archiveFilter === '0' ? 'selected' : '' ?>>Aktif</option>
+                            <option value="1" <?= $archiveFilter === '1' ? 'selected' : '' ?>>Arsip</option>
+                            <option value="all" <?= $archiveFilter === 'all' ? 'selected' : '' ?>>Semua</option>
+                        </select>
+                    </div>
                     <div class="col-md-3">
                         <label class="form-label">Pencarian</label>
-                        <input type="text" name="search" class="form-control" placeholder="Nama, email, atau telp" value="<?= htmlspecialchars($searchTerm) ?>">
-                    </div>
-                    <div class="col-md-1">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="d-grid">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control" placeholder="Nama, email, atau telp" value="<?= htmlspecialchars($searchTerm) ?>">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-search"></i>
                             </button>
@@ -302,6 +331,10 @@ if (!in_array(date('Y'), $availableYears)) {
                         <button type="button" class="btn btn-success" onclick="exportToExcel()">
                             <i class="fas fa-file-excel me-1"></i>
                             Export to Excel
+                        </button>
+                        <button type="button" class="btn btn-secondary ms-2" data-bs-toggle="modal" data-bs-target="#bulkArchiveModal">
+                            <i class="fas fa-archive me-1"></i>
+                            Arsip Massal
                         </button>
                     </div>
                 </div>
@@ -410,6 +443,15 @@ if (!in_array(date('Y'), $availableYears)) {
                                                 <button type="button" class="btn btn-warning" onclick="updateStatus(<?= $app['id'] ?>)" title="Update Status">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
+                                                <?php if ($app['is_archived']): ?>
+                                                    <button type="button" class="btn btn-secondary" onclick="archiveApplication(<?= $app['id'] ?>, false)" title="Buka Arsip">
+                                                        <i class="fas fa-archive"></i>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn-secondary" onclick="archiveApplication(<?= $app['id'] ?>, true)" title="Arsipkan">
+                                                        <i class="fas fa-archive"></i>
+                                                    </button>
+                                                <?php endif; ?>
                                                 <button type="button" class="btn btn-danger" onclick="deleteApplication(<?= $app['id'] ?>)" title="Hapus">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
@@ -460,9 +502,43 @@ if (!in_array(date('Y'), $availableYears)) {
         </div>
     </div>
 
+    <!-- Bulk Archive Modal -->
+    <div class="modal fade" id="bulkArchiveModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-secondary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-archive me-2"></i>
+                        Arsip Massal Berdasarkan Tanggal
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="bulkArchiveForm">
+                    <div class="modal-body">
+                        <p class="text-muted small">Semua data pendaftaran (yang belum diarsipkan) dalam rentang tanggal pendaftaran ini akan dipindahkan ke arsip.</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tanggal Mulai</label>
+                                <input type="date" name="start_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tanggal Akhir</label>
+                                <input type="date" name="end_date" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-secondary">Arsipkan Sekarang</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="admin-script.js?v=1.1.1"></script>
+    <script src="admin-script.js?v=1.1.5"></script>
 </body>
 </html>
 

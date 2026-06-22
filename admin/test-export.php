@@ -83,7 +83,7 @@
                     'Nama Lengkap': 'Jane Smith',
                     'Email': 'jane@example.com',
                     'Telepon': '081234567891',
-                    'Posisi': 'Admin Zona',
+                    'Posisi': 'Administrasi Proyek',
                     'Pendidikan': 'S1 Administrasi',
                     'Pengalaman (Tahun)': 2,
                     'Alamat': 'Jl. Sample No. 456, Bandung',

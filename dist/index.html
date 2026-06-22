@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Kerja - PT. Visdat Teknik Utama</title>
+
+    <!-- Compressor.js for image compression -->
+    <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.2.1/dist/compressor.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css?v=1.1.5">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-danger text-white py-3 mb-3">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 col-md-5 col-sm-12 order-1 order-md-2">
+                        <div class="logo-container">
+                            <img src="uploads/image.png" alt="Logo PT. Visdat Teknik Utama" class="logo-img"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div class="logo-fallback" style="display: none;">
+                                <div class="logo-text">VISDAT</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8 col-md-7 col-sm-12 order-2 order-md-1">
+                        <div class="header-content">
+                            <h1 class="mb-0">PT. Visdat Teknik Utama</h1>
+                            <p class="mb-0">Formulir Pendaftaran</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- 
+                DEV FEATURE: Auto-fill form with fake data
+                Press Ctrl + I to automatically fill all form fields with fake data
+                This feature uses Faker.js library for generating realistic test data
+            -->
+            <!-- Job Positions Info -->
+            <div class="row mb-5 job-positions-section">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-danger text-white">
+                            <h3 class="mb-0">Posisi yang Tersedia</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="job-position">
+                                        <h5 class="text-primary">1. Teknisi Fiber Optic (FOT, FOC dan Jointer)
+                                            Bersertifikat K3</h5>
+                                        <p><strong>Tugas:</strong> Menangani gangguan layanan FOT/FOC/PS</p>
+                                        <p><strong>Kualifikasi:</strong></p>
+                                        <ul class="small">
+                                            <li>Minimal pendidikan SMK Elektro, TKJ, Informatika/SMA IPA</li>
+                                            <li>Mempunyai tanda identitas diri yang masih berlaku</li>
+                                            <li>Mempunyai Surat Izin Mengemudi C yang masih berlaku</li>
+                                            <li>Mempu mengguanakan tools FO (Splicer, OPM, OTDR)</li>
+                                            <li>Mempunyai kemampuan instalasi di jaringan PLN</li>
+                                            <li>Mengerti dan mampu melaksanakan K3 Umum</li>
+                                            <li>Mempunyai Sertifikat K3 Umum/Ketenagalistrikan</li>
+                                            <li>Mengerti jaringan telekomunikasi dasar & IP</li>
+                                            <li>Siap bekerja di luar jam kerja normal</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <div class="job-position">
+                                        <h5 class="text-primary">2. Driver</h5>
+                                        <p><strong>Tugas:</strong> Melakukan perjalanan dinas dan pemeliharaan kendaraan
+                                            operasional</p>
+                                        <p><strong>Kualifikasi:</strong></p>
+                                        <ul class="small">
+                                            <li>Minimal pendidikan SMA/SMK atau sederajat</li>
+                                            <li>Mempunyai Surat Izin Mengemudi A yang masih berlaku</li>
+                                            <li>Mengerti rute jalan di area kerja</li>
+                                            <li>Mampu melakukan pengecekan & pemeliharaan dasar kendaraan</li>
+                                            <li>Jujur, disiplin, berintegritas tinggi</li>
+                                            <li>Siap bekerja dalam tekanan</li>
+                                            <li>Siap bekerja di luar jam kerja normal</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-md-12 mb-3">
+                                    <div class="job-position">
+                                        <h5 class="text-primary">3. Administrasi Proyek</h5>
+                                        <p><strong>Tugas:</strong> Administrasi Serpo.</p>
+                                        <p><strong>Kualifikasi:</strong></p>
+                                        <ul class="small">
+                                            <li>Keterampilan MS Office.</li>
+                                            <li>Pengetahuan jaringan fiber optik.</li>
+                                            <li>Pendidikan minimal SMK/Sederajat.</li>
+                                        </ul>
+                                    </div>
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow">
+                        <div class="card-header bg-success text-white">
+                            <h3 class="mb-0">Formulir Pendaftaran</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="registrationForm" action="process.php" method="POST"
+                                enctype="multipart/form-data">
+                                <!-- Hidden field to track if this is an update -->
+                                <input type="hidden" id="is_update" name="is_update" value="0">
+
+                                <!-- Data Pribadi -->
+                                <div class="section-header">
+                                    <h4>Data Pribadi</h4>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="full_name" class="form-label">Nama Lengkap *</label>
+                                        <input type="text" class="form-control" id="full_name" name="full_name"
+                                            required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Alamat Email *</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="phone" class="form-label">Nomor Telepon *</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="birth_date" class="form-label">Tanggal Lahir *</label>
+                                        <input type="date" class="form-control" id="birth_date" name="birth_date"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="gender" class="form-label">Jenis Kelamin *</label>
+                                        <select class="form-select" id="gender" name="gender" required>
+                                            <option value="">Pilih Jenis Kelamin</option>
+                                            <option value="Laki-laki">Laki-laki</option>
+                                            <option value="Perempuan">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="position" class="form-label">Posisi yang Dilamar *</label>
+                                        <select class="form-select" id="position" name="position" required>
+                                            <option value="">Pilih Posisi</option>
+                                            <option value="Teknisi Fiber Optic Bersertifikat K3">Teknisi Fiber Optic
+                                                Bersertifikat K3</option>
+                                            <option value="Teknisi Fiber Optic">Teknisi Fiber Optic</option>
+                                            <option value="Driver">Driver</option>
+                                            <option value="Administrasi Proyek">Administrasi Proyek</option>
+                                        </select>
+                                    </div>
+                                    <input type="hidden" id="location" name="location" value="-">
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="education" class="form-label">Pendidikan Terakhir *</label>
+                                        <select class="form-select" id="education" name="education" required>
+                                            <option value="">Pilih Pendidikan</option>
+                                            <option value="SMA/SMK">SMA/SMK</option>
+                                            <option value="D3">D3</option>
+                                            <option value="S1">S1</option>
+                                            <option value="S2">S2</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="experience_years" class="form-label">Lama Pengalaman Kerja (Tahun)
+                                            *</label>
+                                        <input type="number" class="form-control" id="experience_years"
+                                            name="experience_years" min="0" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="address" class="form-label">Alamat Domisili *</label>
+                                    <textarea class="form-control" id="address" name="address" rows="3"
+                                        required></textarea>
+                                </div>
+
+                                <!-- Pengalaman Kerja Detail -->
+                                <div class="section-header">
+                                    <h4>Detail Pengalaman Kerja</h4>
+                                </div>
+                                <div id="work-experience-container">
+                                    <div class="work-experience-item mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="experience-title fw-bold mb-0">Pengalaman #1</h6>
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline-danger remove-experience"
+                                                style="display: none;">
+                                                <i class="fas fa-trash me-1"></i> Hapus
+                                            </button>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Nama Perusahaan</label>
+                                                <input type="text" class="form-control" name="exp_company[]"
+                                                    placeholder="PT. Contoh Perusahaan">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Posisi / Jabatan</label>
+                                                <input type="text" class="form-control" name="exp_position[]"
+                                                    placeholder="Teknisi Fiber Optic">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-4 mb-2">
+                                                <label class="form-label">Tahun Mulai</label>
+                                                <input type="number" class="form-control" name="exp_start[]"
+                                                    placeholder="2020">
+                                            </div>
+                                            <div class="col-md-4 mb-2">
+                                                <label class="form-label">Tahun Selesai</label>
+                                                <input type="text" class="form-control" name="exp_end[]"
+                                                    placeholder="2023 / Skrg">
+                                            </div>
+                                            <div class="col-md-4 mb-2">
+                                                <label class="form-label">Deskripsi Singkat</label>
+                                                <input type="text" class="form-control" name="exp_desc[]"
+                                                    placeholder="Maintenance FO dll">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <button type="button" id="add-experience-btn"
+                                        class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-plus me-1"></i> Tambah Pengalaman Kerja
+                                    </button>
+                                </div>
+
+                                <!-- Pertanyaan Khusus untuk Teknisi & Driver -->
+                                <div id="special-questions-section">
+                                    <!-- Pertanyaan Khusus Fiber Optik (Teknisi) -->
+                                    <div id="technician-questions" style="display: none;">
+                                        <div class="section-header">
+                                            <h4>Evaluasi Kompetensi Teknisi</h4>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="tech_troubleshooting" class="form-label">1. Ketika terjadi
+                                                gangguan koneksi atau downtime di lapangan, bagaimana urutan atau flow
+                                                logika Anda dalam melacak akar masalahnya? *</label>
+                                            <textarea class="form-control" id="tech_troubleshooting"
+                                                name="tech_troubleshooting" rows="3"
+                                                placeholder="Jelaskan langkah sistematis Anda..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="tech_commitment" class="form-label">2. Kesanggupan dan Komitmen:
+                                                Apakah Anda sanggup dan siap bekerja di luar jam kerja normal jika
+                                                dibutuhkan dalam kondisi darurat (misalnya perbaikan kabel putus di
+                                                tengah malam)? *</label>
+                                            <textarea class="form-control" id="tech_commitment" name="tech_commitment"
+                                                rows="3"
+                                                placeholder="Jelaskan kesanggupan dan komitmen Anda..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="tech_inventory" class="form-label">3. Alat kerja dan material
+                                                proyek sangat rentan hilang, tertukar, atau rusak. Bagaimana cara Anda
+                                                mengelola dan mempertanggungjawabkan peralatan operasional yang Anda
+                                                bawa? *</label>
+                                            <textarea class="form-control" id="tech_inventory" name="tech_inventory"
+                                                rows="3" placeholder="Jelaskan manajemen alat kerja Anda..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="tech_safety" class="form-label">4. Jika Anda ditargetkan cepat
+                                                namun alat keselamatan standar sedang tidak tersedia, apa keputusan yang
+                                                Anda ambil? *</label>
+                                            <textarea class="form-control" id="tech_safety" name="tech_safety" rows="3"
+                                                placeholder="Jelaskan prioritas Anda antara kecepatan vs keselamatan..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="tech_communication" class="form-label">5. Bagaimana cara Anda
+                                                mengomunikasikan masalah teknis yang rumit kepada rekan junior atau
+                                                klien agar mudah dipahami? *</label>
+                                            <textarea class="form-control" id="tech_communication"
+                                                name="tech_communication" rows="3"
+                                                placeholder="Jelaskan gaya komunikasi dan mentorship Anda..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pertanyaan Khusus Driver -->
+                                    <div id="driver-questions" style="display: none;">
+                                        <div class="section-header">
+                                            <h4>Evaluasi Kompetensi Driver</h4>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="driver_pre_trip" class="form-label">1. Apa saja komponen krusial
+                                                yang wajib Anda periksa secara visual dan fungsional setiap pagi sebelum
+                                                mesin dihidupkan? *</label>
+                                            <textarea class="form-control" id="driver_pre_trip" name="driver_pre_trip"
+                                                rows="3"
+                                                placeholder="Sebutkan rutinintas pengecekan kendaraan Anda..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="driver_emergency" class="form-label">2. Jika indikator
+                                                temperatur mesin naik mendekati batas merah (H) saat di jalan tol, apa
+                                                langkah aman yang Anda lakukan secara berurutan? *</label>
+                                            <textarea class="form-control" id="driver_emergency" name="driver_emergency"
+                                                rows="3" placeholder="Jelaskan prosedur darurat Anda..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="driver_integrity" class="form-label">3. Jika Anda tidak sengaja
+                                                menyenggol benda saat parkir hingga baret namun tidak ada saksi mata,
+                                                apa yang akan Anda lakukan? *</label>
+                                            <textarea class="form-control" id="driver_integrity" name="driver_integrity"
+                                                rows="3" placeholder="Jelaskan tindakan Anda..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="driver_fatigue" class="form-label">4. Bagaimana cara Anda
+                                                mengelola rasa kantuk atau kelelahan saat ditugaskan untuk perjalanan
+                                                dinas antarkota yang panjang? *</label>
+                                            <textarea class="form-control" id="driver_fatigue" name="driver_fatigue"
+                                                rows="3"
+                                                placeholder="Jelaskan manajemen kelelahan demi keselamatan..."></textarea>
+                                        </div>
+
+                                        <div class="mb-4">
+                                            <label for="driver_commitment" class="form-label">5. Kesanggupan dan
+                                                Komitmen: Apakah Anda sanggup dan siap jika sewaktu-waktu ditugaskan
+                                                untuk mengemudikan kendaraan keluar kota atau bekerja lembur sampai
+                                                malam hari jika tim operasional membutuhkannya secara mendesak?
+                                                *</label>
+                                            <textarea class="form-control" id="driver_commitment"
+                                                name="driver_commitment" rows="3"
+                                                placeholder="Jelaskan kesanggupan dan komitmen Anda sebagai driver..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Visi Misi dalam Bekerja -->
+                                <div class="section-header">
+                                    <h4>Visi & Misi dalam Bekerja</h4>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="work_vision" class="form-label">Visi Anda dalam Bekerja *</label>
+                                    <textarea class="form-control" id="work_vision" name="work_vision" rows="3"
+                                        placeholder="Jelaskan visi atau pandangan Anda tentang karir di bidang telekomunikasi"
+                                        required></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="work_mission" class="form-label">Misi Anda dalam Bekerja *</label>
+                                    <textarea class="form-control" id="work_mission" name="work_mission" rows="3"
+                                        placeholder="Jelaskan misi atau tujuan Anda dalam bekerja" required></textarea>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="motivation" class="form-label">Motivasi Melamar di PT. Visdat Teknik
+                                        Utama *</label>
+                                    <textarea class="form-control" id="motivation" name="motivation" rows="4"
+                                        placeholder="Jelaskan alasan dan motivasi Anda ingin bergabung dengan PT. Visdat Teknik Utama"
+                                        required></textarea>
+                                </div>
+
+
+                                <!-- Upload Dokumen -->
+                                <div class="section-header">
+                                    <h4>Upload Dokumen</h4>
+                                    <div id="upload-warning" class="alert alert-info" style="display: none;">
+                                        <i class="fas fa-info-circle"></i>
+                                        <strong>Tips:</strong> Anda dapat mulai mengupload dokumen kapan saja. Namun
+                                        pastikan mengisi semua data diri terlebih dahulu sebelum mengirim lamaran.
+                                    </div>
+                                </div>
+
+                                <div id="upload-fields-required" class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">CV/Resume *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="cv-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                <i class="fas fa-check-circle"></i> File CV sudah tersimpan
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn"
+                                                    data-field="cv_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input" name="cv_file"
+                                                accept=".pdf,.doc,.docx" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i
+                                                        class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <small class="text-info">
+                                                    <i class="fas fa-info-circle"></i> <strong>Petunjuk Upload
+                                                        CV:</strong>
+                                                </small>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: PDF, DOC, DOCX</li>
+                                                    <li>Ukuran maksimal: 5 MB</li>
+                                                    <li>Pastikan CV berisi informasi lengkap tentang pengalaman kerja
+                                                    </li>
+                                                    <li>CV harus dalam bahasa Indonesia atau Inggris</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto 3x4 *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="photo-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                File foto sudah tersimpan
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn"
+                                                    data-field="photo_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input"
+                                                name="photo_file" accept=".jpg,.jpeg,.png" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i
+                                                        class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <strong>Petunjuk Upload Foto:</strong>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG</li>
+                                                    <li>Ukuran maksimal: 2 MB</li>
+                                                    <li>Foto harus berwarna dengan latar belakang putih/biru</li>
+                                                    <li>Gambar akan dikompres otomatis untuk mengoptimalkan ukuran file
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="upload-fields-identity" class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto KTP *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="ktp-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                File KTP sudah tersimpan
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn"
+                                                    data-field="ktp_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input"
+                                                name="ktp_file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i
+                                                        class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <strong>Petunjuk Upload KTP:</strong>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG, PDF</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Foto/scan KTP harus jelas dan mudah dibaca</li>
+                                                    <li>Pastikan semua informasi terlihat dengan jelas</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Foto Ijazah *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="ijazah-file-status" class="existing-file-status"
+                                            style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                File ijazah sudah tersimpan
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn"
+                                                    data-field="ijazah_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input"
+                                                name="ijazah_file" accept=".jpg,.jpeg,.png,.pdf" required>
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i
+                                                        class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <strong>Petunjuk Upload Ijazah:</strong>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG, PDF</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Foto/scan ijazah terakhir yang jelas</li>
+                                                    <li>Pastikan nama dan gelar terlihat dengan jelas</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="upload-fields-optional" class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Sertifikat K3 (jika ada)</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="certificate-file-status" class="existing-file-status"
+                                            style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                File sertifikat K3 sudah tersimpan
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn"
+                                                    data-field="certificate_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container">
+                                            <input type="file" class="form-control file-input image-input"
+                                                name="certificate_file" accept=".pdf,.jpg,.jpeg,.png">
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i
+                                                        class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <strong>Petunjuk Upload Sertifikat K3:</strong>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: PDF, JPG, JPEG, PNG</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Upload scan/foto sertifikat K3 yang masih berlaku</li>
+                                                    <li>Gambar akan dikompres otomatis</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Upload SIM A *</label>
+                                        <!-- File status display for existing users -->
+                                        <div id="sim-file-status" class="existing-file-status" style="display: none;">
+                                            <div class="alert alert-success mb-2">
+                                                File SIM A sudah tersimpan
+                                                <button type="button"
+                                                    class="btn btn-sm btn-outline-primary ms-2 upload-ulang-btn"
+                                                    data-field="sim_file">
+                                                    <i class="fas fa-upload"></i> Upload Ulang
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="upload-container" id="sim-upload-container">
+                                            <input type="file" class="form-control file-input image-input"
+                                                name="sim_file" accept=".jpg,.jpeg,.png,.pdf">
+                                            <div class="file-preview" style="display: none;">
+                                                <div class="preview-content"></div>
+                                                <button type="button" class="btn btn-sm btn-danger remove-file"><i
+                                                        class="fas fa-trash-alt me-1"></i> Hapus</button>
+                                            </div>
+                                            <div class="file-guidelines mt-2">
+                                                <strong>Petunjuk Upload SIM A:</strong>
+                                                <ul class="small text-muted mt-1">
+                                                    <li>Format yang diterima: JPG, JPEG, PNG, PDF</li>
+                                                    <li>Ukuran maksimal: 3 MB</li>
+                                                    <li>Scan/Foto SIM A yang masih berlaku</li>
+                                                    <li>Pastikan identitas pada SIM terlihat jelas</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                        </div>
+
+                        <!-- Form Error Container -->
+                        <div id="formErrorContainer" class="form-error-container" style="display: none;">
+                            <!-- Error messages will be displayed here -->
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center mb-5">
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="fas fa-paper-plane me-2"></i> Kirim Lamaran
+                            </button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <!-- Informasi Kelengkapan Berkas -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h4 class="mb-0">
+                            Informasi Kelengkapan Berkas
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="text-primary mb-3">Berikut Kelengkapan Berkas:</h5>
+                        <ul class="">
+                            <li class="mb-2"><strong>Surat Lamaran Kerja</strong></li>
+                            <li class="mb-2"><strong>CV</strong> (Nama, alamat sekarang, no HP/Wa, Riwayat Pengalaman
+                                Kerja, dll)</li>
+                            <li class="mb-2"><strong>FC KTP</strong></li>
+                            <li class="mb-2"><strong>FC KK</strong></li>
+                            <li class="mb-2"><strong>FC Kartu BPJS</strong></li>
+                            <li class="mb-2"><strong>FC Ijazah Terakhir</strong></li>
+                            <li class="mb-2"><strong>FC SIM A / C</strong></li>
+                            <li class="mb-2"><strong>FC Sertifikat K3</strong> (Khusus Teknisi)</li>
+                            <li class="mb-2"><strong>Foto 3x4</strong> (2 Lembar)</li>
+                        </ul>
+
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="text-primary mb-2">
+                                Kirim ke:
+                            </h6>
+                            <p class="mb-2">
+                                <strong>Email:</strong><br>
+                                <a href="mailto:hrd@visdatteknik.co.id" class="text-decoration-none">
+                                    hrd@visdatteknik.co.id
+                                </a>
+                            </p>
+                            <div class="alert alert-warning small mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Catatan:</strong> Pastikan semua berkas dalam format PDF atau gambar yang jelas
+                                dan mudah dibaca.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- Registration Type Modal -->
+    <div class="modal fade" id="registrationTypeModal" tabindex="-1" aria-labelledby="registrationTypeModalLabel"
+        aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="registrationTypeModalLabel">
+                        Tipe Pendaftaran
+                    </h5>
+                </div>
+                <div class="modal-body text-center">
+                    <h6 class="mb-4">Apakah Anda sudah pernah mendaftar sebelumnya?</h6>
+                    <div class="d-grid gap-3">
+                        <button type="button" class="btn btn-success btn-lg" id="newRegistrantBtn">
+                            <i class="fas fa-user-plus me-2"></i> Pendaftar Baru
+                        </button>
+                        <button type="button" class="btn btn-info btn-lg text-white" id="existingRegistrantBtn">
+                            <i class="fas fa-user-check me-2"></i> Sudah Pernah Mendaftar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Check Modal -->
+    <div class="modal fade" id="emailCheckModal" tabindex="-1" aria-labelledby="emailCheckModalLabel" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="emailCheckModalLabel">
+                        Verifikasi Email
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                        id="emailCheckCloseBtn"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4 text-center">
+                        📧
+                    </div>
+                    <h6 class="text-center mb-4">Masukkan email yang pernah Anda gunakan untuk mendaftar</h6>
+                    <form id="emailCheckForm">
+                        <div class="mb-3">
+                            <label for="checkEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="checkEmail" name="checkEmail" required
+                                placeholder="contoh@email.com">
+                        </div>
+                        <div id="emailCheckError" class="alert alert-danger" style="display: none;"></div>
+                        <div id="emailCheckLoading" class="text-center" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Memeriksa email...</p>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="emailCheckCancelBtn">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali
+                    </button>
+                    <button type="button" class="btn btn-primary" id="checkEmailBtn">
+                        <i class="fas fa-search me-1"></i> Periksa Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">
+                        Lamaran Berhasil Dikirim!
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        ✅
+                    </div>
+                    <h6 class="text-center mb-3">Terima kasih telah melamar di PT. Visdat Teknik Utama!</h6>
+                    <div class="alert alert-info">
+                        <h6>Informasi Penting:</h6>
+                        <ul class="mb-0">
+                            <li>Lamaran Anda telah berhasil diterima dan akan diproses</li>
+                            <li>Tim HR akan menghubungi Anda dalam waktu 1-2 minggu</li>
+                            <li>Pastikan nomor telepon dan email yang Anda berikan aktif</li>
+                            <li>Simpan nomor referensi lamaran Anda untuk pengecekan status</li>
+                        </ul>
+                    </div>
+                    <div class="text-center">
+                        <p class="mb-2"><strong>Nomor Referensi:</strong></p>
+                        <p class="text-primary fw-bold" id="referenceNumber"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Tutup
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-redo me-1"></i> Kirim Lamaran Baru
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel">
+                        Terjadi Kesalahan
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        ❌
+                    </div>
+                    <h6 class="text-center mb-3">Maaf, terjadi kesalahan saat mengirim lamaran</h6>
+                    <div class="alert alert-warning">
+                        <h6>Saran:</h6>
+                        <ul class="mb-0">
+                            <li>Periksa kembali semua data yang diisi</li>
+                            <li>Pastikan file yang diupload sesuai format dan ukuran</li>
+                            <li>Coba refresh halaman dan kirim ulang</li>
+                            <li>Jika masalah berlanjut, hubungi admin</li>
+                        </ul>
+                    </div>
+                    <div id="errorDetails" class="text-center">
+                        <p class="text-muted small" id="errorMessage"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Tutup
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="window.location.reload()">
+                        <i class="fas fa-sync me-1"></i> Coba Lagi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-white text-center py-4 mt-5" style="background: #1e3a8a; border-top: 4px solid #dc2626;">
+        <div class="container">
+            <div class="mb-3">
+                <div class="d-flex justify-content-center align-items-center mb-2">
+                    <div class="logo-container" style="justify-content: center; min-height: auto;">
+                        <img src="uploads/image.png" alt="Logo PT. Visdat Teknik Utama" class="logo-img"
+                            style="max-height: 40px; height: auto;"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="logo-fallback" style="display: none;">
+                            <div class="logo-text" style="font-size: 1rem;">VISDAT</div>
+                        </div>
+                    </div>
+                </div>
+                <h5 class="fw-bold">PT. Visdat Teknik Utama</h5>
+            </div>
+            <p class="mb-1">&copy; 2025 PT. Visdat Teknik Utama. All rights reserved.</p>
+            <p class="small">Untuk informasi lebih lanjut, hubungi: <a href="mailto:hrd@visdatteknik.co.id"
+                    class="text-white-50">hrd@visdatteknik.co.id</a></p>
+            <div class="mt-3">
+                <a href="#" class="text-white-50 me-3 small">Instagram</a>
+                <a href="#" class="text-white-50 me-3 small">Facebook</a>
+                <a href="#" class="text-white-50 small">LinkedIn</a>
+            </div>
+        </div>
+    </footer>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- File Upload with Compression JS (no additional libraries needed as Compressor.js is already loaded) -->
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom JS -->
+    <script type="module" src="script.js?v=1.1.8"></script>
+</body>
+
+</html>

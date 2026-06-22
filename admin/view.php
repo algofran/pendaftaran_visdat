@@ -2,21 +2,40 @@
 session_start();
 require_once '../config.php';
 
+// Simple authentication
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
     exit;
 }
 
-$id = $_GET['id'] ?? 0;
-
-// Get application details with registration number
-$stmt = $pdo->prepare("SELECT *, (SELECT COUNT(*) + 1 FROM applications a2 WHERE a2.created_at < applications.created_at) as registration_number FROM applications WHERE id = ?");
-$stmt->execute([$id]);
-$application = $stmt->fetch();
-
-if (!$application) {
+$id = $_GET['id'] ?? null;
+if (!$id) {
     header('Location: index.php');
     exit;
+}
+
+// Get application details
+$stmt = $pdo->prepare("SELECT * FROM applications WHERE id = ?");
+$stmt->execute([$id]);
+$app = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$app) {
+    header('Location: index.php');
+    exit;
+}
+
+// Decode work experiences
+$workExperiences = json_decode($app['work_experiences'] ?? '[]', true);
+
+function getStatusBadgeClass($status) {
+    switch ($status) {
+        case 'Pending': return 'bg-warning text-dark';
+        case 'Review': return 'bg-info text-white';
+        case 'Interview': return 'bg-primary text-white';
+        case 'Accepted': return 'bg-success text-white';
+        case 'Rejected': return 'bg-danger text-white';
+        default: return 'bg-secondary text-white';
+    }
 }
 ?>
 
@@ -25,295 +44,271 @@ if (!$application) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Lamaran - <?= htmlspecialchars($application['full_name']) ?></title>
+    <title>Detail Lamaran - <?= htmlspecialchars($app['full_name']) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="admin-style.css" rel="stylesheet">
+    <link href="admin-style.css?v=1.1.6" rel="stylesheet">
+    <style>
+        .detail-label { font-weight: 600; color: #4b5563; }
+        .detail-value { color: #1f2937; }
+        .section-title { 
+            border-bottom: 2px solid #e5e7eb; 
+            padding-bottom: 0.5rem; 
+            margin-bottom: 1rem; 
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+        .profile-photo {
+            width: 150px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .experience-item {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.php">
                 <i class="fas fa-arrow-left me-2"></i>
-                Kembali ke Daftar
+                Kembali ke Dashboard
             </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="logout.php">
-                    <i class="fas fa-sign-out-alt me-1"></i>
-                    Logout
-                </a>
-            </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container pb-5">
         <div class="row">
-            <div class="col-md-8">
-                <!-- Personal Information -->
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-user me-2"></i>
-                            Informasi Pribadi
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <td><strong>Nama Lengkap:</strong></td>
-                                        <td><?= htmlspecialchars($application['full_name']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Email:</strong></td>
-                                        <td><?= htmlspecialchars($application['email']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Telepon:</strong></td>
-                                        <td><?= htmlspecialchars($application['phone']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Tanggal Lahir:</strong></td>
-                                        <td><?= date('d/m/Y', strtotime($application['birth_date'])) ?></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <td><strong>Jenis Kelamin:</strong></td>
-                                        <td><?= htmlspecialchars($application['gender']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Posisi:</strong></td>
-                                        <td><span class="badge bg-info"><?= htmlspecialchars($application['position']) ?></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Lokasi Penempatan:</strong></td>
-                                        <td><?= htmlspecialchars($application['location'] ?? '-') ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Pendidikan:</strong></td>
-                                        <td><?= htmlspecialchars($application['education']) ?></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Pengalaman:</strong></td>
-                                        <td><?= $application['experience_years'] ?> tahun</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <strong>Alamat:</strong>
-                                <p class="mt-2"><?= nl2br(htmlspecialchars($application['address'])) ?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Technical Knowledge -->
-                <div class="card mb-4">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-cogs me-2"></i>
-                            Pengetahuan Teknis
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <td><strong>Pengalaman OTDR:</strong></td>
-                                        <td><span class="badge bg-<?= $application['otdr_experience'] === 'Ya' ? 'success' : ($application['otdr_experience'] === 'Sedikit' ? 'warning' : 'secondary') ?>"><?= $application['otdr_experience'] ?></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Pengalaman Jointing:</strong></td>
-                                        <td><span class="badge bg-<?= $application['jointing_experience'] === 'Ya' ? 'success' : ($application['jointing_experience'] === 'Sedikit' ? 'warning' : 'secondary') ?>"><?= $application['jointing_experience'] ?></span></td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-borderless">
-                                    <tr>
-                                        <td><strong>Pengalaman Tower:</strong></td>
-                                        <td><span class="badge bg-<?= $application['tower_climbing_experience'] === 'Ya' ? 'success' : 'secondary' ?>"><?= $application['tower_climbing_experience'] ?></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Sertifikat K3:</strong></td>
-                                        <td><span class="badge bg-<?= $application['k3_certificate'] === 'Ya' ? 'success' : 'secondary' ?>"><?= $application['k3_certificate'] ?></span></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <?php if (!empty($application['fiber_optic_knowledge'])): ?>
-                            <div class="row">
-                                <div class="col-12">
-                                    <strong>Pengetahuan Fiber Optik:</strong>
-                                    <p class="mt-2"><?= nl2br(htmlspecialchars($application['fiber_optic_knowledge'])) ?></p>
-                                </div>
+            <div class="col-lg-4">
+                <!-- Profile Summary Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body text-center">
+                        <?php if (!empty($app['photo_file'])): ?>
+                            <img src="../uploads/<?= $app['photo_file'] ?>" alt="Foto" class="profile-photo mb-3">
+                        <?php else: ?>
+                            <div class="bg-light d-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 150px; height: 200px; border-radius: 8px;">
+                                <i class="fas fa-user fa-4x text-muted"></i>
                             </div>
                         <?php endif; ?>
+                        
+                        <h4 class="mb-1"><?= htmlspecialchars($app['full_name']) ?></h4>
+                        <p class="text-muted mb-3"><?= htmlspecialchars($app['position']) ?></p>
+                        
+                        <div class="d-grid gap-2">
+                             <span class="badge <?= getStatusBadgeClass($app['application_status']) ?> py-2 fs-6">
+                                <?= $app['application_status'] ?>
+                            </span>
+                            <button class="btn btn-outline-primary" onclick="updateStatus(<?= $app['id'] ?>)">
+                                <i class="fas fa-edit me-1"></i> Update Status
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Vision & Mission -->
-                <div class="card mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-bullseye me-2"></i>
-                            Visi & Misi
-                        </h5>
-                    </div>
+                <!-- Contact Info Card -->
+                <div class="card shadow-sm mb-4">
                     <div class="card-body">
+                        <h5 class="section-title">Informasi Kontak</h5>
                         <div class="mb-3">
-                            <strong>Visi dalam Bekerja:</strong>
-                            <p class="mt-2"><?= nl2br(htmlspecialchars($application['work_vision'])) ?></p>
+                            <div class="detail-label"><i class="fas fa-envelope me-2"></i>Email</div>
+                            <div class="detail-value text-break"><?= htmlspecialchars($app['email']) ?></div>
                         </div>
                         <div class="mb-3">
-                            <strong>Misi dalam Bekerja:</strong>
-                            <p class="mt-2"><?= nl2br(htmlspecialchars($application['work_mission'])) ?></p>
+                            <div class="detail-label"><i class="fas fa-phone me-2"></i>Telepon</div>
+                            <div class="detail-value"><?= htmlspecialchars($app['phone']) ?></div>
                         </div>
                         <div class="mb-3">
-                            <strong>Motivasi:</strong>
-                            <p class="mt-2"><?= nl2br(htmlspecialchars($application['motivation'])) ?></p>
+                            <div class="detail-label"><i class="fas fa-map-marker-alt me-2"></i>Alamat</div>
+                            <div class="detail-value small"><?= nl2br(htmlspecialchars($app['address'])) ?></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files Card -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="section-title">Dokumen Terlampir</h5>
+                        <div class="list-group list-group-flush">
+                            <?php if (!empty($app['cv_file'])): ?>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['cv_file'] ?>', 'CV - <?= addslashes($app['full_name']) ?>', 'pdf')">
+                                    <span><i class="fas fa-file-pdf text-danger me-2"></i>CV / Resume</span>
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($app['ktp_file'])): ?>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['ktp_file'] ?>', 'KTP - <?= addslashes($app['full_name']) ?>', 'image')">
+                                    <span><i class="fas fa-id-card text-primary me-2"></i>KTP</span>
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($app['ijazah_file'])): ?>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['ijazah_file'] ?>', 'Ijazah - <?= addslashes($app['full_name']) ?>', 'pdf')">
+                                    <span><i class="fas fa-graduation-cap text-dark me-2"></i>Ijazah</span>
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($app['certificate_file'])): ?>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['certificate_file'] ?>', 'Sertifikat K3 - <?= addslashes($app['full_name']) ?>', 'pdf')">
+                                    <span><i class="fas fa-certificate text-warning me-2"></i>Sertifikat K3</span>
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            <?php endif; ?>
+                            
+                            <?php if (!empty($app['sim_file'])): ?>
+                                <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" onclick="openFileModal('../uploads/<?= $app['sim_file'] ?>', 'SIM - <?= addslashes($app['full_name']) ?>', 'image')">
+                                    <span><i class="fas fa-id-card text-info me-2"></i>SIM A/C</span>
+                                    <i class="fas fa-eye text-muted"></i>
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <!-- Status & Actions -->
-                <div class="card mb-4">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0">
-                            <i class="fas fa-tasks me-2"></i>
-                            Status & Aksi
-                        </h5>
-                    </div>
+            <div class="col-lg-8">
+                <!-- Data Pribadi Section -->
+                <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <div class="mb-3">
-                            <strong>Status Saat Ini:</strong>
-                            <br>
-                            <span class="badge bg-<?= getStatusColor($application['application_status']) ?> fs-6 mt-2">
-                                <?= $application['application_status'] ?>
-                            </span>
+                        <h5 class="section-title">Data Pribadi & Pendidikan</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="detail-label">Tanggal Lahir</div>
+                                <div class="detail-value"><?= date('d F Y', strtotime($app['birth_date'])) ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="detail-label">Jenis Kelamin</div>
+                                <div class="detail-value"><?= htmlspecialchars($app['gender']) ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="detail-label">Lokasi Penempatan</div>
+                                <div class="detail-value"><?= htmlspecialchars($app['location']) ?></div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <strong>No. Registrasi:</strong>
-                            <br>
-                            <span class="badge bg-primary fs-6"><?= $application['registration_number'] ?></span>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Tanggal Daftar:</strong>
-                            <br>
-                            <?= date('d/m/Y H:i', strtotime($application['created_at'])) ?>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Terakhir Update:</strong>
-                            <br>
-                            <?= date('d/m/Y H:i', strtotime($application['updated_at'])) ?>
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-primary" onclick="updateStatus(<?= $application['id'] ?>)">
-                                <i class="fas fa-edit me-1"></i>
-                                Update Status
-                            </button>
-                            <button class="btn btn-info" onclick="printApplication(<?= $application['id'] ?>)">
-                                <i class="fas fa-print me-1"></i>
-                                Print
-                            </button>
-                            <button class="btn btn-success" onclick="exportToPDF(<?= $application['id'] ?>)">
-                                <i class="fas fa-file-pdf me-1"></i>
-                                Export PDF
-                            </button>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="detail-label">Pendidikan Terakhir</div>
+                                <div class="detail-value"><?= htmlspecialchars($app['education']) ?></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="detail-label">Total Pengalaman</div>
+                                <div class="detail-value"><?= $app['experience_years'] ?> Tahun</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Files -->
-                <div class="card mb-4">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-paperclip me-2"></i>
-                            Dokumen
-                        </h5>
-                    </div>
+                <!-- Pengalaman Kerja Section -->
+                <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <?php if ($application['cv_file']): ?>
-                            <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openFileModal('../uploads/<?= $application['cv_file'] ?>', 'CV - <?= htmlspecialchars($application['full_name']) ?>', 'pdf')">
-                                    <i class="fas fa-file-alt me-1"></i>
-                                    CV/Resume
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($application['photo_file']): ?>
-                            <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-info" onclick="openFileModal('../uploads/<?= $application['photo_file'] ?>', 'Foto - <?= htmlspecialchars($application['full_name']) ?>', 'image')">
-                                    <i class="fas fa-image me-1"></i>
-                                    Foto 3x4
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($application['ktp_file']): ?>
-                            <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openFileModal('../uploads/<?= $application['ktp_file'] ?>', 'KTP - <?= htmlspecialchars($application['full_name']) ?>', 'image')">
-                                    <i class="fas fa-id-card-alt me-1"></i>
-                                    KTP
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($application['ijazah_file']): ?>
-                            <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-dark" onclick="openFileModal('../uploads/<?= $application['ijazah_file'] ?>', 'Ijazah - <?= htmlspecialchars($application['full_name']) ?>', 'pdf')">
-                                    <i class="fas fa-graduation-cap me-1"></i>
-                                    Ijazah
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($application['certificate_file']): ?>
-                            <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-success" onclick="openFileModal('../uploads/<?= $application['certificate_file'] ?>', 'Sertifikat K3 - <?= htmlspecialchars($application['full_name']) ?>', 'pdf')">
-                                    <i class="fas fa-certificate me-1"></i>
-                                    Sertifikat K3
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($application['sim_file']): ?>
-                            <div class="mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-warning" onclick="openFileModal('../uploads/<?= $application['sim_file'] ?>', 'SIM - <?= htmlspecialchars($application['full_name']) ?>', 'image')">
-                                    <i class="fas fa-id-card me-1"></i>
-                                    SIM A/C
-                                </button>
-                            </div>
+                        <h5 class="section-title">Detail Pengalaman Kerja</h5>
+                        <?php if (empty($workExperiences)): ?>
+                            <p class="text-muted italic">Tidak ada detail pengalaman kerja yang dicantumkan.</p>
+                        <?php else: ?>
+                            <?php foreach ($workExperiences as $exp): ?>
+                                <div class="experience-item">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <h6 class="fw-bold mb-0 text-primary"><?= htmlspecialchars($exp['company']) ?></h6>
+                                        <span class="badge bg-light text-dark"><?= htmlspecialchars($exp['start_year']) ?> - <?= htmlspecialchars($exp['end_year']) ?></span>
+                                    </div>
+                                    <div class="fw-semibold mb-1"><?= htmlspecialchars($exp['position']) ?></div>
+                                    <p class="small text-muted mb-0"><?= nl2br(htmlspecialchars($exp['description'])) ?></p>
+                                </div>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <!-- Photo Preview -->
-                <?php if ($application['photo_file']): ?>
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">Foto Pelamar</h6>
+                <!-- Visi Misi Section -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="section-title">Visi & Misi Kerja</h5>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Visi Anda dalam Bekerja:</h6>
+                            <p class="border rounded p-3 bg-light"><?= nl2br(htmlspecialchars($app['work_vision'])) ?></p>
                         </div>
-                        <div class="card-body text-center">
-                            <img src="../uploads/<?= $application['photo_file'] ?>" alt="Foto Pelamar" class="img-fluid rounded" style="max-height: 200px;">
+                        <div class="mb-3">
+                            <h6 class="fw-bold">Misi Anda dalam Bekerja:</h6>
+                            <p class="border rounded p-3 bg-light"><?= nl2br(htmlspecialchars($app['work_mission'])) ?></p>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold">Apa yang Membangkitkan Motivasi Anda?</h6>
+                            <p class="border rounded p-3 bg-light"><?= nl2br(htmlspecialchars($app['motivation'])) ?></p>
                         </div>
                     </div>
+                </div>
+
+                <!-- Position-specific Questions -->
+                <?php if ($app['position'] === 'Driver' || !empty($app['driver_pre_trip'])): ?>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="section-title">Evaluasi Kompetensi Driver</h5>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">1. Apa yang Anda lakukan dalam pre-trip inspection?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['driver_pre_trip'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">2. Penanganan dalam situasi darurat (kecelakaan/kerusakan)?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['driver_emergency'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">3. Integritas - Bagaimana jika atasan meminta melanggar aturan lalu lintas?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['driver_integrity'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">4. Bagaimana Anda mengenali gejala kelelahan (fatigue)?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['driver_fatigue'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">5. Kesanggupan & Komitmen</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['driver_commitment'] ?? 'N/A')) ?></p>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (strpos($app['position'], 'Teknisi') !== false || !empty($app['tech_troubleshooting'])): ?>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="section-title">Evaluasi Kompetensi Teknisi</h5>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">1. Urutan troubleshooting jika ada gangguan pada jaringan FO?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['tech_troubleshooting'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">2. Bagaimana Anda mengelola inventory (alat kerja/material)?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['tech_inventory'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">3. Bagaimana Anda memastikan keselamatan kerja di lapangan?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['tech_safety'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">4. Cara berkomunikasi dengan pelanggan saat instalasi?</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['tech_communication'] ?? 'N/A')) ?></p>
+                        </div>
+                        <div class="mb-3">
+                            <h6 class="fw-bold">5. Kesanggupan & Komitmen</h6>
+                            <p class="small bg-light p-2 rounded"><?= nl2br(htmlspecialchars($app['tech_commitment'] ?? 'N/A')) ?></p>
+                        </div>
+                    </div>
+                </div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Status Update Modal -->
+    <!-- Status Update Modal (Reuse from index) -->
     <div class="modal fade" id="statusModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -323,15 +318,15 @@ if (!$application) {
                 </div>
                 <form id="statusForm">
                     <div class="modal-body">
-                        <input type="hidden" id="applicationId" name="application_id" value="<?= $application['id'] ?>">
+                        <input type="hidden" id="applicationId" name="application_id" value="<?= $app['id'] ?>">
                         <div class="mb-3">
                             <label class="form-label">Status</label>
                             <select id="newStatus" name="new_status" class="form-select" required>
-                                <option value="Pending" <?= $application['application_status'] === 'Pending' ? 'selected' : '' ?>>Pending</option>
-                                <option value="Review" <?= $application['application_status'] === 'Review' ? 'selected' : '' ?>>Review</option>
-                                <option value="Interview" <?= $application['application_status'] === 'Interview' ? 'selected' : '' ?>>Interview</option>
-                                <option value="Accepted" <?= $application['application_status'] === 'Accepted' ? 'selected' : '' ?>>Diterima</option>
-                                <option value="Rejected" <?= $application['application_status'] === 'Rejected' ? 'selected' : '' ?>>Ditolak</option>
+                                <option value="Pending" <?= $app['application_status'] === 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                <option value="Review" <?= $app['application_status'] === 'Review' ? 'selected' : '' ?>>Review</option>
+                                <option value="Interview" <?= $app['application_status'] === 'Interview' ? 'selected' : '' ?>>Interview</option>
+                                <option value="Accepted" <?= $app['application_status'] === 'Accepted' ? 'selected' : '' ?>>Diterima</option>
+                                <option value="Rejected" <?= $app['application_status'] === 'Rejected' ? 'selected' : '' ?>>Ditolak</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -349,19 +344,6 @@ if (!$application) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="admin-script.js"></script>
+    <script src="admin-script.js?v=1.1.5"></script>
 </body>
 </html>
-
-<?php
-function getStatusColor($status) {
-    switch ($status) {
-        case 'Pending': return 'warning';
-        case 'Review': return 'info';
-        case 'Interview': return 'primary';
-        case 'Accepted': return 'success';
-        case 'Rejected': return 'danger';
-        default: return 'secondary';
-    }
-}
-?>

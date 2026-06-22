@@ -13,37 +13,17 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-color: #f4f7f6;
     line-height: 1.6;
     position: relative;
     min-height: 100vh;
 }
 
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(30, 58, 138, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(220, 38, 38, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-    animation: backgroundFloat 20s ease-in-out infinite;
-}
 
-@keyframes backgroundFloat {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33% { transform: translateY(-10px) rotate(1deg); }
-    66% { transform: translateY(10px) rotate(-1deg); }
-}
 
 /* Header Styling */
 header {
-    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #dc2626 100%);
+    background-color: var(--danger-color);
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
     position: relative;
     overflow: hidden;
@@ -56,7 +36,6 @@ header::before {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%);
     animation: shimmer 3s ease-in-out infinite;
 }
 
@@ -76,17 +55,10 @@ header h1 {
     font-weight: 800;
     font-size: 2rem;
     margin-bottom: 0.25rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     background: linear-gradient(45deg, #ffffff, #f0f8ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: titleGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes titleGlow {
-    from { filter: drop-shadow(0 0 5px rgba(255,255,255,0.5)); }
-    to { filter: drop-shadow(0 0 15px rgba(255,255,255,0.8)); }
 }
 
 header p {
@@ -204,7 +176,7 @@ header p {
 @media (max-width: 991px) {
     .logo-container {
         justify-content: center;
-        margin-top: 1rem;
+        margin-bottom: 0.5rem;
     }
     
     .header-content {
@@ -326,7 +298,7 @@ header p {
     border-radius: 20px;
     overflow: hidden;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: #ffffff;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     position: relative;
 }
@@ -367,9 +339,7 @@ header p {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #1e3a8a, #3b82f6, #dc2626, #3b82f6, #1e3a8a);
-    background-size: 200% 100%;
-    animation: gradientShift 3s ease infinite;
+    background: #1e3a8a;
 }
 
 @keyframes gradientShift {
@@ -388,13 +358,30 @@ header p {
     font-weight: 600;
 }
 
+.card-header.bg-success {
+    background-color: #198754 !important;
+}
+
+.card-header.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+.card-header.bg-primary {
+    background-color: #1e3a8a !important;
+}
+
+.card-header.bg-info {
+    background-color: #0dcaf0 !important;
+}
+
 .card-body {
     padding: 2rem;
+    padding-top: 0.5rem;
 }
 
 /* Job Position Styling */
 .job-position {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: #ffffff;
     border-left: 4px solid #1e3a8a;
     padding: 1.5rem;
     border-radius: 12px;
@@ -412,7 +399,7 @@ header p {
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(180deg, #1e3a8a, #dc2626);
+    background: #1e3a8a;
     transition: all 0.3s ease;
 }
 
@@ -423,7 +410,7 @@ header p {
 }
 
 .job-position:hover::before {
-    background: linear-gradient(180deg, #dc2626, #1e3a8a);
+    background: #dc2626;
     width: 6px;
 }
 
@@ -443,48 +430,26 @@ header p {
 
 /* Section Headers */
 .section-header {
-    border-bottom: 3px solid #1e3a8a;
-    margin-bottom: 2rem;
+    margin-bottom: 0rem;
     padding-bottom: 0.5rem;
     position: relative;
+    margin-top: 2rem;
 }
 
-.section-header::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(90deg, #1e3a8a, #dc2626);
-    animation: expandWidth 2s ease-in-out infinite alternate;
-}
 
-@keyframes expandWidth {
-    from { width: 50px; }
-    to { width: 100px; }
-}
+
+
 
 .section-header h4 {
-    margin-bottom: 0;
+    margin: 0;
     font-weight: 700;
-    position: relative;
-    background: linear-gradient(45deg, #1e3a8a, #dc2626);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #003366; /* Dark Blue */
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    width: 100%;
 }
 
-.section-header h4::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: var(--success-color);
-    border-radius: 2px;
-}
 
 /* Form Styling */
 .form-label {
@@ -499,7 +464,7 @@ header p {
     padding: 0.75rem 1rem;
     transition: all 0.3s ease;
     font-size: 1rem;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: #ffffff;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
@@ -514,10 +479,6 @@ header p {
     border-color: #1e3a8a;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.form-control:valid, .form-select:valid {
-    border-color: var(--success-color);
 }
 
 /* Button Styling */
@@ -540,7 +501,7 @@ header p {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background: rgba(255,255,255,0.1);
     transition: left 0.6s ease;
 }
 
@@ -549,33 +510,57 @@ header p {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #1e3a8a 0%, #dc2626 100%);
+    background-color: #198754;
     border: none;
-    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.2);
     color: white;
 }
 
 .btn-success:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 10px 30px rgba(30, 58, 138, 0.4);
-    background: linear-gradient(135deg, #dc2626 0%, #1e3a8a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(25, 135, 84, 0.3);
+    background-color: #157347;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #1e3a8a 0%, #dc2626 100%);
+    background-color: #1e3a8a;
     border: none;
-    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4);
-    background: linear-gradient(135deg, #dc2626 0%, #1e3a8a 100%);
+    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.3);
+    background-color: #152e6f;
 }
 
 .btn-lg {
     padding: 1rem 3rem;
     font-size: 1.1rem;
+}
+
+.btn-info {
+    background-color: #0dcaf0;
+    color: white !important;
+    border: none;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: white !important;
+    border: none;
+}
+
+.btn-outline-primary {
+    border: 2px solid #1e3a8a;
+    color: #1e3a8a;
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background-color: #1e3a8a;
+    color: white;
+    border-color: transparent;
 }
 
 /* File Upload Container Styling */
@@ -1235,4 +1220,35 @@ label[for="motivation"]::after {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Premium Modern Additions */
+.job-position {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.job-position li {
+    transition: all 0.3s ease;
+    padding: 2px 0;
+}
+
+.job-position li:hover {
+    transform: translateX(5px);
+    color: var(--primary-color);
+}
+
+.job-position i {
+    width: 20px;
+}
+
+/* Section Header Glow */
+.section-header h4 {
+    position: relative;
+    display: inline-block;
+}
+
+/* Custom Checkbox/Radio Styling if needed */
+.form-check-input:checked {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
 }

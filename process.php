@@ -180,6 +180,23 @@ try {
         }
     }
     
+    // Prepare work experiences
+    $workExperiences = [];
+    if (!empty($_POST['exp_company']) && is_array($_POST['exp_company'])) {
+        for ($i = 0; $i < count($_POST['exp_company']); $i++) {
+            if (!empty($_POST['exp_company'][$i])) {
+                $workExperiences[] = [
+                    'company' => sanitize($_POST['exp_company'][$i]),
+                    'position' => sanitize($_POST['exp_position'][$i] ?? ''),
+                    'start_year' => sanitize($_POST['exp_start'][$i] ?? ''),
+                    'end_year' => sanitize($_POST['exp_end'][$i] ?? ''),
+                    'description' => sanitize($_POST['exp_desc'][$i] ?? '')
+                ];
+            }
+        }
+    }
+    $workExperiencesJson = !empty($workExperiences) ? json_encode($workExperiences) : null;
+
     // Prepare data for database
     $data = [
         'full_name' => sanitize($_POST['full_name']),
@@ -189,6 +206,7 @@ try {
         'location' => sanitize($_POST['location']),
         'education' => sanitize($_POST['education']),
         'experience_years' => (int)$_POST['experience_years'],
+        'work_experiences' => $workExperiencesJson,
         'address' => sanitize($_POST['address']),
         'birth_date' => $_POST['birth_date'],
         'gender' => sanitize($_POST['gender']),
@@ -198,14 +216,19 @@ try {
         'ijazah_file' => $uploadedFiles['ijazah_file'] ?? null,
         'certificate_file' => $uploadedFiles['certificate_file'] ?? null,
         'sim_file' => $uploadedFiles['sim_file'] ?? null,
-        'fiber_optic_knowledge' => sanitize($_POST['fiber_optic_knowledge'] ?? ''),
-        'otdr_experience' => sanitize($_POST['otdr_experience'] ?? 'Tidak'),
-        'jointing_experience' => sanitize($_POST['jointing_experience'] ?? 'Tidak'),
-        'tower_climbing_experience' => sanitize($_POST['pole_climbing_experience'] ?? 'Tidak'),
-        'k3_certificate' => sanitize($_POST['k3_certificate'] ?? 'Tidak'),
-        'work_vision' => sanitize($_POST['work_vision']),
-        'work_mission' => sanitize($_POST['work_mission']),
         'motivation' => sanitize($_POST['motivation']),
+        'work_vision' => sanitize($_POST['work_vision'] ?? ''),
+        'work_mission' => sanitize($_POST['work_mission'] ?? ''),
+        'driver_pre_trip' => sanitize($_POST['driver_pre_trip'] ?? ''),
+        'driver_emergency' => sanitize($_POST['driver_emergency'] ?? ''),
+        'driver_integrity' => sanitize($_POST['driver_integrity'] ?? ''),
+        'driver_fatigue' => sanitize($_POST['driver_fatigue'] ?? ''),
+        'driver_commitment' => sanitize($_POST['driver_commitment'] ?? ''),
+        'tech_troubleshooting' => sanitize($_POST['tech_troubleshooting'] ?? ''),
+        'tech_commitment' => sanitize($_POST['tech_commitment'] ?? ''),
+        'tech_inventory' => sanitize($_POST['tech_inventory'] ?? ''),
+        'tech_safety' => sanitize($_POST['tech_safety'] ?? ''),
+        'tech_communication' => sanitize($_POST['tech_communication'] ?? ''),
         'application_status' => 'Pending'
     ];
     
@@ -214,11 +237,12 @@ try {
         // Update existing record
         $sql = "UPDATE applications SET 
             full_name = :full_name, phone = :phone, position = :position, location = :location, education = :education, 
-            experience_years = :experience_years, address = :address, birth_date = :birth_date, gender = :gender,
-            fiber_optic_knowledge = :fiber_optic_knowledge, otdr_experience = :otdr_experience, 
-            jointing_experience = :jointing_experience, tower_climbing_experience = :tower_climbing_experience, 
-            k3_certificate = :k3_certificate, work_vision = :work_vision, work_mission = :work_mission, 
-            motivation = :motivation";
+            experience_years = :experience_years, work_experiences = :work_experiences, address = :address, birth_date = :birth_date, gender = :gender,
+            work_vision = :work_vision, work_mission = :work_mission, motivation = :motivation,
+            driver_pre_trip = :driver_pre_trip, driver_emergency = :driver_emergency, 
+            driver_integrity = :driver_integrity, driver_fatigue = :driver_fatigue, driver_commitment = :driver_commitment,
+            tech_troubleshooting = :tech_troubleshooting, tech_commitment = :tech_commitment, tech_inventory = :tech_inventory, 
+            tech_safety = :tech_safety, tech_communication = :tech_communication";
         
         // Only update file fields if new files were uploaded
         if (!empty($uploadedFiles['cv_file'])) $sql .= ", cv_file = :cv_file";
@@ -273,14 +297,16 @@ try {
     } else {
         // Insert new record
         $sql = "INSERT INTO applications (
-            full_name, email, phone, position, location, education, experience_years, address, birth_date, gender,
+            full_name, email, phone, position, location, education, experience_years, work_experiences, address, birth_date, gender,
             cv_file, photo_file, ktp_file, ijazah_file, certificate_file, sim_file,
-            fiber_optic_knowledge, otdr_experience, jointing_experience, tower_climbing_experience, k3_certificate,
+            driver_pre_trip, driver_emergency, driver_integrity, driver_fatigue, driver_commitment,
+            tech_troubleshooting, tech_commitment, tech_inventory, tech_safety, tech_communication,
             work_vision, work_mission, motivation, application_status
         ) VALUES (
-            :full_name, :email, :phone, :position, :location, :education, :experience_years, :address, :birth_date, :gender,
+            :full_name, :email, :phone, :position, :location, :education, :experience_years, :work_experiences, :address, :birth_date, :gender,
             :cv_file, :photo_file, :ktp_file, :ijazah_file, :certificate_file, :sim_file,
-            :fiber_optic_knowledge, :otdr_experience, :jointing_experience, :tower_climbing_experience, :k3_certificate,
+            :driver_pre_trip, :driver_emergency, :driver_integrity, :driver_fatigue, :driver_commitment,
+            :tech_troubleshooting, :tech_commitment, :tech_inventory, :tech_safety, :tech_communication,
             :work_vision, :work_mission, :motivation, :application_status
         )";
         
@@ -430,8 +456,8 @@ function sendConfirmationEmail($email, $fullName, $applicationId) {
     Tim HR PT. Visdat Teknik Utama
     ";
     
-    $headers = "From: noreply@visualdata.co.id\r\n";
-    $headers .= "Reply-To: hrd@visualdata.co.id\r\n";
+    $headers = "From: noreply@visdatteknik.co.id\r\n";
+    $headers .= "Reply-To: hrd@visdatteknik.co.id\r\n";
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
     
     // Uncomment to send email
