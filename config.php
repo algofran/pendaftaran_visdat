@@ -13,6 +13,9 @@ define('ALLOWED_EXTENSIONS', ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png']);
 // Debug mode (set to false in production)
 define('DEBUG', true);
 
+// Set default timezone (WITA - Asia/Makassar)
+date_default_timezone_set('Asia/Makassar');
+
 // Koneksi Database
 try {
     $pdo = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_NAME, DB_USER, DB_PASS);
@@ -41,5 +44,38 @@ function createUploadDir() {
             file_put_contents($htaccess, "Options -Indexes\nOptions -ExecCGI\nAddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi\n");
         }
     }
+}
+
+function getRegistrationSettings($pdo) {
+    try {
+        $stmt = $pdo->query("SELECT setting_key, setting_value FROM settings");
+        $results = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        return [
+            'registration_status' => $results['registration_status'] ?? 'open',
+            'close_date' => $results['close_date'] ?? ''
+        ];
+    } catch (PDOException $e) {
+        return [
+            'registration_status' => 'open',
+            'close_date' => ''
+        ];
+    }
+}
+
+function isRegistrationOpen($pdo) {
+    $settings = getRegistrationSettings($pdo);
+    
+    if ($settings['registration_status'] === 'closed') {
+        return false;
+    }
+    
+    if (!empty($settings['close_date'])) {
+        $closeTime = strtotime($settings['close_date']);
+        if (time() >= $closeTime) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 ?>

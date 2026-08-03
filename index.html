@@ -13,6 +13,18 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css?v=1.1.5">
+    
+    <script>
+        // Check if registration is open before rendering page to prevent form flash
+        fetch('check_status.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data && !data.open) {
+                    window.location.replace('closed.php');
+                }
+            })
+            .catch(err => console.error('Status check error:', err));
+    </script>
 </head>
 <body>
     <div class="container-fluid">
@@ -145,7 +157,7 @@
                                 </div>
 
                                 <div class="row mb-3">
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label for="gender" class="form-label">Jenis Kelamin *</label>
                                         <select class="form-select" id="gender" name="gender" required>
                                             <option value="">Pilih Jenis Kelamin</option>
@@ -153,7 +165,7 @@
                                             <option value="Perempuan">Perempuan</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-4 mb-3">
                                         <label for="position" class="form-label">Posisi yang Dilamar *</label>
                                         <select class="form-select" id="position" name="position" required>
                                             <option value="">Pilih Posisi</option>
@@ -163,7 +175,15 @@
                                             <option value="Administrasi Proyek">Administrasi Proyek</option>
                                         </select>
                                     </div>
-                                    <input type="hidden" id="location" name="location" value="-">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="location" class="form-label">Lokasi Serpo *</label>
+                                        <select class="form-select" id="location" name="location" required>
+                                            <option value="">Pilih Lokasi Serpo</option>
+                                            <option value="Lopana">Lopana</option>
+                                            <option value="Kotamobago">Kotamobago</option>
+                                            <option value="Bolsel">Bolsel</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <div class="row mb-3">

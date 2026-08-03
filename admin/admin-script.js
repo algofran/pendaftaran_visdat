@@ -12,6 +12,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (bulkArchiveForm) {
         bulkArchiveForm.addEventListener('submit', handleBulkArchive);
     }
+
+    // Initialize registration settings form
+    const regSettingsForm = document.getElementById('regSettingsForm');
+    if (regSettingsForm) {
+        regSettingsForm.addEventListener('submit', handleRegSettingsUpdate);
+    }
+    
+    // Initialize clear schedule button
+    const btnClearSchedule = document.getElementById('btnClearSchedule');
+    if (btnClearSchedule) {
+        btnClearSchedule.addEventListener('click', handleClearSchedule);
+    }
 });
 
 // Update application status
@@ -922,4 +934,70 @@ function getFileTypeIcon(fileName) {
         'txt': 'fa-file-alt'
     };
     return icons[extension] || 'fa-file';
+}
+
+// Handle registration settings update
+function handleRegSettingsUpdate(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    
+    showAlert('Menyimpan pengaturan...', 'info');
+    
+    fetch('update-settings.php', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('✅ ' + data.message, 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        } else {
+            showAlert('❌ ' + (data.message || 'Gagal menyimpan pengaturan'), 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('❌ Terjadi kesalahan saat menyimpan pengaturan', 'danger');
+    });
+}
+
+// Handle clear scheduled close date
+function handleClearSchedule() {
+    if (confirm('Apakah Anda yakin ingin menghapus jadwal penutupan otomatis?')) {
+        showAlert('Menghapus jadwal...', 'info');
+        
+        const formData = new FormData();
+        formData.append('registration_status', document.querySelector('input[name="registration_status"]:checked').value);
+        formData.append('close_date', ''); // Clear close date
+        
+        fetch('update-settings.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('✅ Jadwal penutupan berhasil dihapus!', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showAlert('❌ ' + (data.message || 'Gagal menghapus jadwal'), 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('❌ Terjadi kesalahan saat menghapus jadwal', 'danger');
+        });
+    }
 }

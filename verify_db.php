@@ -27,6 +27,7 @@ try {
             location VARCHAR(100),
             education VARCHAR(100) NOT NULL,
             experience_years INT NOT NULL,
+            work_experiences TEXT,
             address TEXT NOT NULL,
             birth_date DATE NOT NULL,
             gender ENUM('Laki-laki', 'Perempuan') NOT NULL,
@@ -37,15 +38,21 @@ try {
             kk_file VARCHAR(255),
             certificate_file VARCHAR(255),
             sim_file VARCHAR(255),
-            fiber_optic_knowledge TEXT,
-            otdr_experience ENUM('Ya', 'Tidak', 'Sedikit') DEFAULT 'Tidak',
-            jointing_experience ENUM('Ya', 'Tidak', 'Sedikit') DEFAULT 'Tidak',
-            tower_climbing_experience ENUM('Ya', 'Tidak') DEFAULT 'Tidak',
-            k3_certificate ENUM('Ya', 'Tidak') DEFAULT 'Tidak',
+            driver_pre_trip TEXT,
+            driver_emergency TEXT,
+            driver_integrity TEXT,
+            driver_fatigue TEXT,
+            driver_commitment TEXT,
+            tech_troubleshooting TEXT,
+            tech_commitment TEXT,
+            tech_inventory TEXT,
+            tech_safety TEXT,
+            tech_communication TEXT,
             work_vision TEXT,
             work_mission TEXT,
             motivation TEXT,
             application_status ENUM('Pending', 'Review', 'Interview', 'Accepted', 'Rejected') DEFAULT 'Pending',
+            is_archived TINYINT(1) DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )";
@@ -60,10 +67,22 @@ try {
     
     $required_columns = [
         'location' => "VARCHAR(100) AFTER position",
+        'work_experiences' => "TEXT NULL AFTER experience_years",
         'ktp_file' => "VARCHAR(255) AFTER photo_file",
         'ijazah_file' => "VARCHAR(255) AFTER ktp_file",
         'kk_file' => "VARCHAR(255) AFTER ijazah_file",
-        'tower_climbing_experience' => "ENUM('Ya', 'Tidak') DEFAULT 'Tidak' AFTER jointing_experience"
+        'sim_file' => "VARCHAR(255) AFTER certificate_file",
+        'driver_pre_trip' => "TEXT AFTER sim_file",
+        'driver_emergency' => "TEXT AFTER driver_pre_trip",
+        'driver_integrity' => "TEXT AFTER driver_emergency",
+        'driver_fatigue' => "TEXT AFTER driver_integrity",
+        'driver_commitment' => "TEXT AFTER driver_fatigue",
+        'tech_troubleshooting' => "TEXT AFTER driver_commitment",
+        'tech_commitment' => "TEXT AFTER tech_troubleshooting",
+        'tech_inventory' => "TEXT AFTER tech_commitment",
+        'tech_safety' => "TEXT AFTER tech_inventory",
+        'tech_communication' => "TEXT AFTER tech_safety",
+        'is_archived' => "TINYINT(1) DEFAULT 0 AFTER application_status"
     ];
 
     // Get current columns
@@ -93,8 +112,40 @@ try {
         echo "Outdated. Updating... ";
         $pdo->exec("ALTER TABLE applications MODIFY COLUMN application_status ENUM('Pending', 'Review', 'Interview', 'Accepted', 'Rejected') DEFAULT 'Pending'");
         echo "SUCCESS\n";
+    }
+
+    // 4. Check Settings Table
+    echo "\n4. Checking 'settings' table... ";
+    $stmt = $pdo->query("SHOW TABLES LIKE 'settings'");
+    if ($stmt->rowCount() == 0) {
+        echo "NOT FOUND\n   Creating table... ";
+        $sql = "CREATE TABLE settings (
+            setting_key VARCHAR(50) PRIMARY KEY,
+            setting_value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )";
+        $pdo->exec($sql);
+        
+        // Insert default values
+        $stmtInsert = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)");
+        $stmtInsert->execute(['registration_status', 'open']);
+        $stmtInsert->execute(['close_date', '']);
+        echo "SUCCESS\n";
     } else {
-        echo "OK\n";
+        echo "EXISTS\n";
+        // Ensure default records exist
+        $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM settings WHERE setting_key = ?");
+        
+        $stmtCheck->execute(['registration_status']);
+        if ($stmtCheck->fetchColumn() == 0) {
+            $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('registration_status', 'open')")->execute();
+        }
+        
+        $stmtCheck->execute(['close_date']);
+        if ($stmtCheck->fetchColumn() == 0) {
+            $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('close_date', '')")->execute();
+        }
+        echo "   Settings records verified.\n";
     }
 
     echo "\nVerification Complete. Database is ready for use.\n";

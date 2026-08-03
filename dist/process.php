@@ -52,6 +52,11 @@ try {
         throw new Exception("Tabel 'applications' tidak ditemukan. Silakan import database.sql terlebih dahulu.");
     }
     
+    // Check if registration is open
+    if (!isRegistrationOpen($pdo)) {
+        throw new Exception("Pendaftaran telah ditutup. Silahkan menunggu informasi pendaftaran berikutnya.");
+    }
+    
     // Create upload directory if not exists
     createUploadDir();
     

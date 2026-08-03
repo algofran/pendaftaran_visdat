@@ -198,7 +198,7 @@ function getStatusBadgeClass($status) {
                                 <div class="detail-value"><?= htmlspecialchars($app['gender']) ?></div>
                             </div>
                             <div class="col-md-4">
-                                <div class="detail-label">Lokasi Penempatan</div>
+                                <div class="detail-label">Lokasi Serpo</div>
                                 <div class="detail-value"><?= htmlspecialchars($app['location']) ?></div>
                             </div>
                         </div>

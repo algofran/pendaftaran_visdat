@@ -2,6 +2,9 @@
 session_start();
 require_once '../config.php';
 
+// Get registration settings
+$regSettings = getRegistrationSettings($pdo);
+
 // Simple authentication (you should implement proper authentication)
 if (!isset($_SESSION['admin_logged_in'])) {
     header('Location: login.php');
@@ -141,12 +144,9 @@ $availablePositions = [
 
 // Get locations - using fixed list to ensure all are visible
 $availableLocations = [
-    "Makassar", "Maros", "Gowa", "Takalar", "Pangkep - Barru", "Pare Pare - Sidrap",
-    "Pinrang - Enrekang", "Palopo - Luwu", "Luwu Utara - Luwu Timur", "Bulukumba",
-    "Bone", "Kendari - Konawe - Konsel", "Kolaka", "Bau Bau - Buton", "Morowali",
-    "Palu - Donggala - Sigi", "Toli Toli - Parigi Moutong", "Mamuju - Mamasa",
-    "Polman - Majene", "Sinjai", "Manado", "Minahasa - Tomohon",
-    "Bitung - Minahasa Utara", "Bolsel - Kotamobagu", "Gorontalo - Bone Bolango"
+    "Lopana",
+    "Kotamobago",
+    "Bolsel"
 ];
 
 // Get available years for filter
@@ -195,6 +195,69 @@ if (!in_array(date('Y'), $availableYears)) {
     </nav>
 
     <div class="container-fluid mt-4">
+        <!-- Registration Settings Card -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-toggle-on me-2"></i>Status & Kontrol Pendaftaran</h5>
+                        <div>
+                            <?php 
+                            $isOpen = isRegistrationOpen($pdo);
+                            if (!$isOpen): 
+                            ?>
+                                <span class="badge bg-danger px-3 py-2"><i class="fas fa-lock me-1"></i>DITUTUP</span>
+                            <?php else: ?>
+                                <?php if (!empty($regSettings['close_date'])): ?>
+                                    <span class="badge bg-warning text-dark px-3 py-2"><i class="fas fa-clock me-1"></i>TUTUP OTOMATIS: <?= date('d/m/Y H:i', strtotime($regSettings['close_date'])) ?></span>
+                                <?php else: ?>
+                                    <span class="badge bg-success px-3 py-2"><i class="fas fa-unlock me-1"></i>BUKA (TIDAK TERBATAS)</span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="regSettingsForm" class="row align-items-end g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Status Pendaftaran</label>
+                                <div class="d-flex gap-3 mt-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="registration_status" id="statusOpen" value="open" <?= $regSettings['registration_status'] === 'open' ? 'checked' : '' ?>>
+                                        <label class="form-check-label" for="statusOpen">
+                                            Buka
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="registration_status" id="statusClosed" value="closed" <?= $regSettings['registration_status'] === 'closed' ? 'checked' : '' ?>>
+                                        <label class="form-check-label text-danger fw-bold" for="statusClosed">
+                                            Tutup Sekarang
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="closeDateInput" class="form-label fw-bold">Jadwalkan Penutupan Otomatis (Opsional)</label>
+                                <input type="datetime-local" class="form-control" id="closeDateInput" name="close_date" 
+                                       value="<?= !empty($regSettings['close_date']) ? date('Y-m-d\TH:i', strtotime($regSettings['close_date'])) : '' ?>">
+                            </div>
+                            
+                            <div class="col-md-5 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    <i class="fas fa-save me-1"></i> Simpan Pengaturan
+                                </button>
+                                <?php if (!empty($regSettings['close_date'])): ?>
+                                    <button type="button" class="btn btn-outline-danger" id="btnClearSchedule" title="Hapus Jadwal Penutupan">
+                                        <i class="fas fa-trash-alt"></i> Bersihkan Jadwal
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Statistics Cards -->
         <div class="row mb-4">
             <div class="col-md-3">
@@ -287,9 +350,9 @@ if (!in_array(date('Y'), $availableYears)) {
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <label class="form-label">Lokasi</label>
+                        <label class="form-label">Lokasi Serpo</label>
                         <select name="location" class="form-select">
-                            <option value="all" <?= $locationFilter === 'all' ? 'selected' : '' ?>>Semua Lokasi</option>
+                            <option value="all" <?= $locationFilter === 'all' ? 'selected' : '' ?>>Semua Lokasi Serpo</option>
                             <?php foreach ($availableLocations as $loc): ?>
                                 <option value="<?= htmlspecialchars($loc) ?>" <?= $locationFilter === $loc ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($loc) ?>
@@ -356,6 +419,7 @@ if (!in_array(date('Y'), $availableYears)) {
                                 <th>Nama</th>
                                 <th>Email</th>
                                 <th>Posisi</th>
+                                <th>Lokasi Serpo</th>
                                 <th>Pendidikan</th>
                                 <th>Pengalaman</th>
                                 <th>File</th>
@@ -367,7 +431,7 @@ if (!in_array(date('Y'), $availableYears)) {
                         <tbody>
                             <?php if (empty($applications)): ?>
                                 <tr>
-                                    <td colspan="11" class="text-center">Tidak ada data lamaran</td>
+                                    <td colspan="12" class="text-center">Tidak ada data lamaran</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($applications as $app): ?>
@@ -390,6 +454,7 @@ if (!in_array(date('Y'), $availableYears)) {
                                         <td><?= htmlspecialchars($app['full_name']) ?></td>
                                         <td><?= htmlspecialchars($app['email']) ?></td>
                                         <td><?= htmlspecialchars($app['position']) ?></td>
+                                        <td><span class="badge bg-secondary"><?= htmlspecialchars($app['location'] ?? '-') ?></span></td>
                                         <td><?= htmlspecialchars($app['education']) ?></td>
                                         <td><?= $app['experience_years'] ?> tahun</td>
                                         <td>

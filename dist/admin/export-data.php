@@ -116,7 +116,7 @@ try {
             'Email' => $app['email'],
             'Telepon' => $app['phone'],
             'Posisi' => $app['position'],
-            'Lokasi Penempatan' => $app['location'] ?? '',
+            'Lokasi Serpo' => $app['location'] ?? '',
             'Pendidikan' => $app['education'],
             'Pengalaman (Tahun)' => $app['experience_years'],
             'Alamat' => $app['address'],

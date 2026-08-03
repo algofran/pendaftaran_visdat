@@ -24,12 +24,7 @@ function autoFillForm() {
   const yesNoOptions = ["Ya", "Tidak"];
   const experienceOptions = ["Tidak", "Sedikit", "Ya"];
   const locations = [
-    "Makassar", "Maros", "Gowa", "Takalar", "Pangkep - Barru", "Pare Pare - Sidrap",
-    "Pinrang - Enrekang", "Palopo - Luwu", "Luwu Utara - Luwu Timur", "Bulukumba",
-    "Bone", "Kendari - Konawe - Konsel", "Kolaka", "Bau Bau - Buton", "Morowali",
-    "Palu - Donggala - Sigi", "Toli Toli - Parigi Moutong", "Mamuju - Mamasa",
-    "Polman - Majene", "Sinjai", "Manado", "Minahasa - Tomohon",
-    "Bitung - Minahasa Utara", "Bolsel - Kotamobagu", "Gorontalo - Bone Bolango"
+    "Lopana", "Kotamobago", "Bolsel"
   ];
 
   // Generate a birth date between 18-60 years old
@@ -1380,19 +1375,8 @@ function setupDynamicForm() {
       const currentValue = locationSelect.value;
       locationSelect.innerHTML = "";
       
-      // Allowed locations for Admin
-      const adminAllowed = ["Makassar", "Manado"];
-      
       originalOptions.forEach(opt => {
-        if (position === "Administrasi Proyek" || position === "Admin Zona" || position === "Admin" || position === "admin proyek") {
-          // If admin, only allow placeholder and specific cities
-          if (opt.value === "" || adminAllowed.includes(opt.value)) {
-            locationSelect.add(new Option(opt.text, opt.value));
-          }
-        } else {
-          // If not admin, allow all
-          locationSelect.add(new Option(opt.text, opt.value));
-        }
+        locationSelect.add(new Option(opt.text, opt.value));
       });
       
       // Restore value if it still exists in the new options
